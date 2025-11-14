@@ -1,0 +1,28 @@
+{
+  "menu": {
+    "home": "Accueil",
+    "about": "Qui sommes-nous",
+    "offer": "Notre offre",
+    "pricing": "Nos tarifs",
+    "process": "Comment travaillons-nous",
+    "login": "Connexion",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "register": "Créer un compte",
+    "login": "Se connecter",
+    "profile": "Mon profil"
+  },
+  "footer": {
+    "rights": "© 2025 Studio DR – Tous droits réservés",
+    "admin": "Espace administrateur",
+    "legal": "Mentions légales",
+    "terms": "Conditions générales de vente"
+  },
+  "lang": {
+    "fr": "Français",
+    "en": "Anglais"
+  }
+}

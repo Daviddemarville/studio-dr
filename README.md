@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Studio DR
 
-## Getting Started
+## 🇫🇷 Description
+Studio DR est un projet Next.js 16 + Supabase destiné à présenter une landing page claire et un espace d'administration sombre pour la gestion de contenu bilingue (FR/EN).
 
-First, run the development server:
+### Stack technique
+- Next.js 16 (App Router)
+- Tailwind CSS v4
+- Supabase (Postgres + Auth + Storage + Edge Functions)
+- next-intl pour la traduction
+- Emails automatiques via Resend
 
-```bash
+### Installation
+1. Cloner le dépôt :
+   ```bash
+   git clone <repo> && cd studio-dr
+
+2. Copier le fichier d'environnement :
+
+cp .env.sample .env.local
+
+
+Puis compléter avec tes clés Supabase et Resend.
+
+3. Installer les dépendances :
+
+npm install
+
+
+4. Lancer le projet :
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+5. Accéder à http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+------------------------------------------------------------------------------------------------
 
-## Learn More
+## 🇬🇧 Description
 
-To learn more about Next.js, take a look at the following resources:
+Studio DR is a Next.js 16 + Supabase project featuring a clear public landing and a dark admin dashboard for bilingual content (FR/EN).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Next.js 16 (App Router)
 
-## Deploy on Vercel
+Tailwind CSS v4
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Supabase (Postgres + Auth + Storage + Edge Functions)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+next-intl for translations
+
+Automated emails via Resend
+
+### Installation
+
+1. Clone repository:
+
+git clone <repo> && cd studio-dr-full
+
+
+2. Copy env file:
+
+cp .env.sample .env.local
+
+
+Then fill in your Supabase and Resend keys.
+
+3. Install dependencies:
+
+npm install
+
+
+4. Run the project:
+
+npm run dev
+
+
+5. Visit http://localhost:3000
+
+------------------------------------------------------------------------------------------------
+
+© 2025 Studio DR – Tous droits réservés / All rights reserved.
