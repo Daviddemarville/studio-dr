@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-admin"; // ← IMPORTANT
 import { supabaseServer } from "@/lib/supabase-server";
 import { Resend } from "resend";
 
@@ -15,9 +16,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // 1. Auth SIGNUP utilise le client ANON
     const supabase = await supabaseServer();
 
-    // 1. Création du compte Supabase Auth
     const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
       password,
@@ -32,8 +33,8 @@ export async function POST(req: Request) {
 
     const userId = signupData.user.id;
 
-    // 2. Création du profil dans public.users
-    const { error: insertError } = await supabase
+    // 2. L'insertion dans public.users doit utiliser LE CLIENT ADMIN
+    const { error: insertError } = await supabaseAdmin
       .from("users")
       .insert({
         id: userId,
@@ -49,10 +50,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Notification admin (email)
+    // 3. Notification admin
     try {
       await resend.emails.send({
-        from: "noreply@studio-dr.fr",
+        from: "Studio DR <onboarding@resend.dev>",
         to: process.env.ADMIN_NOTIFY_EMAIL!,
         subject: "Nouvelle inscription — validation requise",
         html: `
