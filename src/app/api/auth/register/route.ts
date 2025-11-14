@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
-    const supabase = await supabaseServer();
-    const { email, password, firstname, lastname } = await req.json();
+    const { email, password } = await req.json();
 
-    // --- Vérification basique ---
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email et mot de passe obligatoires." },
@@ -14,81 +15,63 @@ export async function POST(req: Request) {
       );
     }
 
-    // format email minimal
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      return NextResponse.json(
-        { error: "Format d'email invalide." },
-        { status: 400 }
-      );
-    }
+    const supabase = await supabaseServer();
 
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Le mot de passe doit faire au moins 6 caractères." },
-        { status: 400 }
-      );
-    }
-
-    // --- Création dans Auth ---
-    const { data: authData, error: authError } = await supabase.auth.signUp({
+    // 1. Création du compte Supabase Auth
+    const { data: signupData, error: signupError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: {
-          firstname: firstname ?? "",
-          lastname: lastname ?? "",
-        },
-      },
     });
 
-    // ⚠️ Ne pas révéler la raison exacte
-    if (authError) {
+    if (signupError || !signupData.user) {
       return NextResponse.json(
-        {
-          error:
-            "Impossible de créer le compte. Si l'adresse est déjà utilisée, vérifiez vos emails.",
-        },
+        { error: signupError?.message ?? "Erreur inscription Auth" },
         { status: 400 }
       );
     }
 
-    const userId = authData.user?.id;
-    if (!userId) {
+    const userId = signupData.user.id;
+
+    // 2. Création du profil dans public.users
+    const { error: insertError } = await supabase
+      .from("users")
+      .insert({
+        id: userId,
+        email,
+        is_approved: false,
+      });
+
+    if (insertError) {
+      console.error("Insert users error:", insertError);
       return NextResponse.json(
-        { error: "Erreur inattendue lors de la création du compte." },
+        { error: "Erreur insertion dans users" },
         { status: 500 }
       );
     }
 
-    // --- Insertion table users ---
-    const { error: dbError } = await supabase.from("users").insert({
-      id: userId,
-      email,
-      firstname,
-      lastname,
-      is_approved: false,
-      role: "developer",
-    });
-
-    if (dbError) {
-      // rollback : supprimer le user Auth
-      await supabase.auth.admin.deleteUser(userId);
-
-      return NextResponse.json(
-        { error: "Erreur interne. Veuillez réessayer plus tard." },
-        { status: 500 }
-      );
+    // 3. Notification admin (email)
+    try {
+      await resend.emails.send({
+        from: "noreply@studio-dr.fr",
+        to: process.env.ADMIN_NOTIFY_EMAIL!,
+        subject: "Nouvelle inscription — validation requise",
+        html: `
+          <h3>Nouvel utilisateur à valider</h3>
+          <p>Email : <strong>${email}</strong></p>
+          <p>ID : ${userId}</p>
+        `,
+      });
+    } catch (mailErr) {
+      console.error("Erreur envoi mail admin:", mailErr);
     }
 
     return NextResponse.json({
-      success: true,
+      ok: true,
       message:
-        "Compte créé. Vérifiez vos emails pour confirmer puis attendre la validation.",
+        "Compte créé. Vérifiez vos emails pour confirmer votre inscription. En attente de validation.",
     });
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: "Erreur serveur : " + e.message },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("Register error:", err);
+    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
   }
 }

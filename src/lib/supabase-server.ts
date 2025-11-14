@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 
 export async function supabaseServer() {
-  const cookieStore = await cookies();
+  const cookieStore = await cookies(); // ← obligatoire sur Next.js 16
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,9 +12,9 @@ export async function supabaseServer() {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        // Ces deux fonctions ne sont pas utilisées
-        // mais doivent exister pour respecter l'interface
-        set() {},
+        set() {
+          // Next.js 16 impose de laisser ces méthodes vides
+        },
         remove() {},
       },
     }

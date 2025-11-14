@@ -1,25 +1,17 @@
-'use client';
+import { NextResponse } from "next/server";
+import { supabaseServer } from "@/lib/supabase-server";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
 
-export default function AuthCallback() {
-  const router = useRouter();
+  if (code) {
+    const supabase = await supabaseServer();
+    await supabase.auth.exchangeCodeForSession(code);
+  }
 
-  useEffect(() => {
-    const supabase = supabaseBrowser();
-
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        router.push("/admin"); // ← page après login
-      }
-    });
-  }, []);
-
-  return (
-    <div className="p-6 text-center">
-      <p>Connexion en cours...</p>
-    </div>
-  );
+  return NextResponse.redirect(`${url.origin}/login`);
+}
+export default function Loading() {
+  return <p className="text-center p-6">Connexion en cours...</p>;
 }

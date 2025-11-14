@@ -17,19 +17,25 @@ export default function LoginPage() {
     e.preventDefault();
     setMessage("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) return setMessage(error.message);
+    if (!user) return setMessage("Erreur interne : utilisateur introuvable.");
 
-    // Vérification admin
-    const { data: userData } = await supabase
+    // Vérifier si l'utilisateur est approuvé
+    const { data: userData, error: userError } = await supabase
       .from("users")
       .select("is_approved")
-      .eq("id", data.user.id)
+      .eq("id", user.id)
       .single();
+
+    if (userError) {
+      await supabase.auth.signOut();
+      return setMessage("Erreur interne. Réessayez plus tard.");
+    }
 
     if (!userData?.is_approved) {
       await supabase.auth.signOut();
@@ -39,31 +45,40 @@ export default function LoginPage() {
     router.push("/admin");
   };
 
-  /* ---------------- Inscription ---------------- */
+  /* ---------------- Inscription via BACKEND ---------------- */
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    setMessage(
+      res.ok
+        ? "Compte créé. Vérifiez vos emails pour confirmer votre inscription."
+        : data.error || "Erreur lors de l'inscription."
+    );
+  };
+
+  /* ---------------- Reset mot de passe ---------------- */
+  const handleReset = async () => {
+    setMessage("");
+
+    if (!email) return setMessage("Veuillez entrer votre email.");
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback`,
     });
 
     setMessage(
       error
         ? error.message
-        : "Vérifiez vos emails pour confirmer votre inscription."
-    );
-  };
-
-  /* ---------------- Reset password ---------------- */
-  const handleReset = async () => {
-    if (!email) return setMessage("Veuillez entrer votre email.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    setMessage(
-      error
-        ? error.message
-        : "Si le compte existe, un email de réinitialisation a été envoyé."
+        : "Si ce compte existe, un email de réinitialisation a été envoyé."
     );
   };
 
@@ -85,7 +100,6 @@ export default function LoginPage() {
         Connexion / Inscription
       </h2>
 
-      {/* Email */}
       <input
         className="border p-2 w-full rounded"
         placeholder="Adresse email"
@@ -93,7 +107,6 @@ export default function LoginPage() {
         onChange={(e) => setEmail(e.target.value)}
       />
 
-      {/* Password */}
       <input
         className="border p-2 w-full rounded"
         type="password"
@@ -102,7 +115,6 @@ export default function LoginPage() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      {/* Boutons login/register */}
       <div className="flex gap-2">
         <button
           onClick={handleLogin}
@@ -118,27 +130,23 @@ export default function LoginPage() {
         </button>
       </div>
 
-      {/* Reset password */}
       <button
         onClick={handleReset}
-        className="text-xs text-gray-600 mt-1 underline"
+        className="text-xs text-gray-600 underline"
       >
         Mot de passe oublié ?
       </button>
 
-      {/* Message */}
       {message && (
         <p className="text-sm text-center mt-2 text-gray-700">{message}</p>
       )}
 
-      {/* Divider */}
       <div className="flex items-center gap-3 my-3">
         <div className="flex-1 h-px bg-gray-200"></div>
         <span className="text-xs text-gray-400">ou</span>
         <div className="flex-1 h-px bg-gray-200"></div>
       </div>
 
-      {/* OAuth */}
       <div className="space-y-2">
         <button
           onClick={() => loginWith("google")}
