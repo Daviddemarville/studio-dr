@@ -80,7 +80,7 @@ export async function GET(request: Request) {
    * ────────────────────────────────────────────────────────────────────────────────
    */
   if (user.email_confirmed_at) {
-    return NextResponse.redirect(`${url.origin}/auth/confirmed`);
+    return NextResponse.redirect(`${url.origin}/email-confirmed`);
   }
 
   // Par défaut → login
