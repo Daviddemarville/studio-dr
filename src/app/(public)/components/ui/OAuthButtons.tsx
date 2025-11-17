@@ -16,7 +16,7 @@ export default function OAuthButtons() {
     await supabase.auth.signInWithOAuth({
   provider,
   options: {
-    redirectTo: `${window.location.origin}/api/auth/callback?provider=${provider}`,
+    redirectTo: `${window.location.origin}/auth/callback`,
   },
 });
 
