@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import SectionEditor from '../../components/SectionEditor'
+import SectionEditor from '../components/SectionEditor'
 
 interface Section {
   id: string
@@ -16,7 +16,7 @@ export default function SectionsPage() {
   const [sections, setSections] = useState<Section[]>([])
 
   const loadSections = async () => {
-    const supabase = supabaseBrowser() // ← IMPORTANT
+    const supabase = supabaseBrowser() 
     const { data, error } = await supabase
       .from('content_sections')
       .select('*')
@@ -26,7 +26,7 @@ export default function SectionsPage() {
   }
 
   const handleAdd = async () => {
-    const supabase = supabaseBrowser() // ← IMPORTANT
+    const supabase = supabaseBrowser() 
     const slug = prompt('Nom de la nouvelle section ?')
     if (!slug) return
 
