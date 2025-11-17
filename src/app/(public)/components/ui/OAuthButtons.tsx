@@ -14,11 +14,11 @@ export default function OAuthButtons() {
     setLoading(provider);
 
     await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
-      },
-    });
+  provider,
+  options: {
+    redirectTo: `${window.location.origin}/api/auth/callback?provider=${provider}`,
+  },
+});
 
     // Pas besoin de reset, redirection immédiate
   };
