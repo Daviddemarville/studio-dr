@@ -59,7 +59,8 @@ const bannedWords = [
   "dev", "test", "admin", "root", "system", "support", "moderator", "owner",
 ];
 
-const pseudoSchema = z
+// Schéma interne pour un pseudo NON vide
+const pseudoNonEmptySchema = z
   .string()
   .trim()
   .min(2, "Le pseudo doit contenir au moins 2 caractères.")
@@ -79,11 +80,26 @@ const pseudoSchema = z
   .refine(
     (val) =>
       !bannedWords.some((bad) =>
-        val.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(bad)
+        val
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .includes(bad)
       ),
     "Ce pseudo contient un mot interdit."
-  )
-  .optional();
+  );
+
+// 👉 Pseudo optionnel : vide = accepté, sinon validation complète
+export const pseudoSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((val) => val ?? "") // null->"" | undefined->""
+  .refine(
+    (val) => val === "" || pseudoNonEmptySchema.safeParse(val).success,
+    "Le pseudo n'est pas valide."
+  );
+
 
 // ========================================================
 // PASSWORD : 8–20, maj, min, chiffre, spécial, no accents
