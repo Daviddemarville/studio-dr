@@ -10,7 +10,7 @@ export default function SectionPricing() {
 
   useEffect(() => {
     const fetchOffers = async () => {
-      const supabase = supabaseBrowser(); // ← CORRECTION ICI
+      const supabase = supabaseBrowser(); 
 
       const { data, error } = await supabase
         .from("offers")

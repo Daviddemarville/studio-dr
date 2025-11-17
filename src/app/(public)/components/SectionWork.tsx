@@ -10,7 +10,7 @@ export default function SectionWork() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const supabase = supabaseBrowser(); // ← CORRECTION
+      const supabase = supabaseBrowser(); 
 
       const { data, error } = await supabase
         .from("content_sections")
