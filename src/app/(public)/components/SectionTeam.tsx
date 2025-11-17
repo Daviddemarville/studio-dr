@@ -10,7 +10,7 @@ export default function SectionTeam() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const supabase = supabaseBrowser(); // ← CORRECT
+      const supabase = supabaseBrowser(); 
 
       const { data, error } = await supabase
         .from("users")

@@ -10,7 +10,7 @@ export default function SectionWorkflow() {
 
   useEffect(() => {
     const fetchSteps = async () => {
-      const supabase = supabaseBrowser(); // ← CORRECTION
+      const supabase = supabaseBrowser(); 
 
       const { data, error } = await supabase
         .from("workflow_steps")

@@ -1,4 +1,4 @@
-import FormCard from "@/app/components/ui/FormCard";
+import FormCard from "../components/ui/FormCard";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase-server";
 

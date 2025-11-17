@@ -1,5 +1,5 @@
 'use client'
-import ProfileEditor from '../../components/ProfileEditor'
+import ProfileEditor from '../components/ProfileEditor'
 
 export default function ProfilPage() {
   return (
