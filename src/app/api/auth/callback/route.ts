@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { resend } from "@/lib/resend";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -7,18 +9,17 @@ export async function GET(request: Request) {
   // Code retourné par Supabase (email link OU OAuth)
   const code = url.searchParams.get("code");
 
-  // Provider retourné lors d’un login via OAuth (discord, github, google…)
+  // Provider OAuth (discord, github, google…)
   const provider = url.searchParams.get("provider");
+
+  // Type d'événement Supabase (signup, recovery, magiclink…)
+  const type = url.searchParams.get("type");
 
   const supabase = await supabaseServer();
 
   /**
    * ────────────────────────────────────────────────────────────────────────────────
-   * 1. EXCHANGE DU CODE POUR UNE SESSION (EMAIL LINK OU PROVIDER OAUTH)
-   * ────────────────────────────────────────────────────────────────────────────────
-   * - Supabase renvoie toujours un `code` (email signup / magic link / OAuth)
-   * - On l'échange contre une session persistée côté server
-   * - Si error → lien expiré, mauvais code, tentative frauduleuse, etc.
+   * 1. EXCHANGE DU CODE → SESSION SUPABASE
    * ────────────────────────────────────────────────────────────────────────────────
    */
   if (code) {
@@ -32,14 +33,10 @@ export async function GET(request: Request) {
 
   /**
    * ────────────────────────────────────────────────────────────────────────────────
-   * 2. RÉCUPÉRATION DU USER
-   * ────────────────────────────────────────────────────────────────────────────────
-   * Après un exchange réussi, Supabase place la session dans les cookies.
-   * On récupère donc l’utilisateur immédiatement derrière.
+   * 2. RÉCUPÉRATION UTILISATEUR AUTH
    * ────────────────────────────────────────────────────────────────────────────────
    */
   const { data, error: getUserError } = await supabase.auth.getUser();
-
   if (getUserError || !data.user) {
     return NextResponse.redirect(`${url.origin}/auth/error`);
   }
@@ -48,53 +45,119 @@ export async function GET(request: Request) {
 
   /**
    * ────────────────────────────────────────────────────────────────────────────────
-   * 3. CAS PARTICULIER : LOGIN VIA DISCORD / GITHUB / GOOGLE (OAUTH PROVIDERS)
+   * 3. RESET PASSWORD (type = "recovery")
    * ────────────────────────────────────────────────────────────────────────────────
-   * Le paramètre `provider` est présent uniquement en OAuth.
-   *
-   * Ici on peut mettre la redirection finale après un login via réseau social :
-   * - `/admin`      si accès direct admin
-   * - `/dashboard`  si espace perso
-   * - `/`           pour retour home
-   *
-   * Pour Studio DR, la logique standard : les admins validés vont dans /admin,
-   * les autres retournent sur /login en attendant is_approved=true.
+   */
+  if (type === "recovery") {
+    return NextResponse.redirect(`${url.origin}/reset-confirm`);
+  }
+
+  /**
+   * ────────────────────────────────────────────────────────────────────────────────
+   * 4. AUTHENTIFICATION VIA PROVIDER OAUTH
    * ────────────────────────────────────────────────────────────────────────────────
    */
   if (provider) {
-    // Si l’admin a validé le compte → espace admin
+    // Détection d'un nouvel utilisateur OAuth
+    const isNewOAuthUser = user.created_at === user.last_sign_in_at;
+
+    if (isNewOAuthUser) {
+      /**
+       * ────────────────────────────────────────────────────────────────────────────
+       * 4.1 NOUVEL UTILISATEUR OAUTH → INSERT public.users
+       * ────────────────────────────────────────────────────────────────────────────
+       */
+
+      // LOGGING utile en prod/debug
+      console.log("OAuth NEW USER — provider =", provider);
+      console.log("OAuth metadata =", user.user_metadata);
+
+      const meta = user.user_metadata;
+
+      // Champs récupérés depuis GitHub / Google / Discord
+      const email = user.email;
+      const firstname = meta.full_name ?? null;
+      const lastname = meta.family_name ?? null; // Google only
+      const pseudo = meta.preferred_username ?? null; // Optionnel
+      const avatar = meta.avatar_url ?? null; // Avatar auto
+
+      // Insertion identique à ton REGISTER
+      const { error: insertError } = await supabaseAdmin
+        .from("users")
+        .insert({
+          id: user.id,
+          email,
+          firstname,
+          lastname,
+          pseudo,
+          avatar,
+          is_approved: false,
+        });
+
+      if (insertError) {
+        console.error("Insert OAuth user error:", insertError);
+        return NextResponse.redirect(`${url.origin}/auth/error`);
+      }
+
+      // Email admin : nouvel utilisateur OAuth
+      try {
+        await resend.emails.send({
+          from: "Studio DR <onboarding@resend.dev>",
+          to: process.env.ADMIN_NOTIFY_EMAIL!,
+          subject: "Nouvelle inscription OAuth — validation requise",
+          html: `
+            <h3>Nouvel utilisateur (OAuth)</h3>
+            <p>Email : <strong>${email}</strong></p>
+            <p>Prénom : ${firstname || "—"}</p>
+            <p>Nom : ${lastname || "—"}</p>
+            <p>Pseudo : ${pseudo || "—"}</p>
+            <p>Avatar : ${avatar ? `<img src="${avatar}" width="48"/>` : "—"}</p>
+            <p>Provider : ${provider}</p>
+          `,
+        });
+      } catch (mailErr) {
+        console.error("Erreur email admin:", mailErr);
+      }
+
+      // Redirection identique au register
+      return NextResponse.redirect(`${url.origin}/email-confirmed`);
+    }
+
+    /**
+     * ────────────────────────────────────────────────────────────────────────────
+     * 4.2 UTILISATEUR OAUTH EXISTANT
+     * ────────────────────────────────────────────────────────────────────────────
+     */
     if (user.user_metadata?.is_approved) {
       return NextResponse.redirect(`${url.origin}/admin`);
     }
 
-    // Sinon → retour login (compte en attente)
     return NextResponse.redirect(`${url.origin}/login`);
   }
 
   /**
    * ────────────────────────────────────────────────────────────────────────────────
-   * 4. CAS EMAIL PASSWORD / MAGIC LINK
-   * ────────────────────────────────────────────────────────────────────────────────
-   * Si l'email est confirmé → page dédiée
-   * Sinon → retour login
+   * 5. SIGNUP EMAIL / MAGIC LINK (SANS PROVIDER)
    * ────────────────────────────────────────────────────────────────────────────────
    */
-  if (user.email_confirmed_at) {
+
+  const isNewEmailUser = user.created_at === user.last_sign_in_at;
+
+  if (isNewEmailUser) {
     return NextResponse.redirect(`${url.origin}/email-confirmed`);
   }
 
-  // Par défaut → login
+  if (user.user_metadata?.is_approved) {
+    return NextResponse.redirect(`${url.origin}/admin`);
+  }
+
   return NextResponse.redirect(`${url.origin}/login`);
 }
 
 /**
  * ────────────────────────────────────────────────────────────────────────────────
- * Composant affiché uniquement le temps de la validation sur /auth/callback
+ * Fallback POST (non utilisé)
  * ────────────────────────────────────────────────────────────────────────────────
- *
- * ⚠️ Un route handler (route.ts) ne peut PAS contenir de JSX.
- *     On retourne donc une simple réponse texte côté serveur.
- *     Si tu veux un vrai composant React, on le place dans /app/auth/callback/loading/page.tsx
  */
 export function POST() {
   return NextResponse.json({
