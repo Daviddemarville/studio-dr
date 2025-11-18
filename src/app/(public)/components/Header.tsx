@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import Image from "next/image";
 import Navbar from './Navbar';
 
 export default function Header() {
@@ -13,13 +14,16 @@ export default function Header() {
   // Chargement dynamique des settings
   useEffect(() => {
     async function loadSettings() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("settings")
         .select("site_name, logo_url")
-        .single();
+        .limit(1)
+        .maybeSingle();
 
-      setSiteName(data?.site_name ?? null);
-      setLogoUrl(data?.logo_url ?? null);
+      if (!error && data) {
+        setSiteName(data.site_name ?? null);
+        setLogoUrl(data.logo_url ?? null);
+      }
     }
 
     loadSettings();
@@ -29,9 +33,11 @@ export default function Header() {
   // Cas 1 : Logo présent → afficher le logo uniquement
   const showLogo =
     logoUrl && logoUrl.trim() !== "" ? (
-      <img
+      <Image
         src={logoUrl}
         alt="Logo"
+        width={120}
+        height={40}
         className="h-10 w-auto object-contain select-none"
       />
     ) : null;

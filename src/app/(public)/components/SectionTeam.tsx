@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import Image from "next/image";
 
 export default function SectionTeam() {
   const [team, setTeam] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function SectionTeam() {
 
       const { data, error } = await supabase
         .from("users")
-        .select("firstname, lastname, bio_fr, bio_en, avatar_url")
+        .select("id, firstname, lastname, bio_fr, bio_en, avatar_url")
         .eq("is_public", true);
 
       if (!error) setTeam(data || []);
@@ -33,12 +34,12 @@ export default function SectionTeam() {
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {team.map((u, i) => (
+        {team.map((u) => (
           <div
-            key={i}
+            key={u.id}
             className="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center"
           >
-            <img
+            <Image
               src={u.avatar_url ?? "/avatar.png"}
               alt={`${u.firstname} ${u.lastname}`}
               className="w-20 h-20 rounded-full mb-4 object-cover shadow"
