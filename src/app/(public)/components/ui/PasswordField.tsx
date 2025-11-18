@@ -21,11 +21,12 @@ export default function PasswordField({
   return (
     <div className="space-y-1">
       {label && (
-        <label className="text-sm text-gray-300">{label}</label>
+        <label htmlFor="password" className="text-sm text-gray-300">{label}</label>
       )}
 
       <div className="relative">
         <input
+        id="password"
           type={show ? "text" : "password"}
           placeholder={placeholder}
           {...register}

@@ -72,6 +72,7 @@ export default function ProfileEditor() {
       </div>
 
       <button
+      type='button'
         onClick={save}
         className="bg-blue-600 mt-4 px-3 py-2 rounded text-white"
       >

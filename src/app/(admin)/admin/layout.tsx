@@ -1,6 +1,6 @@
 // src/app/(admin)/admin/layout.tsx
 
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import AdminNav from './components/AdminNav';
 import Protected from './components/Protected';
 

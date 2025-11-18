@@ -25,10 +25,10 @@ export async function GET(request: Request) {
   // ────────────────────────────────────────────────────────────────
   // 1. PARAMÈTRES FOURNIS PAR SUPABASE
   // ────────────────────────────────────────────────────────────────
-  const code = url.searchParams.get("code");         // Code PKCE OAuth / Email
+  const code = url.searchParams.get("code"); // Code PKCE OAuth / Email
   const provider = url.searchParams.get("provider"); // Provider OAuth (github, discord, google)
-  const type = url.searchParams.get("type");         // Type d’événement (recovery, magiclink, email_change, etc.)
-  let next = url.searchParams.get("next") ?? "/";    // Pour une future utilisation
+  const type = url.searchParams.get("type"); // Type d’événement (recovery, magiclink, email_change, etc.)
+  let next = url.searchParams.get("next") ?? "/"; // Pour une future utilisation
   if (!next.startsWith("/")) next = "/";
 
   const supabase = await supabaseServer();
@@ -37,7 +37,9 @@ export async function GET(request: Request) {
   // 2. EXCHANGE DU CODE → SESSION SUPABASE
   // ────────────────────────────────────────────────────────────────
   if (code) {
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(
+      code
+    );
 
     if (exchangeError) {
       console.error("❌ Erreur exchangeCodeForSession:", exchangeError);
@@ -68,7 +70,14 @@ export async function GET(request: Request) {
   // 5. CONNEXION VIA OAUTH (Discord, GitHub, Google)
   // ────────────────────────────────────────────────────────────────
   if (provider) {
-    const isNewOAuthUser = user.created_at === user.last_sign_in_at;
+    // Check if user exists in database (more reliable than timestamp comparison)
+    const { data: existingUser } = await supabaseAdmin
+      .from("users")
+      .select("id, is_approved")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const isNewOAuthUser = !existingUser;
 
     // ------------------------------------------------------------------
     // 5.1 NOUVEL UTILISATEUR OAUTH → INSERT public.users
@@ -127,11 +136,13 @@ export async function GET(request: Request) {
     // ------------------------------------------------------------------
     // 5.2 UTILISATEUR OAUTH EXISTANT
     // ------------------------------------------------------------------
-    if (user.user_metadata?.is_approved) {
+    // Check approval status from database (not metadata)
+    if (existingUser?.is_approved) {
       return NextResponse.redirect(`${url.origin}/admin`);
     }
 
-    return NextResponse.redirect(`${url.origin}/login`);
+    // User exists but not approved yet
+    return NextResponse.redirect(`${url.origin}/email-confirmed?pending=true`);
   }
 
   // ────────────────────────────────────────────────────────────────

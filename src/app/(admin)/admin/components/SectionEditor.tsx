@@ -52,6 +52,7 @@ export default function SectionEditor({
       <div className="flex justify-between mb-2">
         <h3 className="font-semibold text-white">{edit.slug}</h3>
         <button
+        type='button'
           onClick={del}
           className="text-sm text-red-400 hover:text-red-600"
         >
@@ -92,6 +93,7 @@ export default function SectionEditor({
       </div>
 
       <button
+      type='button'
         onClick={save}
         className="bg-blue-600 mt-3 px-3 py-2 rounded text-white"
       >
