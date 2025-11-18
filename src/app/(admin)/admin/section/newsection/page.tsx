@@ -45,6 +45,7 @@ export default function NewSection() {
       <h1 className="text-2xl font-bold mb-4">Ajouter une section</h1>
 
       <button
+      type='button'
         onClick={handleAdd}
         className="bg-blue-600 px-3 py-2 rounded text-white mb-4"
       >

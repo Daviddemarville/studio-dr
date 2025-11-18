@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import type {Offer} from "./../../../../types/public"
 
 export default function SectionOffers() {
-  const [offers, setOffers] = useState<any[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  // const [language, setLanguage] = useState<language[] | >([]);
   const [loading, setLoading] = useState(true);
   const lang = "fr";
 

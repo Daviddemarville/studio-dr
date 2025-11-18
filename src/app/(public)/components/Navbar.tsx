@@ -30,7 +30,7 @@ export default function Navbar() {
   }, [open]);
 
   return (
-    <>
+  
       <nav className="relative">
         
         {/* DESKTOP MENU */}
@@ -48,6 +48,7 @@ export default function Navbar() {
 
         {/* MOBILE BURGER */}
         <button
+        type='button'
           onClick={() => setOpen(!open)}
           className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
         >
@@ -58,9 +59,14 @@ export default function Navbar() {
         {open && (
           <>
             {/* OVERLAY FOND NOIR */}
-            <div
-              className="fixed inset-0 bg-black/30 z-40"
-              onClick={() => setOpen(false)} 
+            <button
+              type="button"
+              className="fixed inset-0 bg-black/30 z-40 cursor-default"
+              onClick={() => setOpen(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setOpen(false);
+              }}
+              aria-label="Fermer le menu"
             />
 
             {/* MENU DÉROULANT */}
@@ -80,6 +86,5 @@ export default function Navbar() {
         )}
 
       </nav>
-    </>
   );
 }

@@ -105,6 +105,7 @@ const supabase = supabaseBrowser();
         </div>
 
       <button
+      type="button"
         onClick={logout}
         className="mt-auto bg-red-600 text-white py-2 rounded hover:bg-red-700"
       >

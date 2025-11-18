@@ -60,9 +60,10 @@ export default function LoginForm() {
 
       {/* EMAIL */}
       <div className="space-y-1">
-        <label className="text-sm text-gray-300">Adresse email</label>
+        <label htmlFor="email" className="text-sm text-gray-300">Adresse email</label>
         <input
           {...register("email")}
+          id="email"
           type="email"
           placeholder="exemple@domaine.fr"
           className={`w-full p-3 rounded-lg bg-[#111317] border 
