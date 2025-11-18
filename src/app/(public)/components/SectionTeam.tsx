@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import Image from "next/image";
 
 export default function SectionTeam() {
   const [team, setTeam] = useState<any[]>([]);
@@ -38,8 +39,10 @@ export default function SectionTeam() {
             key={i}
             className="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center"
           >
-            <img
-              src={u.avatar_url ?? "/avatar.png"}
+            <Image
+            width={10}
+            height={10}
+              src={u.avatar_url ?? "/avatar.jpg"}
               alt={`${u.firstname} ${u.lastname}`}
               className="w-20 h-20 rounded-full mb-4 object-cover shadow"
             />

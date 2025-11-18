@@ -1,8 +1,10 @@
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { supabaseServer } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
+    const supabase = await supabaseServer();
+    
     const url = new URL(req.url);
     const userId = url.searchParams.get("id");
     const action = url.searchParams.get("action");
@@ -35,7 +37,7 @@ export async function GET(req: Request) {
     const isApproved = action === "approve";
 
     // 2️⃣ Vérifier si l’utilisateur existe
-    const { data: existingUser, error: fetchError } = await supabaseAdmin
+    const { data: existingUser, error: fetchError } = await supabase
       .from("users")
       .select("id, email, is_approved")
       .eq("id", userId)
@@ -66,7 +68,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await supabase
       .from("users")
       .update({ is_approved: isApproved })
       .eq("id", userId);
