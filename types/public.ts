@@ -3,10 +3,8 @@ export interface Offer {
   price_ht?: number | string;
   is_active?: boolean;
   display_order?: number;
-}
 
-export interface language {
-title_fr?: string;
+  title_fr?: string;
   title_en?: string;
   short_fr?: string;
   short_en?: string;
