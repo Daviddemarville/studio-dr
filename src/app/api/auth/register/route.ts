@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
 import { supabaseServer } from "@/lib/supabase-server";
 import { Resend } from "resend";
+
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
+    const supabase = await supabaseServer();
     const firstname = body.firstname?.trim();
     const lastname = body.lastname?.trim();
     const pseudo = body.pseudo?.trim() || null;
     const email = body.email?.trim();
     const password = body.password;
-
+    
     // -----------------------------
     // VALIDATION MINIMALE
     // -----------------------------
@@ -24,14 +24,13 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
-    const supabase = await supabaseServer();
+    
 
     // ----------------------------------------------
     // 0) Vérification unicité du pseudo (si rempli)
     // ----------------------------------------------
     if (pseudo) {
-      const { data: existingPseudo, error: pseudoError } = await supabaseAdmin
+      const { data: existingPseudo, error: pseudoError } = await supabase
         .from("users")
         .select("id")
         .eq("pseudo", pseudo)
@@ -82,7 +81,7 @@ export async function POST(req: Request) {
     // -----------------------------
     // 2) Insérer dans table public.users (admin only)
     // -----------------------------
-    const { error: insertError } = await supabaseAdmin
+    const { error: insertError } = await supabase
       .from("users")
       .insert({
         id: userId,

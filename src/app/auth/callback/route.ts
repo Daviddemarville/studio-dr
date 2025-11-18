@@ -17,7 +17,6 @@
 
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
 import { resend } from "@/lib/resend";
 
 export async function GET(request: Request) {
@@ -94,15 +93,17 @@ export async function GET(request: Request) {
       const pseudo = meta.preferred_username ?? null;
       const avatar = meta.avatar_url ?? null;
 
-      const { error: insertError } = await supabaseAdmin.from("users").insert({
-        id: user.id,
-        email,
-        firstname,
-        lastname,
-        pseudo,
-        avatar,
-        is_approved: false,
-      });
+      const { error: insertError } = await supabase
+        .from("users")
+        .insert({
+          id: user.id,
+          email,
+          firstname,
+          lastname,
+          pseudo,
+          avatar,
+          is_approved: false,
+        });
 
       if (insertError) {
         console.error("❌ Insert OAuth user error:", insertError);

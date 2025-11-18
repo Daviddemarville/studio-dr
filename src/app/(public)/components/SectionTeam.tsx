@@ -40,7 +40,9 @@ export default function SectionTeam() {
             className="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center"
           >
             <Image
-              src={u.avatar_url ?? "/avatar.png"}
+            width={10}
+            height={10}
+              src={u.avatar_url ?? "/avatar.jpg"}
               alt={`${u.firstname} ${u.lastname}`}
               className="w-20 h-20 rounded-full mb-4 object-cover shadow"
             />

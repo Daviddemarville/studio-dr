@@ -43,20 +43,20 @@ export default function Header() {
     ) : null;
 
   // Cas 2 : Pas de logo mais nom du site
-  const title =
-    !showLogo && siteName ? (
-      <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-        {siteName}
-      </span>
-    ) : null;
+  // const title =
+  //   !showLogo && siteName ? (
+  //     <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+  //       {siteName}
+  //     </span>
+  //   ) : null;
 
-  // Cas 3 : Aucun des deux → fallback Studio DR
-  const fallback =
-    !showLogo && !siteName ? (
-      <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-        Studio DR
-      </span>
-    ) : null;
+  // // Cas 3 : Aucun des deux → fallback Studio DR
+  // const fallback =
+  //   !showLogo && !siteName ? (
+  //     <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+  //       Studio DR
+  //     </span>
+  //   ) : null;
 
   return (
     <header
@@ -68,11 +68,31 @@ export default function Header() {
       "
     >
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        
+
         {/* LOGO / NOM DU SITE */}
+
+
         <div className="flex items-center">
-          {showLogo || title || fallback}
+          {/*showLogo || title || fallback*/}
+          {logoUrl && logoUrl.trim() !== "" ? (
+            <img
+              src={logoUrl}
+              alt="Logo"
+              className="h-10 w-auto object-contain select-none"
+            />
+          ) : 
+            siteName ? (
+              <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+                {siteName}
+              </span>
+
+            ) : (
+                <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+                  Studio DR
+                </span>
+              )};
         </div>
+
 
         {/* NAVBAR */}
         <Navbar />
