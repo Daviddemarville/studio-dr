@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import SectionEditor from '../components/SectionEditor'
+import SectionEditor from '../../components/SectionEditor'
 
 interface Section {
   id: string
@@ -12,45 +12,26 @@ interface Section {
   body_en: string
 }
 
-export default function SectionsPage() {
+export default function SectionsWorkflow() {
   const [sections, setSections] = useState<Section[]>([])
 
   const loadSections = async () => {
     const supabase = supabaseBrowser() 
     const { data, error } = await supabase
-      .from('content_sections')
+      .from('workflow_steps')
       .select('*')
       .order('slug')
 
     if (!error) setSections(data ?? [])
   }
 
-  const handleAdd = async () => {
-    const supabase = supabaseBrowser() 
-    const slug = prompt('Nom de la nouvelle section ?')
-    if (!slug) return
-
-    await supabase
-      .from('content_sections')
-      .insert({ slug })
-
-    loadSections()
-  }
-
-  useEffect(() => {
+    useEffect(() => {
     loadSections()
   }, [])
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Gestion des sections</h1>
-
-      <button
-        onClick={handleAdd}
-        className="bg-blue-600 px-3 py-2 rounded text-white mb-4"
-      >
-        + Ajouter une section
-      </button>
+      <h1 className="text-2xl font-bold mb-4">Gestion section Workflow / Comment travaillons nous?</h1>
 
       <div className="flex flex-col gap-4">
         {sections.map((s) => (
