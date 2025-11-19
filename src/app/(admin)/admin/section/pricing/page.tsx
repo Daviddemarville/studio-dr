@@ -31,7 +31,7 @@ export default function SectionsOffers() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Gestion section offers / Nos offres</h1>
+      <h1 className="text-2xl font-bold mb-4">Gestion section Pricing / Nos tarifs</h1>
 
       <div className="flex flex-col gap-4">
         {sections.map((s) => (
