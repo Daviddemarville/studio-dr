@@ -90,7 +90,7 @@ export default function Header() {
                 <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
                   Studio DR
                 </span>
-              )};
+              )}
         </div>
 
 

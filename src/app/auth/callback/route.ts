@@ -71,7 +71,7 @@ export async function GET(request: Request) {
   // ────────────────────────────────────────────────────────────────
   if (provider) {
     // Check if user exists in database (more reliable than timestamp comparison)
-    const { data: existingUser } = await supabaseAdmin
+    const { data: existingUser } = await supabase
       .from("users")
       .select("id, is_approved")
       .eq("id", user.id)

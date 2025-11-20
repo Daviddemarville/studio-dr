@@ -1,116 +1,92 @@
-'use client'
+import { supabaseServer } from "@/lib/supabase-server";
+import DashboardCard from "./components/DashboardCard";
+import PreviewSite from "./components/PreviewSite";
+import UserDisplayName from "./components/UserDisplayName";
+import LastUpdates from "./components/LastUpdates";
+import { formatDashboardDate } from "./dashboard-utils";
 
-import { useEffect, useState, useRef } from 'react'
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import {
+  Layers,
+  Users,
+  Mail,
+  Clock,
+  FilePenLine,
+} from "lucide-react";
 
-export default function AdminDashboard() {
-  const [usersCount, setUsersCount] = useState(0)
-  const [sectionsCount, setSectionsCount] = useState(0) // content_sections + workflowstep + offers
-  const [now, setNow] = useState(new Date())
-  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+export default async function AdminDashboard() {
+  const supabase = await supabaseServer();
 
-  const user = useCurrentUser();
-  const firstname = user?.firstname ?? 'Administrateur'
+  // ---- FETCH DATA ----
+  const { count: rawSectionsCount } = await supabase
+  .from("site_sections")
+  .select("*", { count: "exact", head: true });
+  const sectionsCount = rawSectionsCount ?? 0;
 
-  useEffect(() => {
-    const fetchCounts = async () => {
-      const supabase = supabaseBrowser()
+  const { count } = await supabase
+  .from("users")
+  .select("*", { count: "exact", head: true });
 
-      const [rUsers, rSections, rWorkflow, rOffers] = await Promise.all([
-        supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('content_sections').select('*', { count: 'exact', head: true }),
-        supabase.from('workflowstep').select('*', { count: 'exact', head: true }),
-        supabase.from('offers').select('*', { count: 'exact', head: true }),
-      ])
+  const usersCount = count ?? 0;
 
-      if (rUsers.error) console.error('users count error:', rUsers.error)
-      if (rSections.error) console.error('content_sections count error:', rSections.error)
-      if (rWorkflow.error) console.error('workflowstep count error:', rWorkflow.error)
-      if (rOffers.error) console.error('offers count error:', rOffers.error)
+  const { data: pendingUsers } = await supabase
+    .from("users")
+    .select("id")
+    .eq("is_approved", false);
 
-      const users = rUsers.count ?? 0
-      const sectionsTotal = (rSections.count ?? 0) + (rWorkflow.count ?? 0) + (rOffers.count ?? 0)
+  const { count: messagesCount } = await supabase
+    .from("contact_messages")
+    .select("*", { count: "exact", head: true });
 
-      setUsersCount(users)
-      setSectionsCount(sectionsTotal)
-    }
-
-    fetchCounts()
-
-    const timer = setInterval(() => setNow(new Date()), 30_000)
-    return () => clearInterval(timer)
-  }, [])
-
-  // Formatage date/heure
-  const weekday = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now)
-  const day = now.getDate().toString().padStart(2, '0')
-  const month = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(now)
-  const year = now.getFullYear()
-  const hour = now.getHours().toString()
-  const minute = now.getMinutes().toString().padStart(2, '0')
-  const formatted = `Nous sommes ${weekday} ${day} ${month} ${year} et il est ${hour}h${minute}`
+    const { date, time } = formatDashboardDate();
 
   return (
-    <section>
-      <h1 className="text-2xl font-bold mb-4">Tableau de bord</h1>
-
-      <div className="mb-4 text-white">
-        <p className="mb-1">Bienvenue {firstname} dans le panneau d'administration.</p>
-        <p className="text-sm opacity-80">{formatted}</p>
+    <div className="space-y-10">
+      
+      {/* HEADER */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold text-white">
+          Bienvenue <UserDisplayName /> dans votre panneau de contrôle.
+        </h1>
+        <p className="text-gray-400">
+          {date} — {time}
+        </p>
       </div>
 
-      {/* Cartes de compteurs */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className="bg-gray-800 p-4 rounded shadow w-48">
-          <p className="text-sm text-gray-300">Nombre total de sections</p>
-          <p className="text-2xl font-bold">{sectionsCount}</p>
-        </div>
+      {/* CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <DashboardCard
+          icon={Layers}
+          title="Sections du site"
+          value={sectionsCount ?? 0}
+          sub="Contenu éditorial publié"
+        />
 
-        <div className="bg-gray-800 p-4 rounded shadow w-48">
-          <p className="text-sm text-gray-300">Nombre d'utilisateurs</p>
-          <p className="text-2xl font-bold">{usersCount}</p>
-        </div>
+        <DashboardCard
+          icon={Users}
+          title="Utilisateurs"
+          value={`${usersCount ?? 0} utilisateur${usersCount > 1 ? "s" : ""} actifs`}
+          sub={`${pendingUsers?.length ?? 0} en attente d'approbation`}
+        />
+
+        <DashboardCard
+          icon={Mail}
+          title="Messages reçus"
+          value={messagesCount ?? 0}
+          sub="Messages du formulaire"
+        />
       </div>
 
-      {/* Aperçu du site — masqué sur mobile */}
-      <div className="hidden sm:block">
-        <div className="mb-2 text-sm text-gray-400">Aperçu en direct</div>
-
-        {/* conteneur relatif pour overlay */}
-        <div className="relative rounded shadow border overflow-hidden">
-          <iframe
-            ref={iframeRef}
-            id="preview-iframe"
-            title="Aperçu du site"
-            src="/"
-            className="w-full h-[70vh] min-h-[400px] block"
-          />
-
-          {/* voile noir 30% (tailwind JIT: bg-black/50) ; pointer-events-none pour laisser l'iframe interactif */}
-          <div className="absolute inset-0 bg-black/50 pointer-events-none" />
-        </div>
+      {/* LAST UPDATES */}
+      <div className="mt-10">
+         <LastUpdates />
       </div>
 
-      {/* Liens d'action */}
-      <div className="mt-6 flex gap-4">
-        <button
-          type="button"
-          onClick={() => iframeRef.current?.contentWindow?.location.reload()}
-          className="bg-blue-600 px-3 py-2 rounded text-white hidden sm:block"
-        >
-          Actualiser la page
-        </button>
 
-        <a
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-green-600 px-3 py-2 rounded text-white"
-        >
-          Ouvrir dans un nouvel onglet
-        </a>
-      </div>
-    </section>
-  )
+      {/* PREVIEW EXISTANTE */}
+      <div className="mt-12 hidden md:block">
+  <PreviewSite />
+</div>
+
+    </div>
+  );
 }
