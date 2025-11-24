@@ -1,0 +1,20 @@
+{
+  "name": "FAQ",
+  "description": "Foire aux questions : liste de questions et réponses.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "questions",
+      "label": "Questions",
+      "min": 1,
+      "max": 100,
+      "fields": [
+        { "type": "text", "name": "question_fr", "label": "Question (FR)" },
+        { "type": "text", "name": "question_en", "label": "Question (EN)" },
+        { "type": "textarea", "name": "answer_fr", "label": "Réponse (FR)" },
+        { "type": "textarea", "name": "answer_en", "label": "Réponse (EN)" }
+      ]
+    }
+  ]
+}

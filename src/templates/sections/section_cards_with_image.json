@@ -1,0 +1,21 @@
+{
+  "name": "Cartes avec image",
+  "description": "Liste de cartes avec image, titre et texte.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "items",
+      "label": "Éléments",
+      "min": 1,
+      "max": 50,
+      "fields": [
+        { "type": "image", "name": "image", "label": "Image" },
+        { "type": "text", "name": "title_fr", "label": "Titre (FR)" },
+        { "type": "text", "name": "title_en", "label": "Titre (EN)" },
+        { "type": "textarea", "name": "body_fr", "label": "Texte (FR)" },
+        { "type": "textarea", "name": "body_en", "label": "Texte (EN)" }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,8 @@ import DashboardCard from "./components/DashboardCard";
 import PreviewSite from "./components/PreviewSite";
 import UserDisplayName from "./components/UserDisplayName";
 import LastUpdates from "./components/LastUpdates";
+import OpenPreviewButton from "./components/ui/OpenPreviewButton";
+
 import { formatDashboardDate } from "./dashboard-utils";
 
 import {
@@ -86,6 +88,11 @@ export default async function AdminDashboard() {
       <div className="mt-12 hidden md:block">
   <PreviewSite />
 </div>
+<div className="mt-4 flex justify-end">
+  <h2 className="sr-only md:hidden">Ouvrir l'aperçu du site</h2>
+  <OpenPreviewButton href="/" />
+</div>
+
 
     </div>
   );

@@ -37,70 +37,74 @@ export default function SectionContact() {
     }
 
     toast.success("✔ Message envoyé avec succès !");
-    form.reset(); // reset propre
+    form.reset();
   };
 
   return (
-    <section className="mb-16 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-      <h2 className="text-2xl font-semibold mb-2 text-gray-900">
-        Envie d’en savoir plus ?
-      </h2>
-      <p className="text-gray-600 mb-6">
-        Contactez-nous, notre équipe vous répondra rapidement.
-      </p>
+    <section className="scroll-mt-24 py-16 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-3xl font-bold mb-6 text-gray-900">
+          Envie d'en savoir plus ?
+        </h2>
+        <p className="text-gray-700 mb-8 text-lg">
+          Contactez-nous, notre équipe vous répondra rapidement.
+        </p>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input
-            name="firstname"
-            placeholder="Prénom"
-            className="border rounded-lg p-3 bg-gray-50"
-            required
-          />
-          <input
-            name="lastname"
-            placeholder="Nom"
-            className="border rounded-lg p-3 bg-gray-50"
-            required
-          />
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input
+                name="firstname"
+                placeholder="Prénom"
+                className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <input
+                name="lastname"
+                placeholder="Nom"
+                className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <input
+              name="email"
+              placeholder="Adresse email"
+              type="email"
+              className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+
+            <input
+              name="subject"
+              placeholder="Objet"
+              className="border border-gray-300 rounded-lg p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+
+            <textarea
+              name="message"
+              placeholder="Votre message..."
+              className="border border-gray-300 rounded-lg p-3 bg-gray-50 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+
+            {/* CAPTCHA TURNSTILE */}
+            <div
+              className="cf-turnstile"
+              data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+            ></div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Envoi en cours..." : "Envoyer le message"}
+            </button>
+          </form>
         </div>
-
-        <input
-          name="email"
-          placeholder="Adresse email"
-          type="email"
-          className="border rounded-lg p-3 bg-gray-50"
-          required
-        />
-
-        <input
-          name="subject"
-          placeholder="Objet"
-          className="border rounded-lg p-3 bg-gray-50"
-          required
-        />
-
-        <textarea
-          name="message"
-          placeholder="Votre message..."
-          className="border rounded-lg p-3 bg-gray-50 min-h-[120px]"
-          required
-        />
-
-        {/* CAPTCHA TURNSTILE */}
-        <div
-          className="cf-turnstile"
-          data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-        ></div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
-        >
-          {loading ? "Envoi en cours..." : "Envoyer le message"}
-        </button>
-      </form>
+      </div>
     </section>
   );
 }

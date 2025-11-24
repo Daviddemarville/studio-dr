@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import renderDynamicField from '../section/renderDynamicField'
+import profileTemplate from '@/templates/sections/section_user_profile.json'
 
 export default function ProfileEditor() {
   const [profile, setProfile] = useState<any>({})
+  const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
     const load = async () => {
-      const supabase = supabaseBrowser() // ← IMPORTANT
+      const supabase = supabaseBrowser()
       const { data } = await supabase.auth.getUser()
 
       if (data.user) {
@@ -21,60 +24,48 @@ export default function ProfileEditor() {
 
         if (!error) setProfile(info)
       }
+      setLoading(false)
     }
     load()
   }, [])
 
   const save = async () => {
-    const supabase = supabaseBrowser() // ← IMPORTANT
+    const supabase = supabaseBrowser()
+
+    // Extract fields defined in the template
+    const updates: any = {}
+    profileTemplate.fields.forEach(field => {
+      if (profile[field.name] !== undefined) {
+        updates[field.name] = profile[field.name]
+      }
+    })
 
     const { error } = await supabase
       .from('users')
-      .update({
-        firstname: profile.firstname,
-        lastname: profile.lastname,
-        bio_fr: profile.bio_fr,
-        bio_en: profile.bio_en,
-        avatar_url: profile.avatar_url
-      })
+      .update(updates)
       .eq('id', profile.id)
 
     setMessage(error ? error.message : 'Profil sauvegardé.')
   }
 
+  if (loading) return <p className="text-neutral-400">Chargement...</p>
+
   return (
-    <div className="bg-gray-800 p-4 rounded">
-      <div className="grid gap-2">
-        <input
-          className="border p-2 rounded bg-gray-700 text-white"
-          placeholder="Prénom"
-          value={profile.firstname || ''}
-          onChange={(e) => setProfile({ ...profile, firstname: e.target.value })}
-        />
-        <input
-          className="border p-2 rounded bg-gray-700 text-white"
-          placeholder="Nom"
-          value={profile.lastname || ''}
-          onChange={(e) => setProfile({ ...profile, lastname: e.target.value })}
-        />
-        <textarea
-          className="border p-2 rounded bg-gray-700 text-white"
-          placeholder="Bio FR"
-          value={profile.bio_fr || ''}
-          onChange={(e) => setProfile({ ...profile, bio_fr: e.target.value })}
-        />
-        <textarea
-          className="border p-2 rounded bg-gray-700 text-white"
-          placeholder="Bio EN"
-          value={profile.bio_en || ''}
-          onChange={(e) => setProfile({ ...profile, bio_en: e.target.value })}
-        />
-      </div>
+    <div className="bg-neutral-900 p-6 rounded-lg flex flex-col gap-6">
+      {profileTemplate.fields.map((field: any) => (
+        <div key={field.name}>
+          {renderDynamicField({
+            field,
+            value: profile[field.name],
+            onChange: (newVal) => setProfile({ ...profile, [field.name]: newVal })
+          })}
+        </div>
+      ))}
 
       <button
-      type='button'
+        type='button'
         onClick={save}
-        className="bg-blue-600 mt-4 px-3 py-2 rounded text-white"
+        className="bg-blue-600 mt-4 px-4 py-2 rounded text-white hover:bg-blue-500 self-start"
       >
         Sauvegarder
       </button>

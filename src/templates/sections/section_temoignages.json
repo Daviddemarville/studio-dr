@@ -1,0 +1,21 @@
+{
+  "name": "Témoignages",
+  "description": "Avis ou retours clients présentés sous forme de cartes.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "testimonials",
+      "label": "Témoignages",
+      "min": 1,
+      "max": 50,
+      "fields": [
+        { "type": "text", "name": "author_fr", "label": "Auteur (FR)" },
+        { "type": "text", "name": "author_en", "label": "Auteur (EN)" },
+        { "type": "image", "name": "avatar", "label": "Avatar" },
+        { "type": "textarea", "name": "body_fr", "label": "Texte (FR)" },
+        { "type": "textarea", "name": "body_en", "label": "Texte (EN)" }
+      ]
+    }
+  ]
+}

@@ -86,36 +86,43 @@ export default function AdminNav() {
   /* ---------------------------------------------------------
    LOAD SETTINGS + DYNAMIC SECTIONS
 --------------------------------------------------------- */
-useEffect(() => {
-  async function load() {
-    // Settings
-    const { data: settings } = await supabase
-      .from("settings")
-      .select("site_name, logo_url")
-      .single();
+  useEffect(() => {
+    async function load() {
+      // Settings
+      const { data: settings } = await supabase
+        .from("settings")
+        .select("site_name, logo_url")
+        .single();
 
-    setSiteName(settings?.site_name ?? null);
-    setLogoUrl(settings?.logo_url ?? null);
+      setSiteName(settings?.site_name ?? null);
+      setLogoUrl(settings?.logo_url ?? null);
 
-    // Site sections dynamic
-    const { data: sections } = await supabase
-      .from("site_sections")
-      .select("id, title, slug, icon")
-      .order("position", { ascending: true });
+      // Site sections dynamic
+      const { data: sections } = await supabase
+        .from("site_sections")
+        .select("id, title, slug, icon")
+        .order("position", { ascending: true });
 
-    setDynamicSections(
-      (sections ?? []).map((s) => ({
-        id: s.id,
-        title: s.title,
-        slug: s.slug,
-        icon: s.icon,
-        route: `/admin/section/${s.slug}`,
-      }))
-    );
-  }
+      setDynamicSections(
+        (sections ?? []).map((s) => ({
+          id: s.id,
+          title: s.title,
+          slug: s.slug,
+          icon: s.icon,
+          route: `/admin/section/${s.slug}`,
+        }))
+      );
+    }
 
-  load();
-}, [supabase]);
+    load();
+
+    const handleRefresh = () => {
+      load();
+    };
+
+    window.addEventListener("refresh-nav", handleRefresh);
+    return () => window.removeEventListener("refresh-nav", handleRefresh);
+  }, [supabase]);
 
 
   /* ---------------------------------------------------------
@@ -165,12 +172,11 @@ useEffect(() => {
           shadow-xl border-r border-gray-700/50 flex flex-col overflow-hidden
           transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
 
-          ${
-            isMobile
-              ? mobileOpen
-                ? "w-64"
-                : "w-20"
-              : collapsed
+          ${isMobile
+            ? mobileOpen
+              ? "w-64"
+              : "w-20"
+            : collapsed
               ? "w-20"
               : "w-64"
           }
@@ -213,8 +219,8 @@ useEffect(() => {
                 ? <ChevronLeft size={20} />
                 : <ChevronRight size={20} />
               : collapsed
-              ? <ChevronRight size={20} />
-              : <ChevronLeft size={20} />
+                ? <ChevronRight size={20} />
+                : <ChevronLeft size={20} />
             }
           </button>
         </div>
@@ -232,10 +238,9 @@ useEffect(() => {
               }
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full
-                ${
-                  isActive("/admin")
-                    ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                    : "hover:bg-gray-700/50 text-gray-300"
+                ${isActive("/admin")
+                  ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                  : "hover:bg-gray-700/50 text-gray-300"
                 }
               `}
             >
@@ -273,10 +278,9 @@ useEffect(() => {
                     }
                     className={`
                       flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full text-left
-                      ${
-                        active
-                          ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                          : "hover:bg-gray-700/50 text-gray-300"
+                      ${active
+                        ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                        : "hover:bg-gray-700/50 text-gray-300"
                       }
                     `}
                   >
@@ -360,10 +364,9 @@ useEffect(() => {
               }
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full text-left
-                ${
-                  isActive("/admin/settings")
-                    ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                    : "hover:bg-gray-700/50 text-gray-300"
+                ${isActive("/admin/settings")
+                  ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                  : "hover:bg-gray-700/50 text-gray-300"
                 }
               `}
             >
@@ -378,10 +381,9 @@ useEffect(() => {
               }
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full text-left
-                ${
-                  isActive("/admin/profil")
-                    ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                    : "hover:bg-gray-700/50 text-gray-300"
+                ${isActive("/admin/profil")
+                  ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                  : "hover:bg-gray-700/50 text-gray-300"
                 }
               `}
             >

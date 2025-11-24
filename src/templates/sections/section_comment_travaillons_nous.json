@@ -1,0 +1,36 @@
+{
+  "name": "Comment travaillons-nous",
+  "description": "Étapes du processus de travail, chacune avec un titre et un texte.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "steps",
+      "label": "Étapes",
+      "min": 1,
+      "max": 20,
+      "fields": [
+        {
+          "type": "text",
+          "name": "step_title_fr",
+          "label": "Titre de l'étape (FR)"
+        },
+        {
+          "type": "text",
+          "name": "step_title_en",
+          "label": "Titre de l'étape (EN)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_fr",
+          "label": "Texte (FR)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_en",
+          "label": "Texte (EN)"
+        }
+      ]
+    }
+  ]
+}

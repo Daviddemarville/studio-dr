@@ -1,58 +1,29 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { supabaseServer } from "@/lib/supabase-server";
+import { loadTemplates } from "@/templates/sections/loader.server";
+import NewSectionClient from "./NewSectionClient";
 
-interface Section {
-  id: string
-  slug: string
-  title_fr: string
-  title_en: string
-  body_fr: string
-  body_en: string
-}
+export const dynamic = "force-dynamic";
 
-export default function NewSection() {
-  const [sections, setSections] = useState<Section[]>([])
+export default async function NewSectionPage() {
+  const supabase = await supabaseServer();
 
-  const loadSections = async () => {
-    const supabase = supabaseBrowser() 
-    const { data, error } = await supabase
-      .from('content_sections')
-      .select('*')
-      .order('slug')
+  // 1. Load Templates
+  const templates = await loadTemplates();
 
-    if (!error) setSections(data ?? [])
-  }
-
-  const handleAdd = async () => {
-    const supabase = supabaseBrowser() 
-    const slug = prompt('Nom de la nouvelle section ?')
-    if (!slug) return
-
-    await supabase
-      .from('content_sections')
-      .insert({ slug })
-
-    loadSections()
-  }
-
-  useEffect(() => {
-    loadSections()
-  }, [])
+  // 2. Load Sections
+  const { data: sections } = await supabase
+    .from("site_sections")
+    .select("*")
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: false });
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Ajouter une section</h1>
-
-      <button
-      type='button'
-        onClick={handleAdd}
-        className="bg-blue-600 px-3 py-2 rounded text-white mb-4"
-      >
-        + Ajouter une section
-      </button>
-
-      
+      <h1 className="text-3xl font-bold text-white mb-8">Gestion des Sections</h1>
+      <NewSectionClient
+        templates={templates}
+        sections={sections ?? []}
+      />
     </div>
-  )
+  );
 }
