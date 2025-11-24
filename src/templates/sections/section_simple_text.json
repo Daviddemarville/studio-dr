@@ -1,0 +1,11 @@
+{
+  "name": "Texte simple",
+  "description": "Titre + paragraphe simple.",
+  "type": "section",
+  "fields": [
+    { "type": "text", "name": "title_fr", "label": "Titre (FR)" },
+    { "type": "text", "name": "title_en", "label": "Titre (EN)" },
+    { "type": "textarea", "name": "body_fr", "label": "Texte (FR)" },
+    { "type": "textarea", "name": "body_en", "label": "Texte (EN)" }
+  ]
+}

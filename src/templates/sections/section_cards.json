@@ -1,0 +1,20 @@
+{
+  "name": "Cartes génériques",
+  "description": "Liste de cartes contenant un titre et un texte.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "items",
+      "label": "Éléments",
+      "min": 1,
+      "max": 50,
+      "fields": [
+        { "type": "text", "name": "title_fr", "label": "Titre (FR)" },
+        { "type": "text", "name": "title_en", "label": "Titre (EN)" },
+        { "type": "textarea", "name": "body_fr", "label": "Texte (FR)" },
+        { "type": "textarea", "name": "body_en", "label": "Texte (EN)" }
+      ]
+    }
+  ]
+}

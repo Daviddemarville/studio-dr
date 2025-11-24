@@ -1,0 +1,36 @@
+{
+  "name": "Nos offres",
+  "description": "Liste de cartes pour présenter les différents types d'offres.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "offers",
+      "label": "Offres",
+      "min": 1,
+      "max": 20,
+      "fields": [
+        {
+          "type": "text",
+          "name": "title_fr",
+          "label": "Titre (FR)"
+        },
+        {
+          "type": "text",
+          "name": "title_en",
+          "label": "Titre (EN)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_fr",
+          "label": "Texte (FR)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_en",
+          "label": "Texte (EN)"
+        }
+      ]
+    }
+  ]
+}

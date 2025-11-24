@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import PreviewSite from "../components/PreviewSite";
+import OpenPreviewButton from "../components/ui/OpenPreviewButton";
 
 interface Section {
   id: string
@@ -48,7 +50,8 @@ export default function SectionEditor({
   }
 
   return (
-    <div className="bg-gray-800 p-4 rounded shadow">
+    <div className="flex flex-col md:flex-row bg-gray-800 p-4 rounded shadow">
+      <div>
       <div className="flex justify-between mb-2">
         <h3 className="font-semibold text-white">{edit.slug}</h3>
         <button
@@ -101,6 +104,20 @@ export default function SectionEditor({
       </button>
 
       {message && <p className="mt-2 text-green-400">{message}</p>}
-    </div>
+      </div>
+
+      {/* PREVIEW EXISTANTE */}
+      <div>
+            <div className="mt-12 hidden md:block">
+        <PreviewSite />
+      </div>
+      <div className="mt-4 flex justify-end">
+        <h2 className="sr-only md:hidden">Ouvrir l'aperçu du site</h2>
+        <OpenPreviewButton href="/" />
+      </div>
+      </div>
+      
+    </div>    
   )
+  
 }

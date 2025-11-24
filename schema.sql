@@ -1,214 +1,156 @@
--- ================================================
--- TABLE UTILISATEURS (profil public)
--- ================================================
-create table if not exists users (
-  id uuid primary key default gen_random_uuid(),
-  email text unique not null,
-  password_hash text,
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.contact_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  firstname text,
+  lastname text,
+  email text NOT NULL,
+  subject text NOT NULL,
+  message text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT contact_messages_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.content_changes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  section_slug text NOT NULL,
+  table_name text NOT NULL,
+  record_id text,
+  user_id uuid,
+  action text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT content_changes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.content_offers (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  section_slug text NOT NULL,
+  content jsonb NOT NULL DEFAULT '{}'::jsonb,
+  is_active boolean DEFAULT true,
+  display_order integer DEFAULT 0,
+  last_modified_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT content_offers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.content_pricing (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  section_slug text NOT NULL,
+  offer_id uuid,
+  content jsonb NOT NULL DEFAULT '{}'::jsonb,
+  price_ht numeric,
+  tva_rate numeric DEFAULT 20.0,
+  price_ttc numeric DEFAULT (price_ht * ((1)::numeric + (tva_rate / (100)::numeric))),
+  is_active boolean DEFAULT true,
+  display_order integer DEFAULT 0,
+  last_modified_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT content_pricing_pkey PRIMARY KEY (id),
+  CONSTRAINT content_pricing_offer_id_fkey FOREIGN KEY (offer_id) REFERENCES public.content_offers(id)
+);
+CREATE TABLE public.content_work (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  section_slug text NOT NULL,
+  content jsonb NOT NULL DEFAULT '{}'::jsonb,
+  last_modified_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  is_active boolean NOT NULL DEFAULT true,
+  CONSTRAINT content_work_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.content_custom_sections (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  section_slug text NOT NULL,
+  content jsonb NOT NULL DEFAULT '{}'::jsonb,
+  last_modified_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  is_active boolean NOT NULL DEFAULT true,
+  CONSTRAINT content_custom_sections_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.content_workflow_steps (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  section_slug text NOT NULL,
+  content jsonb NOT NULL DEFAULT '{}'::jsonb,
+  step_number integer NOT NULL,
+  is_active boolean DEFAULT true,
+  last_modified_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT content_workflow_steps_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.settings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  site_name text DEFAULT 'Studio DR'::text,
+  language_default text DEFAULT 'fr'::text,
+  maintenance_mode boolean DEFAULT false,
+  logo_url text,
+  tagline text,
+  site_description text,
+  favicon_url text,
+  default_meta_image_url text,
+  available_languages ARRAY DEFAULT ARRAY['fr'::text, 'en'::text],
+  maintenance_message_fr text,
+  maintenance_message_en text,
+  maintenance_allowlist jsonb DEFAULT '[]'::jsonb,
+  contact_email text,
+  contact_phone text,
+  contact_address text,
+  google_maps_url text,
+  social_facebook_url text,
+  social_instagram_url text,
+  social_linkedin_url text,
+  social_github_url text,
+  meta_default_title text,
+  meta_default_description text,
+  ga_tracking_id text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT settings_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.site_sections (
+  id integer NOT NULL DEFAULT nextval('site_sections_id_seq'::regclass),
+  slug text NOT NULL UNIQUE,
+  title text NOT NULL,
+  table_name text NOT NULL,
+  is_active boolean DEFAULT true,
+  position integer DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  icon text DEFAULT 'FileText'::text CHECK (icon = ANY (ARRAY['Layers'::text, 'FileText'::text, 'LayoutGrid'::text, 'Users'::text, 'Image'::text, 'Folder'::text, 'Wand2'::text, 'Wrench'::text, 'BookText'::text])),
+  template_slug text,
+  is_system boolean NOT NULL DEFAULT false,
+  description text,
+  CONSTRAINT site_sections_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.users (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  email text NOT NULL UNIQUE,
   firstname text,
   lastname text,
   bio_fr text,
   bio_en text,
   avatar_url text,
-  role text check (role in ('developer','admin')) default 'developer',
-  is_public boolean default true,
-  is_approved boolean default false,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  role text DEFAULT 'developer'::text CHECK (role = ANY (ARRAY['developer'::text, 'admin'::text])),
+  is_public boolean DEFAULT true,
+  is_approved boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  pseudo text CHECK (pseudo IS NULL OR length(TRIM(BOTH FROM pseudo)) > 0),
+  CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
--- ================================================
--- TABLE SECTIONS DE CONTENU (texte statique dynamique)
--- ================================================
-create table if not exists content_sections (
-  id uuid primary key default gen_random_uuid(),
-  slug text unique not null,
-  title_fr text,
-  title_en text,
-  body_fr text,
-  body_en text,
-  last_modified_by uuid references users(id) on delete set null,
-  updated_at timestamptz default now()
-);
+-- RLS POLICIES (Example)
+ALTER TABLE public.content_custom_sections ENABLE ROW LEVEL SECURITY;
 
--- ================================================
--- TABLE OFFRES COMMERCIALES
--- ================================================
-create table if not exists offers (
-  id uuid primary key default gen_random_uuid(),
-  title_fr text,
-  title_en text,
-  short_fr text,
-  short_en text,
-  long_fr text,
-  long_en text,
-  price_ht numeric(10,2),
-  is_active boolean default true,
-  display_order int default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
+CREATE POLICY "Enable read access for all users" ON public.content_custom_sections
+FOR SELECT USING (true);
 
--- ================================================
--- TABLE ETAPES DE TRAVAIL
--- ================================================
-create table if not exists workflow_steps (
-  id uuid primary key default gen_random_uuid(),
-  step_number int,
-  title_fr text,
-  title_en text,
-  text_fr text,
-  text_en text,
-  is_active boolean default true,
-  display_order int default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
+CREATE POLICY "Enable insert for authenticated users only" ON public.content_custom_sections
+FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
--- ================================================
--- TABLE PARAMÈTRES GLOBAUX
--- ================================================
-create table if not exists settings (
-  id uuid primary key default gen_random_uuid(),
-  site_name text default 'Studio DR',
-  logo_url text,
-  language_default text default 'fr',
-  maintenance_mode boolean default false
-);
+CREATE POLICY "Enable update for authenticated users only" ON public.content_custom_sections
+FOR UPDATE USING (auth.role() = 'authenticated');
 
--- ================================================
--- RLS
--- ================================================
-alter table users enable row level security;
-alter table content_sections enable row level security;
-alter table offers enable row level security;
-alter table workflow_steps enable row level security;
-
-create policy "users_self_update"
-on users for update using (auth.uid() = id);
-
-create policy "read_public_users"
-on users for select using (is_public = true);
-
-create policy "sections_read_all"
-on content_sections for select using (true);
-
-create policy "offers_public"
-on offers for select using (is_active = true);
-
-create policy "workflow_steps_public"
-on workflow_steps for select using (is_active = true);
-
--- ================================================
--- INSERT DEFAULT SETTINGS
--- ================================================
-insert into settings (site_name, language_default, maintenance_mode)
-values ('Studio DR', 'fr', false)
-on conflict do nothing;
--- ================================================
--- TABLE UTILISATEURS (profil public)
--- ================================================
-create table if not exists users (
-  id uuid primary key default gen_random_uuid(),
-  email text unique not null,
-  password_hash text,
-  firstname text,
-  lastname text,
-  bio_fr text,
-  bio_en text,
-  avatar_url text,
-  role text check (role in ('developer','admin')) default 'developer',
-  is_public boolean default true,
-  is_approved boolean default false,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- ================================================
--- TABLE SECTIONS DE CONTENU (texte statique dynamique)
--- ================================================
-create table if not exists content_sections (
-  id uuid primary key default gen_random_uuid(),
-  slug text unique not null,
-  title_fr text,
-  title_en text,
-  body_fr text,
-  body_en text,
-  last_modified_by uuid references users(id) on delete set null,
-  updated_at timestamptz default now()
-);
-
--- ================================================
--- TABLE OFFRES COMMERCIALES
--- ================================================
-create table if not exists offers (
-  id uuid primary key default gen_random_uuid(),
-  title_fr text,
-  title_en text,
-  short_fr text,
-  short_en text,
-  long_fr text,
-  long_en text,
-  price_ht numeric(10,2),
-  is_active boolean default true,
-  display_order int default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- ================================================
--- TABLE ETAPES DE TRAVAIL
--- ================================================
-create table if not exists workflow_steps (
-  id uuid primary key default gen_random_uuid(),
-  step_number int,
-  title_fr text,
-  title_en text,
-  text_fr text,
-  text_en text,
-  is_active boolean default true,
-  display_order int default 0,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
--- ================================================
--- TABLE PARAMÈTRES GLOBAUX
--- ================================================
-create table if not exists settings (
-  id uuid primary key default gen_random_uuid(),
-  site_name text default 'Studio DR',
-  logo_url text,
-  language_default text default 'fr',
-  maintenance_mode boolean default false
-);
-
--- ================================================
--- RLS
--- ================================================
-alter table users enable row level security;
-alter table content_sections enable row level security;
-alter table offers enable row level security;
-alter table workflow_steps enable row level security;
-
-create policy "users_self_update"
-on users for update using (auth.uid() = id);
-
-create policy "read_public_users"
-on users for select using (is_public = true);
-
-create policy "sections_read_all"
-on content_sections for select using (true);
-
-create policy "offers_public"
-on offers for select using (is_active = true);
-
-create policy "workflow_steps_public"
-on workflow_steps for select using (is_active = true);
-
--- ================================================
--- INSERT DEFAULT SETTINGS
--- ================================================
-insert into settings (site_name, language_default, maintenance_mode)
-values ('Studio DR', 'fr', false)
-on conflict do nothing;
+CREATE POLICY "Enable delete for authenticated users only" ON public.content_custom_sections
+FOR DELETE USING (auth.role() = 'authenticated');

@@ -1,0 +1,41 @@
+{
+  "name": "Qui sommes-nous",
+  "description": "Liste de membres avec avatar, nom et description.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "members",
+      "label": "Membres",
+      "min": 1,
+      "max": 50,
+      "fields": [
+        {
+          "type": "image",
+          "name": "avatar",
+          "label": "Avatar"
+        },
+        {
+          "type": "text",
+          "name": "name_fr",
+          "label": "Nom (FR)"
+        },
+        {
+          "type": "text",
+          "name": "name_en",
+          "label": "Nom (EN)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_fr",
+          "label": "Description (FR)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_en",
+          "label": "Description (EN)"
+        }
+      ]
+    }
+  ]
+}

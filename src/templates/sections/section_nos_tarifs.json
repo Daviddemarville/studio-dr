@@ -1,0 +1,66 @@
+{
+  "name": "Nos tarifs",
+  "description": "Liste de cartes présentant des offres avec prix, sous-titre et description.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "offers",
+      "label": "Offres",
+      "min": 1,
+      "max": 20,
+      "fields": [
+        {
+          "type": "text",
+          "name": "title_fr",
+          "label": "Titre (FR)"
+        },
+        {
+          "type": "text",
+          "name": "title_en",
+          "label": "Titre (EN)"
+        },
+        {
+          "type": "text",
+          "name": "subtitle_fr",
+          "label": "Sous-titre (FR)"
+        },
+        {
+          "type": "text",
+          "name": "subtitle_en",
+          "label": "Sous-titre (EN)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_fr",
+          "label": "Texte (FR)"
+        },
+        {
+          "type": "textarea",
+          "name": "body_en",
+          "label": "Texte (EN)"
+        },
+        {
+          "type": "number",
+          "name": "price_ht",
+          "label": "Prix HT"
+        },
+        {
+          "type": "number",
+          "name": "tva_rate",
+          "label": "TVA (%)"
+        },
+        {
+          "name": "price_ttc",
+          "label": "Prix TTC"
+        },
+        {
+          "type": "relation",
+          "name": "offer_id",
+          "label": "Offre liée",
+          "relation_table": "content_offers"
+        }
+      ]
+    }
+  ]
+}

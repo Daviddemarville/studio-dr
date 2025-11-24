@@ -1,54 +1,90 @@
-'use client';
+import { supabaseServer } from '@/lib/supabase-server'
+import { getTemplate } from '@/templates/sections/loader.server'
+import SectionRenderer from './components/SectionRenderer'
+import SectionContact from './components/SectionContact'
+import BackToTop from './components/ui/BackToTop'
 
-import SectionWork from './components/SectionWork';
-import SectionTeam from './components/SectionTeam';
-import SectionOffers from './components/SectionOffers';
-import SectionPricing from './components/SectionPricing';
-import SectionWorkflow from './components/SectionWorkflow';
-import SectionContact from './components/SectionContact';
+export default async function HomePage() {
+  const supabase = await supabaseServer()
 
-import BackToTop from './components/ui/BackToTop';
+  // Fetch all active sections ordered by position
+  const { data: sections } = await supabase
+    .from('site_sections')
+    .select('*')
+    .eq('is_active', true)
+    .order('position', { ascending: true })
 
-export default function HomePage() {
+  const sectionsData = sections || []
+
+  // Prepare all sections with their content and templates
+  const sectionsWithData = await Promise.all(
+    sectionsData.map(async (section) => {
+      // Load template
+      const template = section.template_slug
+        ? await getTemplate(section.template_slug)
+        : null
+
+      if (!template) return null
+
+      // Fetch content from the section's table
+      let content: any[] = []
+
+      if (section.table_name === 'users') {
+        // Special case: users table (for team section)
+        const { data } = await supabase
+          .from('users')
+          .select('*')
+          .eq('is_approved', true)
+          .eq('is_public', true)
+
+        content = data || []
+        console.log('[DEBUG] Users loaded:', content.length, content)
+      } else {
+        // Standard sections with section_slug
+        const { data } = await supabase
+          .from(section.table_name)
+          .select('*')
+          .eq('section_slug', section.slug)
+
+        // Order by display_order or step_number if applicable
+        if (['content_offers', 'content_pricing'].includes(section.table_name)) {
+          content = (data || []).sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0))
+        } else if (section.table_name === 'content_workflow_steps') {
+          content = (data || []).sort((a: any, b: any) => (a.step_number || 0) - (b.step_number || 0))
+        } else {
+          content = data || []
+        }
+      }
+
+      return {
+        section,
+        content,
+        template
+      }
+    })
+  )
+
+  // Filter out null sections
+  const validSections = sectionsWithData.filter((s): s is NonNullable<typeof s> => s !== null)
+
   return (
     <div className="space-y-16">
-      
-      {/* SECTION 1 — Notre travail */}
-      <section id="notre-travail" className="scroll-mt-24">
-        <SectionWork />
-        
-      </section>
+      {/* DYNAMIC SECTIONS */}
+      {validSections.map(({ section, content, template }) => (
+        <SectionRenderer
+          key={section.id}
+          section={section}
+          content={content}
+          template={template}
+        />
+      ))}
 
-      {/* SECTION 2 — Qui sommes-nous */}
-      <section id="qui-sommes-nous" className="scroll-mt-24">
-        <SectionTeam />
-        
-      </section>
-
-      {/* SECTION 3 — Nos offres */}
-      <section id="nos-offres" className="scroll-mt-24">
-        <SectionOffers />
-        
-      </section>
-
-      {/* SECTION 4 — Nos tarifs */}
-      <section id="nos-tarifs" className="scroll-mt-24">
-        <SectionPricing />
-        
-      </section>
-
-      {/* SECTION 5 — Comment travaillons-nous */}
-      <section id="comment-travaillons-nous" className="scroll-mt-24">
-        <SectionWorkflow />
-      </section>
-
-      {/* SECTION 6 - Contact */}
+      {/* CONTACT SECTION (independent) */}
       <section id="contact">
-       <SectionContact />
+        <SectionContact />
       </section>
 
-        <BackToTop />
-
+      <BackToTop />
     </div>
-  );
+  )
 }

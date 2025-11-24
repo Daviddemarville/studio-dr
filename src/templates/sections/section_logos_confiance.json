@@ -1,0 +1,18 @@
+{
+  "name": "Ils nous font confiance",
+  "description": "Logos des partenaires ou clients.",
+  "type": "section",
+  "fields": [
+    {
+      "type": "repeater",
+      "name": "logos",
+      "label": "Logos",
+      "min": 1,
+      "max": 50,
+      "fields": [
+        { "type": "image", "name": "logo", "label": "Logo du partenaire" },
+        { "type": "text", "name": "name", "label": "Nom du partenaire" }
+      ]
+    }
+  ]
+}
