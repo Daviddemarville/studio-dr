@@ -49,6 +49,9 @@ export default function renderDynamicField({
     );
   }
 
+  // Toujours sécuriser la valeur avant JSX
+  const safeValue = typeof value === "string" ? value : "";
+
   // ---- NUMBER ----
   if (field.type === "number") {
     return (
@@ -80,9 +83,11 @@ export default function renderDynamicField({
             className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
           />
         </label>
-        {value && typeof value === "string" && (
+
+        {/* FIX : safeValue pour éviter 'unknown' */}
+        {typeof value === "string" && value.trim() !== "" && (
           <Image
-            src={value}
+            src={safeValue}
             alt="preview"
             width={96}
             height={96}
@@ -104,7 +109,7 @@ export default function renderDynamicField({
     );
   }
 
-  // ---- RELATION (Select from another table) ----
+  // ---- RELATION ----
   if (field.type === "relation") {
     return (
       <RelationField
@@ -142,15 +147,12 @@ function RelationField({
   useEffect(() => {
     const fetchOptions = async () => {
       const supabase = supabaseBrowser();
-      // Assuming field.relation_table is defined in the template
-      // For offers, we want the title as label.
       const tableName = field.relation_table as string;
       if (!tableName) return;
 
       const { data } = await supabase.from(tableName).select("id, content");
 
       if (data) {
-        // biome-ignore lint/suspicious/noExplicitAny: Supabase data is loosely typed here
         const opts = data.map((row: any) => ({
           value: row.id,
           label: row.content?.title_fr || row.content?.title || "Sans titre",

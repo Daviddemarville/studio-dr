@@ -1,9 +1,0 @@
-
-> studio-dr@1.0.0 lint
-> biome check
-
-The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
-Diagnostics not shown: 28.
-Checked 91 files in 45ms. No fixes applied.
-Found 12 errors.
-Found 31 warnings.
