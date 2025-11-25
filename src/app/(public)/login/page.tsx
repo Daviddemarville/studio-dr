@@ -1,5 +1,5 @@
-import LoginForm from "./LoginForm";
 import FormCard from "../components/ui/FormCard";
+import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
   return (

@@ -1,5 +1,5 @@
-import ResetRequestForm from "./ResetRequestForm";
 import FormCard from "../components/ui/FormCard";
+import ResetRequestForm from "./ResetRequestForm";
 
 export default function ResetPage() {
   return (

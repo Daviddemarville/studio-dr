@@ -1,37 +1,37 @@
 {
-    "name": "Profil Utilisateur",
-    "description": "Édition du profil utilisateur (table users)",
-    "type": "section",
-    "fields": [
-        {
-            "type": "image",
-            "name": "avatar_url",
-            "label": "Avatar"
-        },
-        {
-            "type": "text",
-            "name": "firstname",
-            "label": "Prénom"
-        },
-        {
-            "type": "text",
-            "name": "lastname",
-            "label": "Nom"
-        },
-        {
-            "type": "text",
-            "name": "pseudo",
-            "label": "Pseudo"
-        },
-        {
-            "type": "textarea",
-            "name": "bio_fr",
-            "label": "Biographie (FR)"
-        },
-        {
-            "type": "textarea",
-            "name": "bio_en",
-            "label": "Biographie (EN)"
-        }
-    ]
+  "name": "Profil Utilisateur",
+  "description": "Édition du profil utilisateur (table users)",
+  "type": "section",
+  "fields": [
+    {
+      "type": "image",
+      "name": "avatar_url",
+      "label": "Avatar"
+    },
+    {
+      "type": "text",
+      "name": "firstname",
+      "label": "Prénom"
+    },
+    {
+      "type": "text",
+      "name": "lastname",
+      "label": "Nom"
+    },
+    {
+      "type": "text",
+      "name": "pseudo",
+      "label": "Pseudo"
+    },
+    {
+      "type": "textarea",
+      "name": "bio_fr",
+      "label": "Biographie (FR)"
+    },
+    {
+      "type": "textarea",
+      "name": "bio_en",
+      "label": "Biographie (EN)"
+    }
+  ]
 }

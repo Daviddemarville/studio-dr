@@ -5,34 +5,38 @@ import renderDynamicField from "./renderDynamicField";
 export default function RepeaterEditor({
   field,
   value,
-  onChange
+  onChange,
 }: {
-  field: any;
-  value: any[];
-  onChange: (newValue: any[]) => void;
+  field: Record<string, unknown>;
+  value: Record<string, unknown>[];
+  onChange: (newValue: Record<string, unknown>[]) => void;
 }) {
-
   const items = value ?? [];
 
   const addItem = () => {
-    // FIX TYPE SCRIPT: objet indexable
-    const emptyItem: Record<string, any> = {};
+    const emptyItem: Record<string, unknown> = {};
 
-    field.fields.forEach((f: any) => {
+    // biome-ignore lint/suspicious/noExplicitAny: Dynamic field structure
+    (field.fields as any[]).forEach((f) => {
       emptyItem[f.name] = f.type === "number" ? 0 : "";
     });
 
     onChange([...items, emptyItem]);
   };
 
-  const updateItem = (index: number, newVal: any) => {
+  const updateItem = (index: number, newVal: Record<string, unknown>) => {
     const updated = [...items];
     updated[index] = newVal;
     onChange(updated);
   };
 
   const deleteItem = (index: number) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible après sauvegarde.")) return;
+    if (
+      !window.confirm(
+        "Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible après sauvegarde.",
+      )
+    )
+      return;
     const updated = items.filter((_, i) => i !== index);
     onChange(updated);
   };
@@ -46,12 +50,15 @@ export default function RepeaterEditor({
     onChange(updated);
   };
 
-  const handleRelationChange = (index: number, selectedItem: any) => {
+  const handleRelationChange = (
+    index: number,
+    selectedItem: Record<string, unknown>,
+  ) => {
     // Auto-fill logic: if selectedItem has title_fr/en, fill them if empty or always?
     // User said: "directement ca aurait du m'ajouter le titre"
     // Let's overwrite title_fr/en if they exist in selectedItem content.
     const currentItem = { ...items[index] };
-    const content = selectedItem.content || {};
+    const content = (selectedItem.content as Record<string, unknown>) || {};
 
     if (content.title_fr) currentItem.title_fr = content.title_fr;
     if (content.title_en) currentItem.title_en = content.title_en;
@@ -66,7 +73,7 @@ export default function RepeaterEditor({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
-        <h4 className="text-neutral-200 text-sm">{field.label}</h4>
+        <h4 className="text-neutral-200 text-sm">{field.label as string}</h4>
         <button
           type="button"
           onClick={addItem}
@@ -78,12 +85,15 @@ export default function RepeaterEditor({
 
       {items.map((item, index) => (
         <div
+          // biome-ignore lint/suspicious/noArrayIndexKey: No stable ID available
           key={index}
           className="border border-neutral-700 rounded-lg p-4 flex flex-col gap-3 bg-neutral-800"
         >
           <div className="flex justify-between mb-1">
             <div className="flex items-center gap-2">
-              <span className="text-neutral-400 text-sm">Élément {index + 1}</span>
+              <span className="text-neutral-400 text-sm">
+                Élément {index + 1}
+              </span>
               <div className="flex gap-1">
                 <button
                   type="button"
@@ -115,14 +125,16 @@ export default function RepeaterEditor({
             </button>
           </div>
 
-          {field.fields.map((subField: any) => (
+          {/* biome-ignore lint/suspicious/noExplicitAny: Dynamic field structure */}
+          {(field.fields as any[]).map((subField) => (
             <div key={subField.name}>
               {renderDynamicField({
                 field: subField,
                 value: item[subField.name],
                 onChange: (newVal) =>
                   updateItem(index, { ...item, [subField.name]: newVal }),
-                onRelationChange: (selectedItem) => handleRelationChange(index, selectedItem)
+                onRelationChange: (selectedItem) =>
+                  handleRelationChange(index, selectedItem),
               })}
             </div>
           ))}

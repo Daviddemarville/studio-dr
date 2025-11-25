@@ -9,7 +9,7 @@ export const FieldSchema = z.object({
   label: z.string().optional(),
   min: z.number().optional(),
   max: z.number().optional(),
-  fields: z.any().optional()  // permet repeater + fields dynamiques
+  fields: z.any().optional(), // permet repeater + fields dynamiques
 });
 
 /* ----------------------------------------------------------
@@ -18,8 +18,8 @@ export const FieldSchema = z.object({
 export const TemplateSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  type: z.string(),            // on laisse EXACTEMENT ce que tu avais
-  fields: z.array(FieldSchema)
+  type: z.string(), // on laisse EXACTEMENT ce que tu avais
+  fields: z.array(FieldSchema),
 });
 
 /* ----------------------------------------------------------

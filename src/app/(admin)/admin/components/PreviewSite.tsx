@@ -8,13 +8,12 @@ export default function PreviewSite() {
         shadow-xl backdrop-blur-sm p-5
       "
     >
-      <h3 className="text-lg font-semibold text-white mb-4">
-        Aperçu du site
-      </h3>
+      <h3 className="text-lg font-semibold text-white mb-4">Aperçu du site</h3>
 
       <div className="relative rounded-lg overflow-hidden border border-gray-700/50">
         {/* IFRAME PREVIEW */}
         <iframe
+          title="Aperçu du site"
           src="/"
           className="
             w-full h-[500px] 

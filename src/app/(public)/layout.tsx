@@ -1,14 +1,12 @@
-// src/app/(public)/layout.tsx
-
-import { ReactNode } from 'react';
-import Header from './components/Header';
-import Footer from './components/Footer';
 import Script from "next/script";
+import type { ReactNode } from "react";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <Script 
+      <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
       />

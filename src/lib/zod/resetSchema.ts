@@ -19,11 +19,11 @@ const emailSchema = z
   .email("Email invalide.")
   .refine(
     (val) => /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(val),
-    "Adresse email invalide."
+    "Adresse email invalide.",
   )
   .refine(
     (val) => !disposableDomains.includes(val.split("@")[1]),
-    "Les emails jetables ne sont pas autorisés."
+    "Les emails jetables ne sont pas autorisés.",
   );
 
 // ----------------------
@@ -39,9 +39,10 @@ const passwordSchema = z
   .refine((val) => /[0-9]/.test(val), "Doit contenir un chiffre.")
   .refine(
     (val) => /[!@#$%^&*()_\-+.?]/.test(val),
-    "Doit contenir un caractère spécial."
+    "Doit contenir un caractère spécial.",
   )
   .refine((val) => !/[À-ÖØ-öø-ÿ]/.test(val), "Pas d'accents autorisés.")
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: Valid regex for allowed characters
   .refine((val) => !/[^\u0000-\u00ff]/.test(val), "Pas d'emojis.")
   .refine((val) => !/\s/.test(val), "Pas d'espaces.");
 

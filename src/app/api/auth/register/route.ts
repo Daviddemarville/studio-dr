@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
 import { Resend } from "resend";
-
+import { supabaseServer } from "@/lib/supabase-server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -14,17 +13,16 @@ export async function POST(req: Request) {
     const pseudo = body.pseudo?.trim() || null;
     const email = body.email?.trim();
     const password = body.password;
-    
+
     // -----------------------------
     // VALIDATION MINIMALE
     // -----------------------------
     if (!firstname || !lastname || !email || !password) {
       return NextResponse.json(
         { error: "Tous les champs obligatoires ne sont pas remplis." },
-        { status: 400 }
+        { status: 400 },
       );
     }
-    
 
     // ----------------------------------------------
     // 0) Vérification unicité du pseudo (si rempli)
@@ -40,14 +38,14 @@ export async function POST(req: Request) {
         console.error("Pseudo check error:", pseudoError);
         return NextResponse.json(
           { error: "Erreur lors de la vérification du pseudo." },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
       if (existingPseudo) {
         return NextResponse.json(
           { error: "Ce pseudo est déjà utilisé. Choisissez-en un autre." },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -55,8 +53,8 @@ export async function POST(req: Request) {
     // -----------------------------
     // 1) Inscription Auth (client public)
     // -----------------------------
-    const { data: signupData, error: signupError } =
-      await supabase.auth.signUp({
+    const { data: signupData, error: signupError } = await supabase.auth.signUp(
+      {
         email,
         password,
         options: {
@@ -67,12 +65,16 @@ export async function POST(req: Request) {
             is_approved: false,
           },
         },
-      });
+      },
+    );
 
     if (signupError || !signupData.user) {
       return NextResponse.json(
-        { error: signupError?.message ?? "Erreur lors de la création du compte." },
-        { status: 400 }
+        {
+          error:
+            signupError?.message ?? "Erreur lors de la création du compte.",
+        },
+        { status: 400 },
       );
     }
 
@@ -81,22 +83,20 @@ export async function POST(req: Request) {
     // -----------------------------
     // 2) Insérer dans table public.users (admin only)
     // -----------------------------
-    const { error: insertError } = await supabase
-      .from("users")
-      .insert({
-        id: userId,
-        email,
-        firstname,
-        lastname,
-        pseudo,
-        is_approved: false,
-      });
+    const { error: insertError } = await supabase.from("users").insert({
+      id: userId,
+      email,
+      firstname,
+      lastname,
+      pseudo,
+      is_approved: false,
+    });
 
     if (insertError) {
       console.error("Insert users error:", insertError);
       return NextResponse.json(
         { error: "Erreur lors de l'insertion dans la base." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -125,7 +125,6 @@ export async function POST(req: Request) {
       message:
         "Compte créé ! Vérifiez vos emails. Votre accès doit être validé par un administrateur.",
     });
-
   } catch (err) {
     console.error("Register error:", err);
     return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });

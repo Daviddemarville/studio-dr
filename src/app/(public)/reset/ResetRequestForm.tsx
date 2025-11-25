@@ -1,11 +1,11 @@
 "use client";
 
-import { resetRequestSchema } from "@/lib/zod/resetSchema";
-import { useForm } from "react-hook-form";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { supabaseBrowser } from "@/lib/supabase-browser";
+import { resetRequestSchema } from "@/lib/zod/resetSchema";
 
 export default function ResetRequestForm() {
   const supabase = supabaseBrowser();
@@ -29,7 +29,7 @@ export default function ResetRequestForm() {
       toast.error(error.message);
     } else {
       toast.success(
-        "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."
+        "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.",
       );
       reset();
 
@@ -41,24 +41,22 @@ export default function ResetRequestForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-white">
-
       {/* EMAIL */}
       <div className="space-y-1">
-        <label className="text-sm text-gray-300">Adresse email</label>
+        <label htmlFor="email" className="text-sm text-gray-300">
+          Adresse email
+        </label>
 
         <input
+          id="email"
           {...register("email")}
           type="email"
+          className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
           placeholder="exemple@domaine.fr"
-          className={`w-full p-3 rounded-lg bg-[#111317] border 
-            ${errors.email ? "border-red-500" : "border-gray-700"} 
-            focus:border-blue-500 transition`}
         />
 
         {errors.email && (
-          <p className="text-sm text-red-400">
-            {errors.email.message as string}
-          </p>
+          <p className="text-red-400 text-xs">{errors.email.message}</p>
         )}
       </div>
 
@@ -69,7 +67,6 @@ export default function ResetRequestForm() {
       >
         Envoyer le lien
       </button>
-
     </form>
   );
 }

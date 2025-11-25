@@ -1,13 +1,13 @@
 import {
-  Layers,
+  BookText,
   FileText,
+  Folder,
+  Image,
+  Layers,
   LayoutGrid,
   Users,
-  Image,
-  Folder,
   Wand2,
   Wrench,
-  BookText,
 } from "lucide-react";
 
 export const SECTION_ICONS: Record<string, any> = {

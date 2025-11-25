@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import type { UseFormRegisterReturn } from "react-hook-form";
 
 interface PasswordFieldProps {
   label?: string;
   placeholder?: string;
-  register: ReturnType<any>;
+  register: UseFormRegisterReturn;
   error?: string;
 }
 
@@ -21,12 +22,14 @@ export default function PasswordField({
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor="password" className="text-sm text-gray-300">{label}</label>
+        <label htmlFor="password" className="text-sm text-gray-300">
+          {label}
+        </label>
       )}
 
       <div className="relative">
         <input
-        id="password"
+          id="password"
           type={show ? "text" : "password"}
           placeholder={placeholder}
           {...register}
@@ -46,9 +49,7 @@ export default function PasswordField({
         </button>
       </div>
 
-      {error && (
-        <p className="text-sm text-red-400">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-400">{error}</p>}
     </div>
   );
 }

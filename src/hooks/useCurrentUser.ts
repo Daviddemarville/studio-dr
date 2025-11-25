@@ -22,7 +22,7 @@ export function useCurrentUser() {
     };
 
     load();
-  }, []);
+  }, [supabase]);
 
   return user;
 }

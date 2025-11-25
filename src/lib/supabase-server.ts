@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 export async function supabaseServer() {
   const cookieStore = await cookies(); // ← obligatoire sur Next.js 16
@@ -17,6 +17,6 @@ export async function supabaseServer() {
         },
         remove() {},
       },
-    }
+    },
   );
 }

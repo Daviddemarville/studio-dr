@@ -1,5 +1,5 @@
-'use client'
-import ProfileEditor from '../components/ProfileEditor'
+"use client";
+import ProfileEditor from "../components/ProfileEditor";
 
 export default function ProfilPage() {
   return (
@@ -7,5 +7,5 @@ export default function ProfilPage() {
       <h1 className="text-2xl font-bold mb-4">Mon profil / Qui sommes nous?</h1>
       <ProfileEditor />
     </div>
-  )
+  );
 }

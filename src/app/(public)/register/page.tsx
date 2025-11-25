@@ -1,5 +1,5 @@
-import RegisterForm from "./RegisterForm";
 import FormCard from "../components/ui/FormCard";
+import RegisterForm from "./RegisterForm";
 
 export default function RegisterPage() {
   return (

@@ -25,9 +25,7 @@
     },
 
     /* --- Plugin Next --- */
-    "plugins": [
-      { "name": "next" }
-    ]
+    "plugins": [{ "name": "next" }]
   },
 
   /* --- Fichiers inclus --- */

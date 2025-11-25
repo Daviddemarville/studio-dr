@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     if (!email) {
       return NextResponse.json(
         { error: "Adresse email obligatoire." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -18,12 +18,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Si un compte existe, un email de réinitialisation a été envoyé.",
+      message:
+        "Si un compte existe, un email de réinitialisation a été envoyé.",
     });
   } catch (e: any) {
     return NextResponse.json(
-      { error: "Erreur serveur : " + e.message },
-      { status: 500 }
+      { error: `Erreur serveur : ${e.message}` },
+      { status: 500 },
     );
   }
 }

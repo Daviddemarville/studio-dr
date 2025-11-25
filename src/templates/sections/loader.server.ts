@@ -1,10 +1,10 @@
 "use server";
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import {
   TemplateSchema,
-  TemplateSchemaType,
+  type TemplateSchemaType,
 } from "@/lib/zod/sectionTemplateSchema";
 
 /* ------------------------------------------------------------------
@@ -14,12 +14,7 @@ export interface TemplateWithSlug extends TemplateSchemaType {
   slug: string;
 }
 
-const templatesDir = path.join(
-  process.cwd(),
-  "src",
-  "templates",
-  "sections"
-);
+const templatesDir = path.join(process.cwd(), "src", "templates", "sections");
 
 export async function loadTemplates(): Promise<TemplateWithSlug[]> {
   const files = fs.readdirSync(templatesDir);
@@ -34,7 +29,7 @@ export async function loadTemplates(): Promise<TemplateWithSlug[]> {
       if (!parsed.success) {
         console.error(
           `[TEMPLATE ERROR] ${file} invalide :`,
-          parsed.error.issues
+          parsed.error.issues,
         );
         return null;
       }
@@ -49,9 +44,8 @@ export async function loadTemplates(): Promise<TemplateWithSlug[]> {
   return templates;
 }
 
-
 export async function getTemplate(
-  slug: string
+  slug: string,
 ): Promise<TemplateWithSlug | null> {
   const templates = await loadTemplates();
   return templates.find((t) => t.slug === slug) || null;

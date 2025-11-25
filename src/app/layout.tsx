@@ -1,15 +1,15 @@
 // src/app/layout.tsx
 
-import './globals.css';
-import { ReactNode } from 'react';
+import "./globals.css";
+import type { ReactNode } from "react";
 
 // Toastify
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const metadata = {
-  title: 'Studio DR',
-  description: 'Studio de développement web fullstack',
+  title: "Studio DR",
+  description: "Studio de développement web fullstack",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

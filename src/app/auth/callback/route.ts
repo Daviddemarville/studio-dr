@@ -16,8 +16,8 @@
 // ============================================================================
 
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
 import { resend } from "@/lib/resend";
+import { supabaseServer } from "@/lib/supabase-server";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -37,9 +37,8 @@ export async function GET(request: Request) {
   // 2. EXCHANGE DU CODE → SESSION SUPABASE
   // ────────────────────────────────────────────────────────────────
   if (code) {
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(
-      code
-    );
+    const { error: exchangeError } =
+      await supabase.auth.exchangeCodeForSession(code);
 
     if (exchangeError) {
       console.error("❌ Erreur exchangeCodeForSession:", exchangeError);
@@ -93,17 +92,15 @@ export async function GET(request: Request) {
       const pseudo = meta.preferred_username ?? null;
       const avatar = meta.avatar_url ?? null;
 
-      const { error: insertError } = await supabase
-        .from("users")
-        .insert({
-          id: user.id,
-          email,
-          firstname,
-          lastname,
-          pseudo,
-          avatar,
-          is_approved: false,
-        });
+      const { error: insertError } = await supabase.from("users").insert({
+        id: user.id,
+        email,
+        firstname,
+        lastname,
+        pseudo,
+        avatar,
+        is_approved: false,
+      });
 
       if (insertError) {
         console.error("❌ Insert OAuth user error:", insertError);

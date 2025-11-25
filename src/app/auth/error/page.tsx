@@ -1,5 +1,5 @@
-import FormCard from "@/app/(public)/components/ui/FormCard";
 import Link from "next/link";
+import FormCard from "@/app/(public)/components/ui/FormCard";
 
 export default function AuthErrorPage() {
   return (

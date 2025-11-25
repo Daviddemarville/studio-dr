@@ -1,12 +1,12 @@
 "use client";
 
-import { resetConfirmSchema } from "@/lib/zod/resetSchema";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { supabaseBrowser } from "@/lib/supabase-browser";
+import { resetConfirmSchema } from "@/lib/zod/resetSchema";
 import PasswordField from "../components/ui/PasswordField";
 
 export default function ResetConfirmForm() {
@@ -46,7 +46,6 @@ export default function ResetConfirmForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-white">
-
       {/* NOUVEAU MOT DE PASSE */}
       <PasswordField
         label="Nouveau mot de passe"

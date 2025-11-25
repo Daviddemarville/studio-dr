@@ -1,9 +1,9 @@
 "use client";
 
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import { FcGoogle } from "react-icons/fc";
-import { FaDiscord, FaGithub } from "react-icons/fa";
 import { useState } from "react";
+import { FaDiscord, FaGithub } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 export default function OAuthButtons() {
   const supabase = supabaseBrowser();
@@ -14,18 +14,17 @@ export default function OAuthButtons() {
     setLoading(provider);
 
     await supabase.auth.signInWithOAuth({
-  provider,
-  options: {
-    redirectTo: `${window.location.origin}/auth/callback`,
-  },
-});
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
     // Pas besoin de reset, redirection immédiate
   };
 
   return (
     <div className="space-y-2">
-
       {/* GOOGLE */}
       <button
         type="button"
