@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function SettingsForm({
   initialValues,
 }: {
-  initialValues: any;
+  initialValues: { site_name?: string; logo_url?: string };
 }) {
   const [siteName, setSiteName] = useState(initialValues?.site_name ?? "");
   const [logoUrl, setLogoUrl] = useState(initialValues?.logo_url ?? "");
@@ -31,25 +31,25 @@ export default function SettingsForm({
       <div>
         <label className="block text-sm text-gray-300 mb-1">
           Nom du site
+          <input
+            type="text"
+            value={siteName}
+            onChange={(e) => setSiteName(e.target.value)}
+            className="w-full rounded-lg p-2 bg-gray-900 border border-gray-700 text-gray-200 mt-1"
+          />
         </label>
-        <input
-          type="text"
-          value={siteName}
-          onChange={(e) => setSiteName(e.target.value)}
-          className="w-full rounded-lg p-2 bg-gray-900 border border-gray-700 text-gray-200"
-        />
       </div>
 
       <div>
         <label className="block text-sm text-gray-300 mb-1">
           Logo (URL)
+          <input
+            type="text"
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            className="w-full rounded-lg p-2 bg-gray-900 border border-gray-700 text-gray-200 mt-1"
+          />
         </label>
-        <input
-          type="text"
-          value={logoUrl}
-          onChange={(e) => setLogoUrl(e.target.value)}
-          className="w-full rounded-lg p-2 bg-gray-900 border border-gray-700 text-gray-200"
-        />
       </div>
 
       <button
@@ -59,9 +59,7 @@ export default function SettingsForm({
         Sauvegarder
       </button>
 
-      {message && (
-        <p className="text-sm text-green-400 mt-2">{message}</p>
-      )}
+      {message && <p className="text-sm text-green-400 mt-2">{message}</p>}
     </form>
   );
 }

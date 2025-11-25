@@ -9,7 +9,7 @@ export default async function UserDisplayName() {
 
   if (!user) {
     // Ne devrait jamais arriver grâce au layout, mais TS exige un fallback
-    return <>Utilisateur</>;
+    return "Utilisateur";
   }
 
   // Récup profil
@@ -25,5 +25,5 @@ export default async function UserDisplayName() {
 
   const displayName = firstName || pseudo || emailName || "Utilisateur";
 
-  return <>{displayName}</>;
+  return displayName;
 }

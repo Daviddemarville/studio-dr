@@ -1,5 +1,5 @@
-import ResetConfirmForm from "./ResetConfirmForm";
 import FormCard from "../components/ui/FormCard";
+import ResetConfirmForm from "./ResetConfirmForm";
 
 export default function ResetConfirmPage() {
   return (

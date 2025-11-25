@@ -19,11 +19,10 @@ export default async function NewSectionPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Gestion des Sections</h1>
-      <NewSectionClient
-        templates={templates}
-        sections={sections ?? []}
-      />
+      <h1 className="text-3xl font-bold text-white mb-8">
+        Gestion des Sections
+      </h1>
+      <NewSectionClient templates={templates} sections={sections ?? []} />
     </div>
   );
 }

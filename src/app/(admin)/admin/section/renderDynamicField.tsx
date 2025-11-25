@@ -1,34 +1,34 @@
 "use client";
 
-import RepeaterEditor from "./RepeaterEditor";
-import { useState, useEffect } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
+import RepeaterEditor from "./RepeaterEditor";
 
 export default function renderDynamicField({
   field,
   value,
   onChange,
-  onRelationChange
+  onRelationChange,
 }: {
-  field: any;
-  value: any;
-  onChange: (value: any) => void;
-  onRelationChange?: (selectedItem: any) => void;
+  field: Record<string, unknown>;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  onRelationChange?: (selectedItem: Record<string, unknown>) => void;
 }) {
-
   // ---- TEXT INPUT ----
   if (field.type === "text") {
     return (
       <div className="flex flex-col gap-1">
-        {field.label && (
-          <label className="text-sm text-neutral-300">{field.label}</label>
-        )}
-        <input
-          type="text"
-          className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100"
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <label className="text-sm text-neutral-300">
+          {field.label as string}
+          <input
+            type="text"
+            value={(value as string) || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
+          />
+        </label>
       </div>
     );
   }
@@ -37,15 +37,14 @@ export default function renderDynamicField({
   if (field.type === "textarea") {
     return (
       <div className="flex flex-col gap-1">
-        {field.label && (
-          <label className="text-sm text-neutral-300">{field.label}</label>
-        )}
-        <textarea
-          rows={4}
-          className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100"
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <label className="text-sm text-neutral-300">
+          {field.label as string}
+          <textarea
+            value={(value as string) || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white min-h-[80px] mt-1"
+          />
+        </label>
       </div>
     );
   }
@@ -54,42 +53,39 @@ export default function renderDynamicField({
   if (field.type === "number") {
     return (
       <div className="flex flex-col gap-1">
-        {field.label && (
-          <label className="text-sm text-neutral-300">{field.label}</label>
-        )}
-        <input
-          type="number"
-          className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100"
-          value={value ?? ""}
-          onChange={(e) => onChange(Number(e.target.value))}
-        />
+        <label className="text-sm text-neutral-300">
+          {field.label as string}
+          <input
+            type="number"
+            value={(value as number) || 0}
+            onChange={(e) => onChange(parseFloat(e.target.value))}
+            className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
+          />
+        </label>
       </div>
     );
   }
 
-  // ---- IMAGE (simple placeholder d'upload) ----
+  // ---- IMAGE URL ----
   if (field.type === "image") {
     return (
       <div className="flex flex-col gap-1">
-        {field.label && (
-          <label className="text-sm text-neutral-300">{field.label}</label>
-        )}
-
-        <input
-          type="file"
-          accept="image/*"
-          className="text-neutral-300"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            onChange(file);
-          }}
-        />
-
+        <label className="text-sm text-neutral-300">
+          {field.label as string}
+          <input
+            type="text"
+            placeholder="https://..."
+            value={(value as string) || ""}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
+          />
+        </label>
         {value && typeof value === "string" && (
-          <img
+          <Image
             src={value}
             alt="preview"
+            width={96}
+            height={96}
             className="w-24 h-auto rounded mt-2 border border-neutral-700"
           />
         )}
@@ -102,13 +98,13 @@ export default function renderDynamicField({
     return (
       <RepeaterEditor
         field={field}
-        value={value}
+        value={value as Record<string, unknown>[]}
         onChange={onChange}
       />
     );
   }
 
-  // ---- RELATION ----
+  // ---- RELATION (Select from another table) ----
   if (field.type === "relation") {
     return (
       <RelationField
@@ -120,21 +116,27 @@ export default function renderDynamicField({
     );
   }
 
-  return null;
+  return (
+    <p className="text-red-500 text-xs">
+      Type de champ inconnu : {field.type as string}
+    </p>
+  );
 }
 
 function RelationField({
   field,
   value,
   onChange,
-  onRelationChange
+  onRelationChange,
 }: {
-  field: any,
-  value: any,
-  onChange: (val: any) => void,
-  onRelationChange?: (item: any) => void
+  field: Record<string, unknown>;
+  value: unknown;
+  onChange: (val: unknown) => void;
+  onRelationChange?: (item: Record<string, unknown>) => void;
 }) {
-  const [options, setOptions] = useState<{ label: string, value: string, original: any }[]>([]);
+  const [options, setOptions] = useState<
+    { label: string; value: string; original: Record<string, unknown> }[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -142,15 +144,17 @@ function RelationField({
       const supabase = supabaseBrowser();
       // Assuming field.relation_table is defined in the template
       // For offers, we want the title as label.
-      const { data } = await supabase
-        .from(field.relation_table)
-        .select("id, content");
+      const tableName = field.relation_table as string;
+      if (!tableName) return;
+
+      const { data } = await supabase.from(tableName).select("id, content");
 
       if (data) {
+        // biome-ignore lint/suspicious/noExplicitAny: Supabase data is loosely typed here
         const opts = data.map((row: any) => ({
           value: row.id,
           label: row.content?.title_fr || row.content?.title || "Sans titre",
-          original: row
+          original: row,
         }));
         setOptions(opts);
       }
@@ -166,26 +170,28 @@ function RelationField({
 
   return (
     <div className="flex flex-col gap-1">
-      {field.label && (
-        <label className="text-sm text-neutral-300">{field.label}</label>
-      )}
-      <select
-        className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100"
-        value={value ?? ""}
-        onChange={(e) => {
-          const val = e.target.value;
-          onChange(val);
-          if (onRelationChange) {
-            const selected = options.find(o => o.value === val);
-            if (selected) onRelationChange(selected.original);
-          }
-        }}
-      >
-        <option value="">-- Sélectionner --</option>
-        {options.map(opt => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
+      <label className="text-sm text-neutral-300">
+        {field.label as string}
+        <select
+          className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100 mt-1"
+          value={(value as string) ?? ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            onChange(val);
+            if (onRelationChange) {
+              const selected = options.find((o) => o.value === val);
+              if (selected) onRelationChange(selected.original);
+            }
+          }}
+        >
+          <option value="">-- Sélectionner --</option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   );
 }

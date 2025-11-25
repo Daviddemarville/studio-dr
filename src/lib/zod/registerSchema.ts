@@ -19,11 +19,11 @@ const emailSchema = z
   .email("Email invalide.")
   .refine(
     (val) => /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(val),
-    "Adresse email invalide."
+    "Adresse email invalide.",
   )
   .refine(
     (val) => !disposableDomains.includes(val.split("@")[1]),
-    "Les emails jetables ne sont pas autorisés."
+    "Les emails jetables ne sont pas autorisés.",
   );
 
 // ========================================================
@@ -36,7 +36,7 @@ const firstnameSchema = z
   .max(50, "Prénom trop long.")
   .regex(
     /^[A-Za-zÀ-ÖØ-öø-ÿ]+([ '-][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/,
-    "Format du prénom invalide."
+    "Format du prénom invalide.",
   );
 
 // ========================================================
@@ -48,15 +48,22 @@ const lastnameSchema = z
   .min(2, "Le nom doit contenir au moins 2 caractères.")
   .max(50, "Nom trop long.")
   .regex(
-    /^[A-Za-zÀ-ÖØ-öø-ÿ]+([ '\-][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/,
-    "Format du nom invalide."
+    /^[A-Za-zÀ-ÖØ-öø-ÿ]+([ '-][A-Za-zÀ-ÖØ-öø-ÿ]+)*$/,
+    "Format du nom invalide.",
   );
 
 // ========================================================
 // PSEUDO : alphanum, _, -, [ ], banlist mode contains
 // ========================================================
 const bannedWords = [
-  "dev", "test", "admin", "root", "system", "support", "moderator", "owner",
+  "dev",
+  "test",
+  "admin",
+  "root",
+  "system",
+  "support",
+  "moderator",
+  "owner",
 ];
 
 // Schéma interne pour un pseudo NON vide
@@ -66,17 +73,14 @@ const pseudoNonEmptySchema = z
   .min(2, "Le pseudo doit contenir au moins 2 caractères.")
   .max(20, "Le pseudo ne doit pas dépasser 20 caractères.")
   .regex(
-    /^[A-Za-z0-9_\-\[\]]+$/,
-    "Le pseudo ne peut contenir que lettres, chiffres, -, _, [ ]"
+    /^[A-Za-z0-9_\-[\]]+$/,
+    "Le pseudo ne peut contenir que lettres, chiffres, -, _, [ ]",
   )
   .refine(
     (val) => !/[À-ÖØ-öø-ÿ]/.test(val),
-    "Les accents ne sont pas autorisés dans le pseudo."
+    "Les accents ne sont pas autorisés dans le pseudo.",
   )
-  .refine(
-    (val) => !/\s/.test(val),
-    "Le pseudo ne doit pas contenir d'espaces."
-  )
+  .refine((val) => !/\s/.test(val), "Le pseudo ne doit pas contenir d'espaces.")
   .refine(
     (val) =>
       !bannedWords.some((bad) =>
@@ -84,9 +88,9 @@ const pseudoNonEmptySchema = z
           .toLowerCase()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
-          .includes(bad)
+          .includes(bad),
       ),
-    "Ce pseudo contient un mot interdit."
+    "Ce pseudo contient un mot interdit.",
   );
 
 // 👉 Pseudo optionnel : vide = accepté, sinon validation complète
@@ -97,9 +101,8 @@ export const pseudoSchema = z
   .transform((val) => val ?? "") // null->"" | undefined->""
   .refine(
     (val) => val === "" || pseudoNonEmptySchema.safeParse(val).success,
-    "Le pseudo n'est pas valide."
+    "Le pseudo n'est pas valide.",
   );
-
 
 // ========================================================
 // PASSWORD : 8–20, maj, min, chiffre, spécial, no accents
@@ -109,34 +112,23 @@ const passwordSchema = z
   .trim()
   .min(8, "Le mot de passe doit contenir au moins 8 caractères.")
   .max(20, "Le mot de passe ne doit pas dépasser 20 caractères.")
-  .refine(
-    (val) => /[a-z]/.test(val),
-    "Doit contenir au moins une minuscule."
-  )
-  .refine(
-    (val) => /[A-Z]/.test(val),
-    "Doit contenir au moins une majuscule."
-  )
-  .refine(
-    (val) => /[0-9]/.test(val),
-    "Doit contenir au moins un chiffre."
-  )
+  .refine((val) => /[a-z]/.test(val), "Doit contenir au moins une minuscule.")
+  .refine((val) => /[A-Z]/.test(val), "Doit contenir au moins une majuscule.")
+  .refine((val) => /[0-9]/.test(val), "Doit contenir au moins un chiffre.")
   .refine(
     (val) => /[!@#$%^&*()_\-+.?]/.test(val),
-    "Doit contenir au moins un caractère spécial."
+    "Doit contenir au moins un caractère spécial.",
   )
   .refine(
     (val) => !/[À-ÖØ-öø-ÿ]/.test(val),
-    "Les accents ne sont pas autorisés."
+    "Les accents ne sont pas autorisés.",
   )
   .refine(
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: Valid regex for allowed characters
     (val) => !/[^\u0000-\u00ff]/.test(val),
-    "Les emojis ne sont pas autorisés."
+    "Les emojis ne sont pas autorisés.",
   )
-  .refine(
-    (val) => !/\s/.test(val),
-    "Les espaces ne sont pas autorisés."
-  );
+  .refine((val) => !/\s/.test(val), "Les espaces ne sont pas autorisés.");
 
 // ========================================================
 // SCHEMA FINAL : REGISTER

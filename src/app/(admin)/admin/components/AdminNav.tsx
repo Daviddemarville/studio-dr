@@ -1,45 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase-browser";
-import type { LucideIcon } from "lucide-react";
-
 // Icons (hard coded parts)
 import {
-  LayoutDashboard,
-  FilePenLine,
-  Briefcase,
-  Wallet,
-  Workflow,
-  PlusCircle,
-  Users,
-  Mail,
-  LogOut,
-  ChevronRight,
   ChevronLeft,
+  ChevronRight,
+  LayoutDashboard,
+  LogOut,
+  Mail,
+  PlusCircle,
   Settings,
+  Users,
 } from "lucide-react";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Dynamic icon library
-import { SECTION_ICONS, DEFAULT_SECTION_ICON } from "@/lib/section-icons";
+import { DEFAULT_SECTION_ICON, SECTION_ICONS } from "@/lib/section-icons";
+import { supabaseBrowser } from "@/lib/supabase-browser";
 
 /* ---------------------------------------------------------
    TYPES STRICTS
 --------------------------------------------------------- */
-
-interface NavLink {
-  label: string;
-  href: string;
-  icon: LucideIcon;
-}
-
-interface NavSection {
-  section: string;
-  items: NavLink[];
-}
-
-type NavEntry = NavLink | NavSection;
 
 /* ---------------------------------------------------------
    COMPONENT
@@ -110,7 +92,7 @@ export default function AdminNav() {
           slug: s.slug,
           icon: s.icon,
           route: `/admin/section/${s.slug}`,
-        }))
+        })),
       );
     }
 
@@ -123,7 +105,6 @@ export default function AdminNav() {
     window.addEventListener("refresh-nav", handleRefresh);
     return () => window.removeEventListener("refresh-nav", handleRefresh);
   }, [supabase]);
-
 
   /* ---------------------------------------------------------
      LOGOUT
@@ -146,15 +127,15 @@ export default function AdminNav() {
     return () => window.removeEventListener("click", handleOutside);
   }, [mobileOpen]);
 
-  const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+  const stopPropagation = (e: React.MouseEvent | React.KeyboardEvent) =>
+    e.stopPropagation();
 
   const handleMobileLinkClick = (href: string) => {
     router.push(href);
     setMobileOpen(false);
   };
 
-  const showText =
-    (!collapsed && !isMobile) || (isMobile && mobileOpen);
+  const showText = (!collapsed && !isMobile) || (isMobile && mobileOpen);
 
   /* ---------------------------------------------------------
      RENDER
@@ -167,18 +148,20 @@ export default function AdminNav() {
 
       <aside
         onClick={stopPropagation}
+        onKeyDown={stopPropagation}
         className={`
           fixed md:static z-30 top-0 left-0 h-screen bg-gray-800 text-gray-200 
           shadow-xl border-r border-gray-700/50 flex flex-col overflow-hidden
           transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]
 
-          ${isMobile
-            ? mobileOpen
-              ? "w-64"
-              : "w-20"
-            : collapsed
-              ? "w-20"
-              : "w-64"
+          ${
+            isMobile
+              ? mobileOpen
+                ? "w-64"
+                : "w-20"
+              : collapsed
+                ? "w-20"
+                : "w-64"
           }
         `}
       >
@@ -186,9 +169,11 @@ export default function AdminNav() {
         <div className="flex items-center justify-between p-4 border-b border-gray-700/40">
           <div className="flex items-center gap-3">
             {logoUrl && logoUrl.trim() !== "" ? (
-              <img
+              <Image
                 src={logoUrl}
                 alt="Logo"
+                width={40}
+                height={40}
                 className="h-10 w-10 object-contain rounded select-none"
               />
             ) : siteName && siteName.trim() !== "" ? (
@@ -207,6 +192,7 @@ export default function AdminNav() {
           </div>
 
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               if (isMobile) setMobileOpen(!mobileOpen);
@@ -214,23 +200,26 @@ export default function AdminNav() {
             }}
             className="text-gray-300 hover:text-white transition"
           >
-            {isMobile
-              ? mobileOpen
-                ? <ChevronLeft size={20} />
-                : <ChevronRight size={20} />
-              : collapsed
-                ? <ChevronRight size={20} />
-                : <ChevronLeft size={20} />
-            }
+            {isMobile ? (
+              mobileOpen ? (
+                <ChevronLeft size={20} />
+              ) : (
+                <ChevronRight size={20} />
+              )
+            ) : collapsed ? (
+              <ChevronRight size={20} />
+            ) : (
+              <ChevronLeft size={20} />
+            )}
           </button>
         </div>
 
         {/* NAVIGATION */}
         <nav className="flex-1 overflow-y-auto p-4">
-
           {/* 🟦 Bloc 1 : Dashboard */}
           <div className="mb-6">
             <button
+              type="button"
               onClick={() =>
                 isMobile
                   ? handleMobileLinkClick("/admin")
@@ -238,9 +227,10 @@ export default function AdminNav() {
               }
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full
-                ${isActive("/admin")
-                  ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                  : "hover:bg-gray-700/50 text-gray-300"
+                ${
+                  isActive("/admin")
+                    ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                    : "hover:bg-gray-700/50 text-gray-300"
                 }
               `}
             >
@@ -264,12 +254,12 @@ export default function AdminNav() {
 
             <div className="flex flex-col gap-2">
               {dynamicSections.map((sec) => {
-                const Icon =
-                  SECTION_ICONS[sec.icon] || DEFAULT_SECTION_ICON;
+                const Icon = SECTION_ICONS[sec.icon] || DEFAULT_SECTION_ICON;
                 const active = isActive(sec.route);
 
                 return (
                   <button
+                    type="button"
                     key={sec.id}
                     onClick={() =>
                       isMobile
@@ -278,9 +268,10 @@ export default function AdminNav() {
                     }
                     className={`
                       flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full text-left
-                      ${active
-                        ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                        : "hover:bg-gray-700/50 text-gray-300"
+                      ${
+                        active
+                          ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                          : "hover:bg-gray-700/50 text-gray-300"
                       }
                     `}
                   >
@@ -302,6 +293,7 @@ export default function AdminNav() {
 
             <div className="flex flex-col gap-2">
               <button
+                type="button"
                 onClick={() =>
                   isMobile
                     ? handleMobileLinkClick("/admin/section/newsection")
@@ -317,6 +309,7 @@ export default function AdminNav() {
               </button>
 
               <button
+                type="button"
                 onClick={() =>
                   isMobile
                     ? handleMobileLinkClick("/admin/valideusers")
@@ -332,6 +325,7 @@ export default function AdminNav() {
               </button>
 
               <button
+                type="button"
                 onClick={() =>
                   isMobile
                     ? handleMobileLinkClick("/admin/message")
@@ -351,12 +345,11 @@ export default function AdminNav() {
           {/* 🟦 Bloc 4 : Paramètres */}
           <div className="mb-6">
             {showText && (
-              <p className="text-gray-400 uppercase text-xs mb-2">
-                Paramètres
-              </p>
+              <p className="text-gray-400 uppercase text-xs mb-2">Paramètres</p>
             )}
 
             <button
+              type="button"
               onClick={() =>
                 isMobile
                   ? handleMobileLinkClick("/admin/settings")
@@ -364,9 +357,10 @@ export default function AdminNav() {
               }
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full text-left
-                ${isActive("/admin/settings")
-                  ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                  : "hover:bg-gray-700/50 text-gray-300"
+                ${
+                  isActive("/admin/settings")
+                    ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                    : "hover:bg-gray-700/50 text-gray-300"
                 }
               `}
             >
@@ -374,6 +368,7 @@ export default function AdminNav() {
               {showText && <span>Réglages du site</span>}
             </button>
             <button
+              type="button"
               onClick={() =>
                 isMobile
                   ? handleMobileLinkClick("/admin/profil")
@@ -381,9 +376,10 @@ export default function AdminNav() {
               }
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg shadow-sm w-full text-left
-                ${isActive("/admin/profil")
-                  ? "bg-blue-600 text-white border-l-4 border-blue-300"
-                  : "hover:bg-gray-700/50 text-gray-300"
+                ${
+                  isActive("/admin/profil")
+                    ? "bg-blue-600 text-white border-l-4 border-blue-300"
+                    : "hover:bg-gray-700/50 text-gray-300"
                 }
               `}
             >
@@ -391,11 +387,11 @@ export default function AdminNav() {
               {showText && <span>Profil</span>}
             </button>
           </div>
-
         </nav>
 
         {/* 🟥 LOGOUT */}
         <button
+          type="button"
           onClick={logout}
           className="m-4 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg flex items-center justify-center gap-2"
         >

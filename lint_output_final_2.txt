@@ -1,0 +1,378 @@
+
+> studio-dr@1.0.0 lint
+> biome check
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:77:15 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    75 │         router.refresh();
+    76 │       } else {
+  > 77 │         alert("Erreur: " + result.error);
+       │               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    78 │       }
+    79 │     } catch (e: any) {
+  
+  i Unsafe fix: Use a template literal.
+  
+     75  75 │           router.refresh();
+     76  76 │         } else {
+     77     │ - ········alert("Erreur:·"·+·result.error);
+         77 │ + ········alert(`Erreur:·${result.error}`);
+     78  78 │         }
+     79  79 │       } catch (e: any) {
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:92:13 lint/style/useTemplate  FIXABLE  ━━━━━━━━━━
+
+  i Template literals are preferred over string concatenation.
+  
+    90 │       router.refresh();
+    91 │     } else {
+  > 92 │       alert("Erreur de mise à jour de la position: " + result.error);
+       │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    93 │     }
+    94 │   };
+  
+  i Unsafe fix: Use a template literal.
+  
+     90  90 │         router.refresh();
+     91  91 │       } else {
+     92     │ - ······alert("Erreur·de·mise·à·jour·de·la·position:·"·+·result.error);
+         92 │ + ······alert(`Erreur·de·mise·à·jour·de·la·position:·${result.error}`);
+     93  93 │       }
+     94  94 │     };
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:126:44 lint/correctness/useParseIntRadix  FIXABLE  ━━━━━━━━━━
+
+  i Missing radix parameter
+  
+    124 │               type="number"
+    125 │               value={position}
+  > 126 │               onChange={(e) => setPosition(parseInt(e.target.value) || 0)}
+        │                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+    127 │               className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white w-24"
+    128 │             />
+  
+  i Add a non-fractional number between 2 and 36
+  
+  i Unsafe fix: Add a radix of 10
+  
+    126 │ ··············onChange={(e)·=>·setPosition(parseInt(e.target.value,·10)·||·0)}
+        │                                                                   ++++        
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:194:27 lint/correctness/useParseIntRadix  FIXABLE  ━━━━━━━━━━
+
+  i Missing radix parameter
+  
+    192 │                         handlePositionUpdate(
+    193 │                           section.id,
+  > 194 │                           parseInt(e.target.value) || 0,
+        │                           ^^^^^^^^^^^^^^^^^^^^^^^^
+    195 │                         )
+    196 │                       }
+  
+  i Add a non-fractional number between 2 and 36
+  
+  i Unsafe fix: Add a radix of 10
+  
+    194 │ ··························parseInt(e.target.value,·10)·||·0,
+        │                                                  ++++       
+
+src\app\(admin)\admin\components\AdminNav.tsx:8:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     6 │   ChevronLeft,
+     7 │   ChevronRight,
+   > 8 │   FilePenLine,
+       │   ^^^^^^^^^^^
+     9 │   LayoutDashboard,
+    10 │   LogOut,
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      6   6 │     ChevronLeft,
+      7   7 │     ChevronRight,
+      8     │ - ··FilePenLine,
+      9   8 │     LayoutDashboard,
+     10   9 │     LogOut,
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:34:11 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━
+
+  ! This interface NavSection is unused.
+  
+    32 │ }
+    33 │ 
+  > 34 │ interface NavSection {
+       │           ^^^^^^^^^^
+    35 │   section: string;
+    36 │   items: NavLink[];
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:79:17 lint/suspicious/noExplicitAny ━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    77 │         alert("Erreur: " + result.error);
+    78 │       }
+  > 79 │     } catch (e: any) {
+       │                 ^^^
+    80 │       alert(e.message);
+    81 │     } finally {
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:55:14 lint/correctness/noUnusedVariables  FIXABLE  ━━━━━━━━━━
+
+  ! This variable e is unused.
+  
+    53 │         alert(`Erreur: ${result.error}`);
+    54 │       }
+  > 55 │     } catch (e) {
+       │              ^
+    56 │       alert("Erreur lors de la suppression");
+    57 │     }
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+  i Unsafe fix: If this is intentional, prepend e with an underscore.
+  
+     53  53 │           alert(`Erreur: ${result.error}`);
+     54  54 │         }
+     55     │ - ····}·catch·(e)·{
+         55 │ + ····}·catch·(_e)·{
+     56  56 │         alert("Erreur lors de la suppression");
+     57  57 │       }
+  
+
+src\app\(admin)\admin\section\RepeaterEditor.tsx:10:25 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+     8 │   onChange,
+     9 │ }: {
+  > 10 │   field: Record<string, any>;
+       │                         ^^^
+    11 │   value: Record<string, unknown>[];
+    12 │   onChange: (newValue: Record<string, unknown>[]) => void;
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(admin)\admin\section\RepeaterEditor.tsx:19:30 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    17 │     const emptyItem: Record<string, unknown> = {};
+    18 │ 
+  > 19 │     field.fields.forEach((f: any) => {
+       │                              ^^^
+    20 │       emptyItem[f.name] = f.type === "number" ? 0 : "";
+    21 │     });
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(admin)\admin\section\RepeaterEditor.tsx:54:34 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    52 │   const handleRelationChange = (
+    53 │     index: number,
+  > 54 │     selectedItem: Record<string, any>,
+       │                                  ^^^
+    55 │   ) => {
+    56 │     // Auto-fill logic: if selectedItem has title_fr/en, fill them if empty or always?
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(admin)\admin\section\RepeaterEditor.tsx:127:40 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    125 │           </div>
+    126 │ 
+  > 127 │           {field.fields.map((subField: any) => (
+        │                                        ^^^
+    128 │             <div key={subField.name}>
+    129 │               {renderDynamicField({
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(public)\components\Header.tsx:75:13 lint/performance/noImgElement ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    73 │           {/*showLogo || title || fallback*/}
+    74 │           {logoUrl && logoUrl.trim() !== "" ? (
+  > 75 │             <img
+       │             ^^^^
+  > 76 │               src={logoUrl}
+  > 77 │               alt="Logo"
+  > 78 │               className="h-10 w-auto object-contain select-none"
+  > 79 │             />
+       │             ^^
+    80 │           ) : siteName ? (
+    81 │             <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import type { LucideIcon } from "lucide-react";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ // Icons (hard coded parts)
+    5 │ import {
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     17  17 │   import { usePathname, useRouter } from "next/navigation";
+     18  18 │   import { useEffect, useState } from "react";
+     19     │ - 
+     20     │ - import·{·supabaseBrowser·}·from·"@/lib/supabase-browser";
+     21     │ - //·Dynamic·icon·library
+     22     │ - import·{·DEFAULT_SECTION_ICON,·SECTION_ICONS·}·from·"@/lib/section-icons";
+         19 │ + //·Dynamic·icon·library
+         20 │ + import·{·DEFAULT_SECTION_ICON,·SECTION_ICONS·}·from·"@/lib/section-icons";
+         21 │ + import·{·supabaseBrowser·}·from·"@/lib/supabase-browser";
+     23  22 │   
+     24  23 │   /* ---------------------------------------------------------
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:108:13 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    106 │         >
+    107 │           <div className="flex-1 w-full">
+  > 108 │             <label className="block text-sm text-neutral-400 mb-1">
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 109 │               Nom de la section
+  > 110 │             </label>
+        │             ^^^^^^^^
+    111 │             <input
+    112 │               type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:122:13 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    121 │           <div className="flex flex-col gap-2">
+  > 122 │             <label className="text-sm text-neutral-400">Position</label>
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    123 │             <input
+    124 │               type="number"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:132:13 lint/a11y/noLabelWithoutControl ━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    131 │           <div className="flex-1 w-full">
+  > 132 │             <label className="block text-sm text-neutral-400 mb-1">
+        │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 133 │               Modèle (Template)
+  > 134 │             </label>
+        │             ^^^^^^^^
+    135 │             <select
+    136 │               required
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src\app\(admin)\admin\newsection\NewSectionClient.tsx:204:21 lint/a11y/useButtonType ━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    202 │                   <td className="px-4 py-3">{section.table_name}</td>
+    203 │                   <td className="px-4 py-3 text-right">
+  > 204 │                     <button
+        │                     ^^^^^^^
+  > 205 │                       onClick={() => handleDelete(section.id)}
+  > 206 │                       className="text-red-400 hover:text-red-300 transition-colors"
+  > 207 │                     >
+        │                     ^
+    208 │                       Supprimer
+    209 │                     </button>
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\page.tsx:1:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+  > 1 │ import { Layers, Mail, Users } from "lucide-react";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    2 │ import { supabaseServer } from "@/lib/supabase-server";
+    3 │ import DashboardCard from "./components/DashboardCard";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     5  5 │   import PreviewSite from "./components/PreviewSite";
+     6  6 │   import UserDisplayName from "./components/UserDisplayName";
+     7    │ - import·{·formatDashboardDate·}·from·"./dashboard-utils";
+     8    │ - import·OpenPreviewButton·from·"./components/ui/OpenPreviewButton";
+        7 │ + import·OpenPreviewButton·from·"./components/ui/OpenPreviewButton";
+        8 │ + import·{·formatDashboardDate·}·from·"./dashboard-utils";
+     9  9 │   
+    10 10 │   export default async function AdminDashboard() {
+  
+
+src\app\(public)\components\Header.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import { useEffect, useState } from "react";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { supabaseBrowser } from "@/lib/supabase-browser";
+    5 │ import Image from "next/image";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     1  1 │   "use client";
+     2  2 │   
+     3    │ - import·{·useEffect,·useState·}·from·"react";
+     4    │ - import·{·supabaseBrowser·}·from·"@/lib/supabase-browser";
+     5    │ - import·Image·from·"next/image";
+        3 │ + import·Image·from·"next/image";
+        4 │ + import·{·useEffect,·useState·}·from·"react";
+        5 │ + import·{·supabaseBrowser·}·from·"@/lib/supabase-browser";
+     6  6 │   import Navbar from "./Navbar";
+     7  7 │   
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 117.
+Checked 91 files in 44ms. No fixes applied.
+Found 51 errors.
+Found 73 warnings.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

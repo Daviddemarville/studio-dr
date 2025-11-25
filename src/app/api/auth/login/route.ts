@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return NextResponse.json(
         { error: "Identifiants invalides." }, // message neutre
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     if (loginError || !loginData.user) {
       return NextResponse.json(
         { error: "Identifiants invalides." }, // message neutre
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     if (userError || !userData) {
       return NextResponse.json(
         { error: "Erreur interne. Réessayez plus tard." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       await supabase.auth.signOut();
       return NextResponse.json(
         { error: "Compte en attente de validation administrateur." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -61,20 +61,20 @@ export async function POST(req: Request) {
       response.cookies.set(
         "sb-access-token",
         sessionData.session.access_token,
-        { path: "/", httpOnly: true }
+        { path: "/", httpOnly: true },
       );
       response.cookies.set(
         "sb-refresh-token",
         sessionData.session.refresh_token,
-        { path: "/", httpOnly: true }
+        { path: "/", httpOnly: true },
       );
     }
 
     return response;
   } catch (e: any) {
     return NextResponse.json(
-      { error: "Erreur serveur : " + e.message },
-      { status: 500 }
+      { error: `Erreur serveur : ${e.message}` },
+      { status: 500 },
     );
   }
 }

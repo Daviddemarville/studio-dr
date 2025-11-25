@@ -13,7 +13,7 @@ export default function OpenPreviewButton({
 }: Props) {
   return (
     <button
-    type="button"
+      type="button"
       onClick={() => window.open(href, "_blank")}
       className="inline-flex items-center gap-2 rounded-md border border-neutral-600 bg-neutral-700/40 px-2.5 py-1.5 text-xs font-medium text-neutral-200 hover:bg-neutral-700 hover:border-neutral-500 transition"
     >

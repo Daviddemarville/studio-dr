@@ -1,0 +1,446 @@
+
+> studio-dr@1.0.0 lint
+> biome check
+
+src\app\(admin)\admin\components\AdminNav.tsx:188:15 lint/performance/noImgElement ━━━━━━━━━━━━━━━━━
+
+  ! Don't use <img> element.
+  
+    186 │           <div className="flex items-center gap-3">
+    187 │             {logoUrl && logoUrl.trim() !== "" ? (
+  > 188 │               <img
+        │               ^^^^
+  > 189 │                 src={logoUrl}
+  > 190 │                 alt="Logo"
+  > 191 │                 className="h-10 w-10 object-contain rounded select-none"
+  > 192 │               />
+        │               ^^
+    193 │             ) : siteName && siteName.trim() !== "" ? (
+    194 │               showText && (
+  
+  i Using the <img> can lead to slower LCP and higher bandwidth. Consider using <Image /> from next/image to automatically optimize images.
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:11:3 lint/correctness/noUnusedImports  FIXABLE  ━━━━━━━━━━
+
+  ! Several of these imports are unused.
+  
+     9 │ import {
+    10 │   LayoutDashboard,
+  > 11 │   FilePenLine,
+       │   ^^^^^^^^^^^^
+  > 12 │   Briefcase,
+  > 13 │   Wallet,
+  > 14 │   Workflow,
+       │   ^^^^^^^^
+    15 │   PlusCircle,
+    16 │   Users,
+  
+  i Unused imports might be the result of an incomplete refactoring.
+  
+  i Unsafe fix: Remove the unused imports.
+  
+      9   9 │   import {
+     10  10 │     LayoutDashboard,
+     11     │ - ··FilePenLine,
+     12     │ - ··Briefcase,
+     13     │ - ··Wallet,
+     14     │ - ··Workflow,
+     15  11 │     PlusCircle,
+     16  12 │     Users,
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:42:6 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━
+
+  ! This type alias NavEntry is unused.
+  
+    40 │ }
+    41 │ 
+  > 42 │ type NavEntry = NavLink | NavSection;
+       │      ^^^^^^^^
+    43 │ 
+    44 │ /* ---------------------------------------------------------
+  
+  i Unused variables are often the result of an incomplete refactoring, typos, or other sources of bugs.
+  
+
+src\app\(admin)\admin\components\ProfileEditor.tsx:67:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+    65 │   return (
+    66 │     <div className="bg-neutral-900 p-6 rounded-lg flex flex-col gap-6">
+  > 67 │       {profileTemplate.fields.map((field: any) => (
+       │                                           ^^^
+    68 │         <div key={field.name}>
+    69 │           {renderDynamicField({
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(admin)\admin\settings\settings-form.tsx:8:18 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━
+
+  ! Unexpected any. Specify a different type.
+  
+     6 │   initialValues,
+     7 │ }: {
+   > 8 │   initialValues: any;
+       │                  ^^^
+     9 │ }) {
+    10 │   const [siteName, setSiteName] = useState(initialValues?.site_name ?? "");
+  
+  i any disables many type checking rules. Its use should be avoided.
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ "use client";
+    2 │ 
+  > 3 │ import { useState, useEffect } from "react";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { usePathname, useRouter } from "next/navigation";
+    5 │ import { supabaseBrowser } from "@/lib/supabase-browser";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+      1   1 │   "use client";
+      2   2 │   
+      3     │ - import·{·useState,·useEffect·}·from·"react";
+      4     │ - import·{·usePathname,·useRouter·}·from·"next/navigation";
+      5     │ - import·{·supabaseBrowser·}·from·"@/lib/supabase-browser";
+      6     │ - import·type·{·LucideIcon·}·from·"lucide-react";
+      7     │ - 
+      8     │ - //·Icons·(hard·coded·parts)
+      9     │ - import·{
+     10     │ - ··LayoutDashboard,
+     11     │ - ··FilePenLine,
+     12     │ - ··Briefcase,
+     13     │ - ··Wallet,
+     14     │ - ··Workflow,
+     15     │ - ··PlusCircle,
+     16     │ - ··Users,
+     17     │ - ··Mail,
+     18     │ - ··LogOut,
+     19     │ - ··ChevronRight,
+     20     │ - ··ChevronLeft,
+     21     │ - ··Settings,
+     22     │ - }·from·"lucide-react";
+     23     │ - 
+     24     │ - //·Dynamic·icon·library
+     25     │ - import·{·SECTION_ICONS,·DEFAULT_SECTION_ICON·}·from·"@/lib/section-icons";
+          3 │ + import·type·{·LucideIcon·}·from·"lucide-react";
+          4 │ + //·Icons·(hard·coded·parts)
+          5 │ + import·{
+          6 │ + ··Briefcase,
+          7 │ + ··ChevronLeft,
+          8 │ + ··ChevronRight,
+          9 │ + ··FilePenLine,
+         10 │ + ··LayoutDashboard,
+         11 │ + ··LogOut,
+         12 │ + ··Mail,
+         13 │ + ··PlusCircle,
+         14 │ + ··Settings,
+         15 │ + ··Users,
+         16 │ + ··Wallet,
+         17 │ + ··Workflow,
+         18 │ + }·from·"lucide-react";
+         19 │ + import·{·usePathname,·useRouter·}·from·"next/navigation";
+         20 │ + import·{·useEffect,·useState·}·from·"react";
+         21 │ + //·Dynamic·icon·library
+         22 │ + import·{·DEFAULT_SECTION_ICON,·SECTION_ICONS·}·from·"@/lib/section-icons";
+         23 │ + import·{·supabaseBrowser·}·from·"@/lib/supabase-browser";
+     26  24 │   
+     27  25 │   /* ---------------------------------------------------------
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:166:7 lint/a11y/useKeyWithClickEvents ━━━━━━━━━━━━━━━━
+
+  × Enforce to have the onClick mouse event with the onKeyUp, the onKeyDown, or the onKeyPress keyboard event.
+  
+    164 │       )}
+    165 │ 
+  > 166 │       <aside
+        │       ^^^^^^
+  > 167 │         onClick={stopPropagation}
+         ...
+  > 182 │         `}
+  > 183 │       >
+        │       ^
+    184 │         {/* HEADER */}
+    185 │         <div className="flex items-center justify-between p-4 border-b border-gray-700/40">
+  
+  i Actions triggered using mouse events should have corresponding keyboard events to account for keyboard-only navigation.
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:208:11 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    206 │           </div>
+    207 │ 
+  > 208 │           <button
+        │           ^^^^^^^
+  > 209 │             onClick={(e) => {
+         ...
+  > 214 │             className="text-gray-300 hover:text-white transition"
+  > 215 │           >
+        │           ^
+    216 │             {isMobile ? (
+    217 │               mobileOpen ? (
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:234:13 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    232 │           {/* 🟦 Bloc 1 : Dashboard */}
+    233 │           <div className="mb-6">
+  > 234 │             <button
+        │             ^^^^^^^
+  > 235 │               onClick={() =>
+         ...
+  > 247 │               `}
+  > 248 │             >
+        │             ^
+    249 │               <LayoutDashboard size={20} />
+    250 │               {showText && <span>Tableau de bord</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:273:19 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    272 │                 return (
+  > 273 │                   <button
+        │                   ^^^^^^^
+  > 274 │                     key={sec.id}
+         ...
+  > 287 │                     `}
+  > 288 │                   >
+        │                   ^
+    289 │                     <Icon size={20} />
+    290 │                     {showText && <span>{sec.title}</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:306:15 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    305 │             <div className="flex flex-col gap-2">
+  > 306 │               <button
+        │               ^^^^^^^
+  > 307 │                 onClick={() =>
+         ...
+  > 315 │                 `}
+  > 316 │               >
+        │               ^
+    317 │                 <PlusCircle size={20} />
+    318 │                 {showText && <span>Nouvelle section</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:321:15 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    319 │               </button>
+    320 │ 
+  > 321 │               <button
+        │               ^^^^^^^
+  > 322 │                 onClick={() =>
+         ...
+  > 330 │                 `}
+  > 331 │               >
+        │               ^
+    332 │                 <Users size={20} />
+    333 │                 {showText && <span>Valider un utilisateur</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:336:15 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    334 │               </button>
+    335 │ 
+  > 336 │               <button
+        │               ^^^^^^^
+  > 337 │                 onClick={() =>
+         ...
+  > 345 │                 `}
+  > 346 │               >
+        │               ^
+    347 │                 <Mail size={20} />
+    348 │                 {showText && <span>Administrer les mails reçus</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:359:13 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    357 │             )}
+    358 │ 
+  > 359 │             <button
+        │             ^^^^^^^
+  > 360 │               onClick={() =>
+         ...
+  > 372 │               `}
+  > 373 │             >
+        │             ^
+    374 │               <Settings size={20} />
+    375 │               {showText && <span>Réglages du site</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\AdminNav.tsx:377:13 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide an explicit type prop for the button element.
+  
+    375 │               {showText && <span>Réglages du site</span>}
+    376 │             </button>
+  > 377 │             <button
+        │             ^^^^^^^
+  > 378 │               onClick={() =>
+         ...
+  > 390 │               `}
+  > 391 │             >
+        │             ^
+    392 │               <Settings size={20} />
+    393 │               {showText && <span>Profil</span>}
+  
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
+  
+  i Allowed button types are: submit, button or reset
+  
+
+src\app\(admin)\admin\components\IconSelector.tsx:15:7 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    13 │   return (
+    14 │     <div className="space-y-2">
+  > 15 │       <label className="block text-sm text-neutral-400">
+       │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 16 │         Icône de la section
+  > 17 │       </label>
+       │       ^^^^^^^^
+    18 │       <div className="grid grid-cols-9 gap-2">
+    19 │         {iconNames.map((iconName) => {
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src\app\(admin)\admin\layout.tsx:3:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+    1 │ // src/app/(admin)/admin/layout.tsx
+    2 │ 
+  > 3 │ import type { ReactNode } from "react";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │ import { redirect } from "next/navigation";
+    5 │ import { supabaseServer } from "@/lib/supabase-server";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     1  1 │   // src/app/(admin)/admin/layout.tsx
+     2  2 │   
+     3    │ - import·type·{·ReactNode·}·from·"react";
+     4    │ - import·{·redirect·}·from·"next/navigation";
+        3 │ + import·{·redirect·}·from·"next/navigation";
+        4 │ + import·type·{·ReactNode·}·from·"react";
+     5  5 │   import { supabaseServer } from "@/lib/supabase-server";
+     6  6 │   import AdminNav from "./components/AdminNav";
+  
+
+src\app\(admin)\admin\page.tsx:1:1 assist/source/organizeImports  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × The imports and exports are not sorted.
+  
+  > 1 │ import { supabaseServer } from "@/lib/supabase-server";
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    2 │ import { Layers, Mail, Users } from "lucide-react";
+    3 │ import DashboardCard from "./components/DashboardCard";
+  
+  i Safe fix: Organize Imports (Biome)
+  
+     1    │ - import·{·supabaseServer·}·from·"@/lib/supabase-server";
+     2    │ - import·{·Layers,·Mail,·Users·}·from·"lucide-react";
+        1 │ + import·{·Layers,·Mail,·Users·}·from·"lucide-react";
+        2 │ + import·{·supabaseServer·}·from·"@/lib/supabase-server";
+     3  3 │   import DashboardCard from "./components/DashboardCard";
+     4  4 │   import LastUpdates from "./components/LastUpdates";
+     5  5 │   import PreviewSite from "./components/PreviewSite";
+     6  6 │   import UserDisplayName from "./components/UserDisplayName";
+     7    │ - import·{·formatDashboardDate·}·from·"./dashboard-utils";
+     8    │ - import·OpenPreviewButton·from·"./components/ui/OpenPreviewButton";
+        7 │ + import·OpenPreviewButton·from·"./components/ui/OpenPreviewButton";
+        8 │ + import·{·formatDashboardDate·}·from·"./dashboard-utils";
+     9  9 │   
+    10 10 │   export default async function AdminDashboard() {
+  
+
+src\app\(admin)\admin\settings\settings-form.tsx:32:9 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    30 │     >
+    31 │       <div>
+  > 32 │         <label className="block text-sm text-gray-300 mb-1">Nom du site</label>
+       │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    33 │         <input
+    34 │           type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+src\app\(admin)\admin\settings\settings-form.tsx:42:9 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━
+
+  × A form label must be associated with an input.
+  
+    41 │       <div>
+  > 42 │         <label className="block text-sm text-gray-300 mb-1">Logo (URL)</label>
+       │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    43 │         <input
+    44 │           type="text"
+  
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 146.
+Checked 91 files in 48ms. No fixes applied.
+Found 67 errors.
+Found 85 warnings.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

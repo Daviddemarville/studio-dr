@@ -19,11 +19,11 @@ const loginEmailSchema = z
   .email("Email invalide.")
   .refine(
     (val) => /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(val),
-    "Adresse email invalide."
+    "Adresse email invalide.",
   )
   .refine(
     (val) => !disposableDomains.includes(val.split("@")[1]),
-    "Les emails jetables ne sont pas autorisés."
+    "Les emails jetables ne sont pas autorisés.",
   );
 
 export const loginSchema = z.object({

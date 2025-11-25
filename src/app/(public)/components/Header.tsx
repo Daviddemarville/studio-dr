@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
-import Image from "next/image";
-import Navbar from './Navbar';
+import Navbar from "./Navbar";
 
 export default function Header() {
   const supabase = supabaseBrowser();
@@ -29,35 +29,6 @@ export default function Header() {
     loadSettings();
   }, [supabase]);
 
-
-  // Cas 1 : Logo présent → afficher le logo uniquement
-  const showLogo =
-    logoUrl && logoUrl.trim() !== "" ? (
-      <Image
-        src={logoUrl}
-        alt="Logo"
-        width={120}
-        height={40}
-        className="h-10 w-auto object-contain select-none"
-      />
-    ) : null;
-
-  // Cas 2 : Pas de logo mais nom du site
-  // const title =
-  //   !showLogo && siteName ? (
-  //     <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-  //       {siteName}
-  //     </span>
-  //   ) : null;
-
-  // // Cas 3 : Aucun des deux → fallback Studio DR
-  // const fallback =
-  //   !showLogo && !siteName ? (
-  //     <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-  //       Studio DR
-  //     </span>
-  //   ) : null;
-
   return (
     <header
       className="
@@ -68,31 +39,28 @@ export default function Header() {
       "
     >
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-
         {/* LOGO / NOM DU SITE */}
-
 
         <div className="flex items-center">
           {/*showLogo || title || fallback*/}
           {logoUrl && logoUrl.trim() !== "" ? (
-            <img
+            <Image
               src={logoUrl}
               alt="Logo"
+              width={120}
+              height={40}
               className="h-10 w-auto object-contain select-none"
             />
-          ) : 
-            siteName ? (
-              <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-                {siteName}
-              </span>
-
-            ) : (
-                <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-                  Studio DR
-                </span>
-              )}
+          ) : siteName ? (
+            <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+              {siteName}
+            </span>
+          ) : (
+            <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
+              Studio DR
+            </span>
+          )}
         </div>
-
 
         {/* NAVBAR */}
         <Navbar />

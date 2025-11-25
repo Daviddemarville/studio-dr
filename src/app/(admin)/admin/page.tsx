@@ -1,32 +1,24 @@
+import { Layers, Mail, Users } from "lucide-react";
 import { supabaseServer } from "@/lib/supabase-server";
 import DashboardCard from "./components/DashboardCard";
+import LastUpdates from "./components/LastUpdates";
 import PreviewSite from "./components/PreviewSite";
 import UserDisplayName from "./components/UserDisplayName";
-import LastUpdates from "./components/LastUpdates";
 import OpenPreviewButton from "./components/ui/OpenPreviewButton";
-
 import { formatDashboardDate } from "./dashboard-utils";
-
-import {
-  Layers,
-  Users,
-  Mail,
-  Clock,
-  FilePenLine,
-} from "lucide-react";
 
 export default async function AdminDashboard() {
   const supabase = await supabaseServer();
 
   // ---- FETCH DATA ----
   const { count: rawSectionsCount } = await supabase
-  .from("site_sections")
-  .select("*", { count: "exact", head: true });
+    .from("site_sections")
+    .select("*", { count: "exact", head: true });
   const sectionsCount = rawSectionsCount ?? 0;
 
   const { count } = await supabase
-  .from("users")
-  .select("*", { count: "exact", head: true });
+    .from("users")
+    .select("*", { count: "exact", head: true });
 
   const usersCount = count ?? 0;
 
@@ -39,11 +31,10 @@ export default async function AdminDashboard() {
     .from("contact_messages")
     .select("*", { count: "exact", head: true });
 
-    const { date, time } = formatDashboardDate();
+  const { date, time } = formatDashboardDate();
 
   return (
     <div className="space-y-10">
-      
       {/* HEADER */}
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold text-white">
@@ -80,20 +71,17 @@ export default async function AdminDashboard() {
 
       {/* LAST UPDATES */}
       <div className="mt-10">
-         <LastUpdates />
+        <LastUpdates />
       </div>
-
 
       {/* PREVIEW EXISTANTE */}
       <div className="mt-12 hidden md:block">
-  <PreviewSite />
-</div>
-<div className="mt-4 flex justify-end">
-  <h2 className="sr-only md:hidden">Ouvrir l'aperçu du site</h2>
-  <OpenPreviewButton href="/" />
-</div>
-
-
+        <PreviewSite />
+      </div>
+      <div className="mt-4 flex justify-end">
+        <h2 className="sr-only md:hidden">Ouvrir l'aperçu du site</h2>
+        <OpenPreviewButton href="/" />
+      </div>
     </div>
   );
 }

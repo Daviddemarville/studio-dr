@@ -6,7 +6,7 @@ export default async function LastUpdates() {
   // 1) Dernières modifications
   const { data: changes } = await supabase
     .from("content_changes")
-    .select("section_slug, action, created_at")
+    .select("id, section_slug, action, created_at")
     .order("created_at", { ascending: false })
     .limit(3);
 
@@ -16,7 +16,11 @@ export default async function LastUpdates() {
     .select("slug, title");
 
   const titleMap: Record<string, string> = {};
-  siteSections?.forEach((s) => (titleMap[s.slug] = s.title));
+  if (siteSections) {
+    for (const s of siteSections) {
+      titleMap[s.slug] = s.title;
+    }
+  }
 
   function formatDate(dateString: string) {
     return new Date(dateString).toLocaleString("fr-FR", {
@@ -62,9 +66,9 @@ export default async function LastUpdates() {
       </h2>
 
       <ul className="space-y-3">
-        {changes.map((entry, idx) => (
+        {changes.map((entry) => (
           <li
-            key={idx}
+            key={entry.id}
             className="
               p-4 rounded-lg border border-gray-700/40 bg-gray-900/60
               transition-all duration-300

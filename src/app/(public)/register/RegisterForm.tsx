@@ -1,11 +1,11 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { registerSchema } from "@/lib/zod/registerSchema";
 import PasswordField from "../components/ui/PasswordField";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
   } = useForm({
     resolver: zodResolver(registerSchema),
   });
@@ -43,94 +43,97 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-white">
-
       {/* PRÉNOM + NOM */}
+      {/* PRENOM */}
       <div className="flex gap-4">
         <div className="w-full space-y-1">
-          <label className="text-sm text-gray-300">Prénom</label>
+          <label htmlFor="firstname" className="text-sm text-gray-300">
+            Prénom
+          </label>
           <input
+            id="firstname"
             {...register("firstname")}
-            className={`w-full p-3 rounded-lg bg-[#111317] border 
-              ${errors.firstname ? "border-red-500" : "border-gray-700"} 
-              focus:border-blue-500 transition`}
-            placeholder="Votre prénom"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+            placeholder="Jean"
           />
           {errors.firstname && (
-            <p className="text-sm text-red-400">
-              {errors.firstname.message as string}
-            </p>
+            <p className="text-red-400 text-xs">{errors.firstname.message}</p>
           )}
         </div>
 
+        {/* NOM */}
         <div className="w-full space-y-1">
-          <label className="text-sm text-gray-300">Nom</label>
+          <label htmlFor="lastname" className="text-sm text-gray-300">
+            Nom
+          </label>
           <input
+            id="lastname"
             {...register("lastname")}
-            className={`w-full p-3 rounded-lg bg-[#111317] border 
-              ${errors.lastname ? "border-red-500" : "border-gray-700"} 
-              focus:border-blue-500 transition`}
-            placeholder="Votre nom"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+            placeholder="Dupont"
           />
           {errors.lastname && (
-            <p className="text-sm text-red-400">
-              {errors.lastname.message as string}
-            </p>
+            <p className="text-red-400 text-xs">{errors.lastname.message}</p>
           )}
         </div>
       </div>
 
       {/* PSEUDO */}
       <div className="space-y-1">
-        <label className="text-sm text-gray-300">Pseudo (optionnel)</label>
+        <label htmlFor="pseudo" className="text-sm text-gray-300">
+          Pseudo (optionnel)
+        </label>
         <input
+          id="pseudo"
           {...register("pseudo")}
-          className={`w-full p-3 rounded-lg bg-[#111317] border 
-            ${errors.pseudo ? "border-red-500" : "border-gray-700"} 
-            focus:border-blue-500 transition`}
-          placeholder="Votre pseudo"
+          className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+          placeholder="jdupont"
         />
         {errors.pseudo && (
-          <p className="text-sm text-red-400">
-            {errors.pseudo.message as string}
-          </p>
+          <p className="text-red-400 text-xs">{errors.pseudo.message}</p>
         )}
       </div>
 
       {/* EMAIL */}
       <div className="space-y-1">
-        <label className="text-sm text-gray-300">Adresse email</label>
+        <label htmlFor="email" className="text-sm text-gray-300">
+          Adresse email
+        </label>
         <input
+          id="email"
           {...register("email")}
-          className={`w-full p-3 rounded-lg bg-[#111317] border 
-            ${errors.email ? "border-red-500" : "border-gray-700"} 
-            focus:border-blue-500 transition`}
-          placeholder="exemple@domaine.fr"
+          type="email"
+          className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+          placeholder="jean.dupont@example.com"
         />
         {errors.email && (
-          <p className="text-sm text-red-400">
-            {errors.email.message as string}
-          </p>
+          <p className="text-red-400 text-xs">{errors.email.message}</p>
         )}
       </div>
 
-      {/* MOT DE PASSE */}
-      <PasswordField
-        label="Mot de passe"
-        placeholder="Créer un mot de passe"
-        register={register("password")}
-        error={errors.password?.message as string}
-      />
+      {/* PASSWORD */}
+      <div className="space-y-1">
+        <PasswordField
+          label="Mot de passe"
+          register={register("password")}
+          error={errors.password?.message}
+        />
+      </div>
 
-      {/* CONFIRMATION */}
-      <PasswordField
-        label="Confirmer le mot de passe"
-        placeholder="Retapez le mot de passe"
-        register={register("confirm")}
-        error={errors.confirm?.message as string}
-      />
+      {/* CONFIRM PASSWORD */}
+      <div className="space-y-1">
+        <PasswordField
+          label="Confirmer le mot de passe"
+          register={register("confirm")}
+          error={errors.confirm?.message}
+        />
+      </div>
 
       {/* SUBMIT */}
-      <button className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg text-white transition">
+      <button
+        type="submit"
+        className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg text-white transition"
+      >
         Créer le compte
       </button>
 

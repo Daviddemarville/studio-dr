@@ -1,6 +1,6 @@
-import FormCard from "../components/ui/FormCard";
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase-server";
+import FormCard from "../components/ui/FormCard";
 
 export default async function EmailConfirmedPage({
   searchParams,
@@ -10,10 +10,7 @@ export default async function EmailConfirmedPage({
   const supabase = await supabaseServer();
 
   // Récupération dynamique du nom du site
-  const { data } = await supabase
-    .from("settings")
-    .select("site_name")
-    .single();
+  const { data } = await supabase.from("settings").select("site_name").single();
 
   const siteName = data?.site_name || "Votre espace";
   const isPending = searchParams.pending === "true";
@@ -21,19 +18,19 @@ export default async function EmailConfirmedPage({
   return (
     <FormCard title={isPending ? "Compte en attente" : "Email confirmé"}>
       {isPending ? (
-        <>
-          <p className="text-gray-300 mb-4 text-center leading-relaxed">
-            Votre compte a été créé avec succès.
-            <br />
-            <span className="font-semibold text-yellow-400">
-              ⏳ En attente de validation
-            </span>
-            <br /><br />
-            Un administrateur doit approuver votre compte avant que vous puissiez accéder à <strong>{siteName}</strong>.
-            <br />
-            Vous recevrez un email dès que votre compte sera validé.
-          </p>
-        </>
+        <p className="text-gray-300 mb-4 text-center leading-relaxed">
+          Votre compte a été créé avec succès.
+          <br />
+          <span className="font-semibold text-yellow-400">
+            ⏳ En attente de validation
+          </span>
+          <br />
+          <br />
+          Un administrateur doit approuver votre compte avant que vous puissiez
+          accéder à <strong>{siteName}</strong>.
+          <br />
+          Vous recevrez un email dès que votre compte sera validé.
+        </p>
       ) : (
         <>
           <p className="text-gray-300 mb-4 text-center leading-relaxed">
@@ -42,7 +39,8 @@ export default async function EmailConfirmedPage({
             <span className="font-semibold text-white">
               Bienvenue sur {siteName} !
             </span>
-            <br /><br />
+            <br />
+            <br />
             Vous pouvez maintenant vous connecter à votre compte.
           </p>
 
@@ -61,7 +59,6 @@ export default async function EmailConfirmedPage({
       >
         Retour à l’accueil
       </Link>
-
     </FormCard>
   );
 }

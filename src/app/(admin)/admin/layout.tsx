@@ -1,15 +1,21 @@
 // src/app/(admin)/admin/layout.tsx
 
-import { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import AdminNav from "./components/AdminNav";
+import type { ReactNode } from "react";
 import { supabaseServer } from "@/lib/supabase-server";
+import AdminNav from "./components/AdminNav";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const supabase = await supabaseServer();
 
   // 1) Vérifier la session utilisateur
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/login");

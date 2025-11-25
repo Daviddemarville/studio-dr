@@ -1,27 +1,29 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "@/lib/zod/loginSchema";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import type { z } from "zod";
+
+import { supabaseBrowser } from "@/lib/supabase-browser";
+import { loginSchema } from "@/lib/zod/loginSchema";
 import OAuthButtons from "../components/ui/OAuthButtons";
 import PasswordField from "../components/ui/PasswordField";
-import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
-  const supabase = supabaseBrowser();
   const router = useRouter();
+  const supabase = supabaseBrowser();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm({
+    formState: { errors, isSubmitting },
+  } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     const { data: auth, error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
@@ -48,7 +50,6 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
       {/* OAuth */}
       <OAuthButtons />
 
@@ -60,7 +61,9 @@ export default function LoginForm() {
 
       {/* EMAIL */}
       <div className="space-y-1">
-        <label htmlFor="email" className="text-sm text-gray-300">Adresse email</label>
+        <label htmlFor="email" className="text-sm text-gray-300">
+          Adresse email
+        </label>
         <input
           {...register("email")}
           id="email"
@@ -71,7 +74,9 @@ export default function LoginForm() {
           focus:border-blue-500 transition`}
         />
         {errors.email && (
-          <p className="text-sm text-red-400">{errors.email.message as string}</p>
+          <p className="text-sm text-red-400">
+            {errors.email.message as string}
+          </p>
         )}
       </div>
 

@@ -28,11 +28,7 @@ export default function FormCard({
     >
       <h2 className="text-2xl font-semibold mb-1">{title}</h2>
 
-      {subtitle && (
-        <p className="text-sm text-gray-400 mb-6">
-          {subtitle}
-        </p>
-      )}
+      {subtitle && <p className="text-sm text-gray-400 mb-6">{subtitle}</p>}
 
       {children}
     </div>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase-server";
 import { Resend } from "resend";
+import { supabaseServer } from "@/lib/supabase-server";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -11,10 +11,7 @@ export async function POST(req: Request) {
 
     // 1 — Vérification champs
     if (!email || !subject || !message || !token) {
-      return NextResponse.json(
-        { error: "Champs manquants." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
     }
 
     // 2 — Vérification CAPTCHA
@@ -27,7 +24,7 @@ export async function POST(req: Request) {
           secret: process.env.TURNSTILE_SECRET_KEY,
           response: token,
         }),
-      }
+      },
     );
 
     const captchaData = await captchaRes.json();
@@ -38,7 +35,7 @@ export async function POST(req: Request) {
           error: "Captcha invalide.",
           details: captchaData["error-codes"] ?? null,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -47,14 +44,12 @@ export async function POST(req: Request) {
     // 3 — Insert en BDD
     const { error: insertError } = await supabase
       .from("contact_messages")
-      .insert([
-        { firstname, lastname, email, subject, message },
-      ]);
+      .insert([{ firstname, lastname, email, subject, message }]);
 
     if (insertError) {
       return NextResponse.json(
         { error: "Erreur lors de l’enregistrement." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -67,11 +62,11 @@ export async function POST(req: Request) {
     if (usersError) {
       return NextResponse.json(
         { error: "Erreur récupération emails équipe." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    const recipients = users?.map((u: { email: string }) => u.email) ?? [];
+    const _recipients = users?.map((u: { email: string }) => u.email) ?? [];
 
     // 5 — Envoi email (test-mode → un seul destinataire)
     await resend.emails.send({
@@ -89,11 +84,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-
   } catch (e: any) {
     return NextResponse.json(
-      { error: "Erreur serveur : " + e.message },
-      { status: 500 }
+      { error: `Erreur serveur : ${e.message}` },
+      { status: 500 },
     );
   }
 }

@@ -1,10 +1,9 @@
 import { supabaseServer } from "@/lib/supabase-server";
-import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
     const supabase = await supabaseServer();
-    
+
     const url = new URL(req.url);
     const userId = url.searchParams.get("id");
     const action = url.searchParams.get("action");
@@ -18,7 +17,7 @@ export async function GET(req: Request) {
           <p>Les paramètres requis sont : id, action.</p>
         </body></html>
         `,
-        { status: 400, headers: { "Content-Type": "text/html" } }
+        { status: 400, headers: { "Content-Type": "text/html" } },
       );
     }
 
@@ -30,7 +29,7 @@ export async function GET(req: Request) {
           <p>Action autorisées : approve | reject</p>
         </body></html>
         `,
-        { status: 400, headers: { "Content-Type": "text/html" } }
+        { status: 400, headers: { "Content-Type": "text/html" } },
       );
     }
 
@@ -51,7 +50,7 @@ export async function GET(req: Request) {
           <p>ID fourni : ${userId}</p>
         </body></html>
         `,
-        { status: 404, headers: { "Content-Type": "text/html" } }
+        { status: 404, headers: { "Content-Type": "text/html" } },
       );
     }
 
@@ -64,7 +63,7 @@ export async function GET(req: Request) {
           <p>L'utilisateur <strong>${existingUser.email}</strong> était déjà dans cet état.</p>
         </body></html>
         `,
-        { status: 200, headers: { "Content-Type": "text/html" } }
+        { status: 200, headers: { "Content-Type": "text/html" } },
       );
     }
 
@@ -81,7 +80,7 @@ export async function GET(req: Request) {
           <p>${updateError.message}</p>
         </body></html>
         `,
-        { status: 500, headers: { "Content-Type": "text/html" } }
+        { status: 500, headers: { "Content-Type": "text/html" } },
       );
     }
 
@@ -125,7 +124,7 @@ export async function GET(req: Request) {
         </body>
       </html>
       `,
-      { headers: { "Content-Type": "text/html" } }
+      { headers: { "Content-Type": "text/html" } },
     );
   } catch (e: any) {
     return new Response(
@@ -135,7 +134,7 @@ export async function GET(req: Request) {
         <p>${e.message}</p>
       </body></html>
       `,
-      { status: 500, headers: { "Content-Type": "text/html" } }
+      { status: 500, headers: { "Content-Type": "text/html" } },
     );
   }
 }
