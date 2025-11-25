@@ -51,6 +51,7 @@
           "label": "TVA (%)"
         },
         {
+          "type": "number",
           "name": "price_ttc",
           "label": "Prix TTC"
         },

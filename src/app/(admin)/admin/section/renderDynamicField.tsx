@@ -16,6 +16,29 @@ export default function renderDynamicField({
   onChange: (value: unknown) => void;
   onRelationChange?: (selectedItem: Record<string, unknown>) => void;
 }) {
+  // Champs non modifiables (titre auto + TTC auto)
+  if (
+    (field.name === "title_fr" ||
+      field.name === "title_en" ||
+      field.name === "price_ttc") &&
+    typeof onChange === "function"
+  ) {
+    return (
+      <div className="flex flex-col gap-1 opacity-60">
+        <label className="text-sm text-white">
+          {field.label as string}
+          <input
+            type="text"
+            value={(value as string) || ""}
+            readOnly
+            disabled
+            className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white mt-1 cursor-not-allowed"
+          />
+        </label>
+      </div>
+    );
+  }
+
   // ---- TEXT INPUT ----
   if (field.type === "text") {
     return (
@@ -49,7 +72,7 @@ export default function renderDynamicField({
     );
   }
 
-  // Toujours sécuriser la valeur avant JSX
+  // Valeur sécurisée pour les prévisualisations
   const safeValue = typeof value === "string" ? value : "";
 
   // ---- NUMBER ----
@@ -84,7 +107,6 @@ export default function renderDynamicField({
           />
         </label>
 
-        {/* FIX : safeValue pour éviter 'unknown' */}
         {typeof value === "string" && value.trim() !== "" && (
           <Image
             src={safeValue}
@@ -123,7 +145,7 @@ export default function renderDynamicField({
 
   return (
     <p className="text-red-500 text-xs">
-      Type de champ inconnu : {field.type as string}
+      Type de champ inconnu : {String(field.type)}
     </p>
   );
 }
@@ -153,13 +175,19 @@ function RelationField({
       const { data } = await supabase.from(tableName).select("id, content");
 
       if (data) {
-        const opts = data.map((row: any) => ({
-          value: row.id,
-          label: row.content?.title_fr || row.content?.title || "Sans titre",
-          original: row,
-        }));
+        const opts = data.map(
+          (row: { id: string; content: Record<string, unknown> }) => ({
+            value: row.id,
+            label:
+              (row.content?.title_fr as string) ||
+              (row.content?.title as string) ||
+              "Sans titre",
+            original: row,
+          }),
+        );
         setOptions(opts);
       }
+
       setLoading(false);
     };
 
@@ -180,6 +208,7 @@ function RelationField({
           onChange={(e) => {
             const val = e.target.value;
             onChange(val);
+
             if (onRelationChange) {
               const selected = options.find((o) => o.value === val);
               if (selected) onRelationChange(selected.original);
@@ -187,6 +216,7 @@ function RelationField({
           }}
         >
           <option value="">-- Sélectionner --</option>
+
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
