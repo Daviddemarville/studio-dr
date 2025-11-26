@@ -1,11 +1,11 @@
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import { loadTemplates } from "@/templates/sections/loader.server";
 import NewSectionClient from "./NewSectionClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewSectionPage() {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // 1. Load Templates
   const templates = await loadTemplates();

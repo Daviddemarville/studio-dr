@@ -1,11 +1,11 @@
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import { getTemplate } from "@/templates/sections/loader.server";
 import SectionContact from "./components/SectionContact";
 import SectionRenderer from "./components/SectionRenderer";
 import BackToTop from "./components/ui/BackToTop";
 
 export default async function HomePage() {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // Fetch all active sections ordered by position
   const { data: sections } = await supabase

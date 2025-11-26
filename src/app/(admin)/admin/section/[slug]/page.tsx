@@ -1,6 +1,6 @@
 // src/app/(admin)/admin/section/[slug]/page.tsx
 
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import SectionEditorWrapper from "./SectionEditorWrapper";
 
 // ---- Types ---- //
@@ -23,7 +23,7 @@ interface SiteSection {
 // ---- Page ---- //
 
 export default async function Page({ params }: { params: { slug: string } }) {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
   const slug = (await params).slug;
 
   // 1) Récupérer la section

@@ -1,7 +1,7 @@
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 export default async function UserDisplayName() {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // Récupération du user (TS exige une protection même si layout le sécurise)
   const { data } = await supabase.auth.getUser();

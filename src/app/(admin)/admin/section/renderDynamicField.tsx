@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 import RepeaterEditor from "./RepeaterEditor";
 
 export default function renderDynamicField({
@@ -65,7 +65,7 @@ export default function renderDynamicField({
           <textarea
             value={(value as string) || ""}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white min-h-[80px] mt-1"
+            className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white min-h-20 mt-1"
           />
         </label>
       </div>
@@ -168,7 +168,7 @@ function RelationField({
 
   useEffect(() => {
     const fetchOptions = async () => {
-      const supabase = supabaseBrowser();
+      const supabase = createClient();
       const tableName = field.relation_table as string;
       if (!tableName) return;
 
