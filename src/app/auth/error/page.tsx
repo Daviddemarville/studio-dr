@@ -18,7 +18,7 @@ export default function AuthErrorPage() {
       </Link>
 
       <Link
-        href="/login"
+        href="/signIn"
         className="block w-full text-center bg-gray-700 hover:bg-gray-600 py-2 rounded-lg mt-3"
       >
         Se connecter

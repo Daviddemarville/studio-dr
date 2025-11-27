@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 
 interface User {
   id: string;
@@ -24,7 +24,7 @@ export default function TeamVisibilityManager() {
 
   useEffect(() => {
     const loadUsers = async () => {
-      const supabase = supabaseBrowser();
+      const supabase = createClient();
       const { data, error } = await supabase
         .from("users")
         .select("*")
@@ -47,7 +47,7 @@ export default function TeamVisibilityManager() {
     userId: string,
     currentVisibility: boolean,
   ) => {
-    const supabase = supabaseBrowser();
+    const supabase = createClient();
     const { error } = await supabase
       .from("users")
       .update({ is_public: !currentVisibility })
@@ -96,7 +96,7 @@ export default function TeamVisibilityManager() {
               className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${user.is_public ? "bg-white border-green-200" : "bg-gray-50 border-gray-300 opacity-60"}`}
             >
               {/* Avatar */}
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 {user.avatar_url ? (
                   <Image
                     src={user.avatar_url}

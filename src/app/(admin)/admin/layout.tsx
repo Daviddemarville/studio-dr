@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import AdminNav from "./components/AdminNav";
 
 export default async function AdminLayout({
@@ -10,7 +10,7 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // 1) Vérifier la session utilisateur
   const {
@@ -18,7 +18,7 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/auth/signIn");
   }
 
   // 2) Vérifier si approuvé dans la table users
@@ -30,7 +30,7 @@ export default async function AdminLayout({
 
   if (error || !userInfo?.is_approved) {
     await supabase.auth.signOut();
-    redirect("/login");
+    redirect("/auth/signIn");
   }
 
   // 3) Rendu normal si tout est OK
