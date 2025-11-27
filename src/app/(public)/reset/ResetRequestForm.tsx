@@ -70,3 +70,6 @@
 //     </form>
 //   );
 // }
+export default function ResetRequestForm() {
+    return null;
+}

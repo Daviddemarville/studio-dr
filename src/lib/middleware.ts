@@ -89,10 +89,13 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.sub)
       .maybeSingle();
 
-    // If there's an error or no profile found, allow access (fail open)
-    // This prevents redirect loops when profile doesn't exist yet
+    // If there's an error or no profile found, redirect to error page
+    // This prevents unauthorized access if database is unavailable
     if (error) {
-      return supabaseResponse;
+      console.error("[MIDDLEWARE] Database error:", error);
+      const url = request.nextUrl.clone();
+      url.pathname = "/auth/error";
+      return NextResponse.redirect(url);
     }
 
     // Only redirect if we found a profile AND it's not approved

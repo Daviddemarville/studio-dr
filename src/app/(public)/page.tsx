@@ -38,7 +38,6 @@ export default async function HomePage() {
           .eq("is_public", true);
 
         content = data || [];
-        console.log("[DEBUG] Users loaded:", content.length, content);
       } else {
         // Standard sections with section_slug
         const { data } = await supabase
