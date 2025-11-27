@@ -138,6 +138,3 @@
 //     );
 //   }
 // }
-export default function ApproveUser() {
-    return null;
-}
