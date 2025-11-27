@@ -57,8 +57,13 @@
 //         href="/"
 //         className="block w-full text-center bg-blue-600 hover:bg-blue-700 py-2 rounded-lg mt-4"
 //       >
-//         Retour à l’accueil
+//         Retour à l'accueil
 //       </Link>
 //     </FormCard>
 //   );
 // }
+
+// Temporary placeholder to prevent build error
+export default function EmailConfirmedPage() {
+    return null;
+}

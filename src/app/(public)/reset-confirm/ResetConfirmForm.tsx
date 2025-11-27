@@ -77,3 +77,6 @@
 //     </form>
 //   );
 // }
+export default function ResetConfirmForm() {
+    return null;
+}

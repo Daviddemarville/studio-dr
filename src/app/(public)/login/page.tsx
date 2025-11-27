@@ -8,3 +8,8 @@
 //     </FormCard>
 //   );
 // }
+
+// Temporary placeholder to prevent build error
+export default function LoginPage() {
+    return null;
+}
