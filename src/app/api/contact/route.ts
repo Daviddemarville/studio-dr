@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const supabase = await supabaseServer();
+    const supabase = await createClient();
 
     // 3 — Insert en BDD
     const { error: insertError } = await supabase
