@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 
 // Dynamic icon library
 import { DEFAULT_SECTION_ICON, SECTION_ICONS } from "@/lib/section-icons";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 
 /* ---------------------------------------------------------
    TYPES STRICTS
@@ -30,7 +30,7 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 export default function AdminNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const supabase = supabaseBrowser();
+  const supabase = createClient();
 
   // Sidebar states
   const [collapsed, setCollapsed] = useState(false);

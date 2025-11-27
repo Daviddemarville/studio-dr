@@ -1,8 +1,8 @@
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import SettingsForm from "./settings-form";
 
 export default async function SettingsPage() {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // Charger les settings actuelles
   const { data: settings, error } = await supabase

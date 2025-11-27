@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 import profileTemplate from "@/templates/sections/section_user_profile.json";
 import renderDynamicField from "../section/renderDynamicField";
 
@@ -24,7 +24,7 @@ export default function ProfileEditor() {
 
   useEffect(() => {
     const load = async () => {
-      const supabase = supabaseBrowser();
+      const supabase = createClient();
       const { data } = await supabase.auth.getUser();
 
       if (data.user) {
@@ -42,7 +42,7 @@ export default function ProfileEditor() {
   }, []);
 
   const save = async () => {
-    const supabase = supabaseBrowser();
+    const supabase = createClient();
 
     // Extract fields defined in the template
     const updates: Record<string, unknown> = {};

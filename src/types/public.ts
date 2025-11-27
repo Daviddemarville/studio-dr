@@ -11,3 +11,8 @@ export interface Offer {
   long_fr?: string;
   long_en?: string;
 }
+
+export interface providerType {
+  provider: "github" | "google" | "discord";
+  className?: string;
+}

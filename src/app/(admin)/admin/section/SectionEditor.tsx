@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 import PreviewSite from "../components/PreviewSite";
 import OpenPreviewButton from "../components/ui/OpenPreviewButton";
 
@@ -24,7 +24,7 @@ export default function SectionEditor({
   const [message, setMessage] = useState("");
 
   const save = async () => {
-    const supabase = supabaseBrowser(); // ← IMPORTANT
+    const supabase = createClient(); // ← IMPORTANT
 
     const { error } = await supabase
       .from("content_sections")
@@ -40,7 +40,7 @@ export default function SectionEditor({
   };
 
   const del = async () => {
-    const supabase = supabaseBrowser(); // ← IMPORTANT
+    const supabase = createClient(); // ← IMPORTANT
 
     if (!confirm("Supprimer cette section ?")) return;
 

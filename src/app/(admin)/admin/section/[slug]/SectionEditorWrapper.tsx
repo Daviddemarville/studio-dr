@@ -3,7 +3,7 @@
 import { Layers } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 import type { TemplateWithSlug } from "@/templates/sections/loader.server";
 import { getTemplate } from "@/templates/sections/loader.server";
 import IconSelector from "../../components/IconSelector";
@@ -54,7 +54,7 @@ interface DBRow {
 }
 
 export default function SectionEditorWrapper({ slug }: { slug: string }) {
-  const supabase = supabaseBrowser();
+  const supabase = createClient();
   const router = useRouter();
 
   const [section, setSection] = useState<SiteSection | null>(null);

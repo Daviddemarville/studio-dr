@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 // Mapping Template -> Table
 const TEMPLATE_TABLE_MAP: Record<string, string> = {
@@ -24,7 +24,7 @@ export async function createSection(
   position: number = 0,
   icon: string = "FileText",
 ) {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   if (!title || !templateSlug) {
     return { success: false, error: "Titre et modèle requis" };
@@ -61,7 +61,7 @@ export async function createSection(
 }
 
 export async function deleteSection(id: number) {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // 1. Get section details to know which table to clean and check for system protection
   const { data: section, error: fetchError } = await supabase
@@ -110,7 +110,7 @@ export async function deleteSection(id: number) {
 }
 
 export async function updateSectionPosition(id: number, position: number) {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("site_sections")
     .update({ position })

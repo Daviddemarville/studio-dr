@@ -1,5 +1,5 @@
 import { Layers, Mail, Users } from "lucide-react";
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 import DashboardCard from "./components/DashboardCard";
 import LastUpdates from "./components/LastUpdates";
 import PreviewSite from "./components/PreviewSite";
@@ -8,7 +8,7 @@ import OpenPreviewButton from "./components/ui/OpenPreviewButton";
 import { formatDashboardDate } from "./dashboard-utils";
 
 export default async function AdminDashboard() {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // ---- FETCH DATA ----
   const { count: rawSectionsCount } = await supabase

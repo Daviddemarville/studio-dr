@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
+import { createClient } from "@/lib/supabase-browser";
 import Navbar from "./Navbar";
 
 export default function Header() {
-  const supabase = supabaseBrowser();
+  const supabase = createClient();
 
   const [siteName, setSiteName] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);

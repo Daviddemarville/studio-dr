@@ -1,7 +1,7 @@
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 export default async function LastUpdates() {
-  const supabase = await supabaseServer();
+  const supabase = await createClient();
 
   // 1) Dernières modifications
   const { data: changes } = await supabase
