@@ -8,13 +8,17 @@ import RepeaterEditor from "./RepeaterEditor";
 export default function renderDynamicField({
   field,
   value,
+  tableName,
+  sectionSlug,
   onChange,
   onRelationChange,
 }: {
-  field: Record<string, unknown>;
-  value: unknown;
-  onChange: (value: unknown) => void;
-  onRelationChange?: (selectedItem: Record<string, unknown>) => void;
+  field: any;
+  value: any;
+  tableName?: string;
+  sectionSlug?: string;
+  onChange: (value: any) => void;
+  onRelationChange?: (selectedItem: any) => void;
 }) {
   // Champs non modifiables (titre auto + TTC auto)
   if (
@@ -122,14 +126,18 @@ export default function renderDynamicField({
 
   // ---- REPEATER ----
   if (field.type === "repeater") {
-    return (
-      <RepeaterEditor
-        field={field}
-        value={value as Record<string, unknown>[]}
-        onChange={onChange}
-      />
-    );
-  }
+  return (
+    <RepeaterEditor
+      field={{
+        ...field,
+        table_name: tableName,
+        section_slug: sectionSlug,
+      }}
+      value={value}
+      onChange={onChange}
+    />
+  );
+}
 
   // ---- RELATION ----
   if (field.type === "relation") {
