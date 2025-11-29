@@ -1,14 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import renderDynamicField from "./renderDynamicField";
+import ConfirmModal from "./[slug]/_components/ConfirmModal";
+import { deleteSectionItem } from "./[slug]/wrappers/SectionDeleteWrapper";
 
-// --- Fonction PRO pour calculer le TTC ---
 function calculateTTC(ht: unknown, tva: unknown): number {
   const prixHT = parseFloat(String(ht).replace(",", "."));
   const tauxTVA = parseFloat(String(tva).replace(",", "."));
 
   if (!Number.isFinite(prixHT) || !Number.isFinite(tauxTVA)) return 0;
-
   return parseFloat((prixHT * (1 + tauxTVA / 100)).toFixed(2));
 }
 
@@ -17,18 +18,27 @@ export default function RepeaterEditor({
   value,
   onChange,
 }: {
-  field: Record<string, unknown>;
+  field: {
+    name: string;
+    label?: string;
+    fields: { name: string; type?: string; label?: string }[];
+    table_name?: string;       // PATCH OK
+    section_slug?: string;     // PATCH OK
+  };
   value: Record<string, unknown>[];
   onChange: (newValue: Record<string, unknown>[]) => void;
 }) {
   const items = value ?? [];
+  const [isDeleteOpen, setDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const typedFields =
     (field.fields as { name: string; type?: string; label?: string }[]) ?? [];
 
+  /* -------------------- Ajout -------------------- */
   const addItem = () => {
     const emptyItem: Record<string, unknown> = {
-      _id: crypto.randomUUID(), // 🔥 ID stable pour éviter le warning Biome
+      _id: crypto.randomUUID(),
     };
 
     typedFields.forEach((f) => {
@@ -40,27 +50,56 @@ export default function RepeaterEditor({
     onChange([...items, emptyItem]);
   };
 
+  /* -------------------- Update -------------------- */
   const updateItem = (index: number, newVal: Record<string, unknown>) => {
+    const previous = items[index];
+
+    const merged: Record<string, any> = {
+      ...previous,
+      ...newVal,
+      id: previous.id,
+      _id: previous._id,
+    };
+
+    merged.price_ttc = calculateTTC(merged.price_ht, merged.tva_rate);
+
     const updated = [...items];
+    updated[index] = merged;
 
-    newVal.price_ttc = calculateTTC(newVal.price_ht, newVal.tva_rate);
-
-    updated[index] = newVal;
     onChange(updated);
   };
 
-  const deleteItem = (index: number) => {
-    if (
-      !window.confirm(
-        "Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible après sauvegarde.",
-      )
-    )
+  /* -------------------- Suppression -------------------- */
+
+  const requestDeleteItem = (itemId: string | undefined) => {
+    setItemToDelete(itemId ?? null);
+    setDeleteOpen(true);
+  };
+
+  const confirmDeleteItem = async () => {
+    // Si l’élément n’a pas encore d’ID => suppression locale
+    if (!itemToDelete) {
+      const updated = items.filter((it) => it.id !== undefined);
+      onChange(updated);
+      setDeleteOpen(false);
       return;
+    }
 
-    const updated = items.filter((_, i) => i !== index);
+    // Supprimer depuis Supabase
+    await deleteSectionItem({
+      table: field.table_name!,            // PATCH
+      itemId: itemToDelete,
+      sectionSlug: field.section_slug!,    // PATCH
+    });
+
+    const updated = items.filter((item) => item.id !== itemToDelete);
     onChange(updated);
+
+    setDeleteOpen(false);
+    setItemToDelete(null);
   };
 
+  /* -------------------- Déplacement -------------------- */
   const moveItem = (index: number, direction: -1 | 1) => {
     if (index + direction < 0 || index + direction >= items.length) return;
 
@@ -74,7 +113,7 @@ export default function RepeaterEditor({
 
   const handleRelationChange = (
     index: number,
-    selectedItem: Record<string, unknown>,
+    selectedItem: Record<string, unknown>
   ) => {
     const currentItem = { ...items[index] };
     const content = (selectedItem.content as Record<string, unknown>) || {};
@@ -88,16 +127,27 @@ export default function RepeaterEditor({
 
     currentItem.price_ttc = calculateTTC(
       currentItem.price_ht,
-      currentItem.tva_rate,
+      currentItem.tva_rate
     );
 
     updateItem(index, currentItem);
   };
 
+  /* -------------------- RENDER -------------------- */
+
   return (
     <div className="flex flex-col gap-4">
+
+      <ConfirmModal
+        isOpen={isDeleteOpen}
+        message="Voulez-vous vraiment supprimer cet élément ?"
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={confirmDeleteItem}
+      />
+
       <div className="flex justify-between items-center">
         <h4 className="text-neutral-200 text-sm">{field.label as string}</h4>
+
         <button
           type="button"
           onClick={addItem}
@@ -107,81 +157,63 @@ export default function RepeaterEditor({
         </button>
       </div>
 
-      {items.map((item) => (
-        <div
-          key={item._id as string} // 🔥 Clé stable → plus aucun warning Biome
-          className="border border-neutral-700 rounded-lg p-4 flex flex-col gap-3 bg-neutral-800"
-        >
-          <div className="flex justify-between mb-1">
-            <div className="flex items-center gap-2">
-              <span className="text-neutral-400 text-sm">Élément</span>
+      {items.map((item, index) => {
+        if (!item._id) item._id = crypto.randomUUID();
 
-              <div className="flex gap-1">
-                <button
-                  type="button"
-                  onClick={() =>
-                    moveItem(
-                      items.findIndex((i) => i._id === item._id),
-                      -1,
-                    )
-                  }
-                  disabled={items.findIndex((i) => i._id === item._id) === 0}
-                  className="p-1 text-neutral-500 hover:text-neutral-300 disabled:opacity-30"
-                  title="Monter"
-                >
-                  ↑
-                </button>
+        return (
+          <div
+            key={item._id as string}
+            className="border border-neutral-700 rounded-lg p-4 flex flex-col gap-3 bg-neutral-800"
+          >
+            <div className="flex justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="text-neutral-400 text-sm">Élément</span>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    moveItem(
-                      items.findIndex((i) => i._id === item._id),
-                      1,
-                    )
-                  }
-                  disabled={
-                    items.findIndex((i) => i._id === item._id) ===
-                    items.length - 1
-                  }
-                  className="p-1 text-neutral-500 hover:text-neutral-300 disabled:opacity-30"
-                  title="Descendre"
-                >
-                  ↓
-                </button>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => moveItem(index, -1)}
+                    disabled={index === 0}
+                    className="p-1 text-neutral-500 hover:text-neutral-300 disabled:opacity-30"
+                  >
+                    ↑
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => moveItem(index, 1)}
+                    disabled={index === items.length - 1}
+                    className="p-1 text-neutral-500 hover:text-neutral-300 disabled:opacity-30"
+                  >
+                    ↓
+                  </button>
+                </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => requestDeleteItem(item.id as string)}
+                className="text-red-400 text-xs hover:text-red-600"
+              >
+                Supprimer
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                deleteItem(items.findIndex((i) => i._id === item._id))
-              }
-              className="text-red-400 text-xs hover:text-red-600"
-            >
-              Supprimer
-            </button>
+            {typedFields.map((subField) => (
+              <div key={subField.name}>
+                {renderDynamicField({
+                  field: subField,
+                  value: item[subField.name],
+                  onChange: (newVal) =>
+                    updateItem(index, { ...item, [subField.name]: newVal }),
+                  onRelationChange: (selectedItem) =>
+                    handleRelationChange(index, selectedItem),
+                })}
+              </div>
+            ))}
           </div>
-
-          {typedFields.map((subField) => (
-            <div key={subField.name}>
-              {renderDynamicField({
-                field: subField,
-                value: item[subField.name],
-                onChange: (newVal) => {
-                  const index = items.findIndex((i) => i._id === item._id);
-                  updateItem(index, { ...item, [subField.name]: newVal });
-                },
-                onRelationChange: (selectedItem) =>
-                  handleRelationChange(
-                    items.findIndex((i) => i._id === item._id),
-                    selectedItem,
-                  ),
-              })}
-            </div>
-          ))}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
