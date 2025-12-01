@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import SectionListItem from "./SectionListItem";
 
 interface Section {
@@ -7,7 +8,7 @@ interface Section {
     title: string;
     slug: string;
     table_name: string;
-    position: number;
+    position: number;    
 }
 
 export default function SectionList({
@@ -19,46 +20,32 @@ export default function SectionList({
     onDelete: (id: number) => void;
     onPositionUpdate: (id: number, position: number) => void;
 }) {
+    const [openId, setOpenId] = useState<number | null>(null);
+
     return (
         <div className="bg-neutral-900 p-6 rounded-lg border border-neutral-800">
             <h2 className="text-xl font-semibold mb-4 text-white">
-                Sections existantes
+                Gérer les sections
             </h2>
 
-            <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-neutral-400">
-                    <thead className="bg-neutral-800 text-neutral-200 uppercase">
-                        <tr>
-                            <th className="px-4 py-3">Position</th>
-                            <th className="px-4 py-3">Titre</th>
-                            <th className="px-4 py-3">Slug</th>
-                            <th className="px-4 py-3">Table</th>
-                            <th className="px-4 py-3 text-right">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody className="divide-y divide-neutral-800">
-                        {sections.length > 0 ? (
-                            sections.map((section) => (
-                                <SectionListItem
-                                    key={section.id}
-                                    section={section}
-                                    onDelete={onDelete}
-                                    onPositionUpdate={onPositionUpdate}
-                                />
-                            ))
-                        ) : (
-                            <tr>
-                                <td
-                                    colSpan={6}
-                                    className="px-4 py-8 text-center text-neutral-500"
-                                >
-                                    Aucune section trouvée.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+            <div className="space-y-3">
+                {sections.length > 0 ? (
+                    sections.map((section) => (
+                        <SectionListItem
+                            key={section.id}
+                            section={section}
+                            onDelete={onDelete}
+                            isOpen={openId === section.id}
+                            onToggle={() =>
+                                setOpenId(openId === section.id ? null : section.id)
+                            }
+                        />
+                    ))
+                ) : (
+                    <p className="text-neutral-500 text-center py-6">
+                        Aucune section trouvée.
+                    </p>
+                )}
             </div>
         </div>
     );

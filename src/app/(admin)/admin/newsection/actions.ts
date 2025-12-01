@@ -281,3 +281,21 @@ export async function updateSectionPosition(id: number, position: number) {
   revalidatePath("/(admin)/admin/newsection");
   return { success: true };
 }
+
+// ---------------------------------------------------------
+// DRAG & DROP DE POSITION
+// Fonction dédiée au reorder dnd-kit
+// ---------------------------------------------------------
+export async function reorderSections(orderedIds: number[]) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc("reorder_sections", {
+    ids: orderedIds,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { success: true };
+}
