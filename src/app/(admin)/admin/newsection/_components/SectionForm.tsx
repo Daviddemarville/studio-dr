@@ -1,6 +1,7 @@
 "use client";
 
 import IconSelector from "../../components/IconSelector";
+import PreviewButton from "./PreviewButton";
 
 interface Template {
     slug: string;
@@ -33,6 +34,16 @@ export default function SectionForm({
     setTemplate: (v: string) => void;
     onSubmit: (e: React.FormEvent) => void;
 }) {
+
+    const adminTemplates = ["section_user_profile"];
+
+    const filteredTemplates = templates.filter(
+        (t) => !adminTemplates.includes(t.slug)
+    );
+
+    const selectedTemplateMeta =
+        templates.find((t) => t.slug === selectedTemplate) || null;
+
     return (
         <div className="bg-neutral-900 p-6 rounded-lg border border-neutral-800">
             <h2 className="text-xl font-semibold mb-4 text-white">
@@ -40,6 +51,7 @@ export default function SectionForm({
             </h2>
 
             <form onSubmit={onSubmit} className="space-y-4">
+
                 {/* TITLE + POSITION */}
                 <div className="flex gap-4">
                     <div className="flex-1">
@@ -81,7 +93,7 @@ export default function SectionForm({
                             onChange={(e) => setTemplate(e.target.value)}
                             className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
                         >
-                            {templates.map((t) => (
+                            {filteredTemplates.map((t) => (
                                 <option key={t.slug} value={t.slug}>
                                     {t.name}
                                 </option>
@@ -90,13 +102,15 @@ export default function SectionForm({
                     </label>
 
                     <p className="text-xs text-neutral-500 mt-1">
-                        {templates.find((t) => t.slug === selectedTemplate)?.description ||
-                            ""}
+                        {selectedTemplateMeta?.description || ""}
                     </p>
                 </div>
 
                 {/* ICON SELECTOR */}
                 <IconSelector value={selectedIcon} onChange={setIcon} />
+
+                {/* PREVIEW */}
+                <PreviewButton templateSlug={selectedTemplate} />
 
                 {/* SUBMIT */}
                 <button
