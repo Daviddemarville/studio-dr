@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-import { createSection, deleteSection, updateSectionPosition } from "./actions";
+import { createSection, deleteSection, updateSectionPosition, reorderSections } from "./actions";
 import SectionForm from "./_components/SectionForm";
+import SectionReorder from "./_components/SectionReorder";
 import SectionList from "./_components/SectionList";
 import ConfirmModal from "./_components/ConfirmModal";
 import { useConfirm } from "./_components/useConfirm";
@@ -25,6 +26,7 @@ interface Section {
   table_name: string;
   is_active: boolean;
   position: number;
+  icon: string | null;
 }
 
 export default function NewSectionClient({
@@ -138,6 +140,26 @@ export default function NewSectionClient({
         setTemplate={setSelectedTemplate}
         onSubmit={handleCreate}
       />
+
+      <div>
+        <h2 className="text-xl font-semibold text-white mb-4">
+          Réorganisation des sections
+        </h2>
+
+        <SectionReorder
+          sections={sections}
+          onReorder={async (orderedIds) => {
+            try {
+              await reorderSections(orderedIds);
+              toast.success("Ordre mis à jour !");
+              window.dispatchEvent(new Event("refresh-nav"));
+              router.refresh();
+            } catch (error) {
+              toast.error("Erreur lors de la mise à jour de l'ordre.");
+            }
+          }}
+        />
+      </div>
 
       <SectionList
         sections={sections}
