@@ -1,7 +1,170 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
+type ProviderMetadata = Record<string, unknown>;
+
+interface OAuthUser {
+  email?: string;
+  user_metadata?: ProviderMetadata;
+  app_metadata?: ProviderMetadata;
+}
+
+interface ExtractedProfile {
+  firstname: string | null;
+  lastname: string | null;
+  pseudo: string | null;
+  avatar_url: string | null;
+}
+
+/**
+ * Helper to get first non-null, non-empty value from a list
+ */
+const getFirstValue = (...values: unknown[]): string | null => {
+  const found = values.find(
+    (v) => typeof v === "string" && v.trim().length > 0,
+  );
+  return (found as string) || null;
+};
+
+/**
+ * Split a full name into first and last name parts
+ */
+const splitFullName = (
+  fullName: string,
+): { first: string | null; last: string | null } => {
+  const parts = fullName.trim().split(/\s+/);
+  return {
+    first: parts[0] || null,
+    last: parts.slice(1).join(" ") || null,
+  };
+};
+
+/**
+ * Extract user profile data from OAuth provider metadata
+ * Handles different providers: Google, GitHub, Discord, Facebook, Twitter, LinkedIn
+ */
+function extractProviderProfile(user: OAuthUser): ExtractedProfile {
+  const meta = user.user_metadata || {};
+  const provider = (user.app_metadata?.provider as string) || "";
+
+  // Get full name from various possible fields
+  const fullName =
+    (meta.full_name as string) ||
+    (meta.name as string) ||
+    (meta.global_name as string) ||
+    "";
+  const { first: firstFromFull, last: lastFromFull } = splitFullName(fullName);
+
+  // Provider-specific extraction strategies
+  const strategies: Record<
+    string,
+    {
+      firstname: () => string | null;
+      lastname: () => string | null;
+      pseudo: () => string | null;
+      avatar: () => string | null;
+    }
+  > = {
+    google: {
+      firstname: () => getFirstValue(meta.given_name, firstFromFull),
+      lastname: () => getFirstValue(meta.family_name, lastFromFull),
+      pseudo: () => null,
+      avatar: () => getFirstValue(meta.picture, meta.avatar_url),
+    },
+    github: {
+      firstname: () => getFirstValue(firstFromFull, meta.name),
+      lastname: () => lastFromFull,
+      pseudo: () => getFirstValue(meta.user_name, meta.preferred_username),
+      avatar: () => getFirstValue(meta.avatar_url, meta.picture),
+    },
+    discord: {
+      firstname: () =>
+        getFirstValue(meta.global_name, meta.username, firstFromFull),
+      lastname: () => lastFromFull,
+      pseudo: () => getFirstValue(meta.username, meta.custom_username),
+      avatar: () => {
+        if (meta.avatar && meta.id) {
+          return `https://cdn.discordapp.com/avatars/${meta.id}/${meta.avatar}.png`;
+        }
+        return getFirstValue(meta.avatar_url, meta.picture);
+      },
+    },
+    facebook: {
+      firstname: () => getFirstValue(meta.first_name, firstFromFull),
+      lastname: () => getFirstValue(meta.last_name, lastFromFull),
+      pseudo: () => null,
+      avatar: () => {
+        const pic = meta.picture as
+          | { data?: { url?: string } }
+          | string
+          | undefined;
+        if (typeof pic === "object" && pic?.data?.url) {
+          return pic.data.url;
+        }
+        return getFirstValue(pic, meta.avatar_url);
+      },
+    },
+    twitter: {
+      firstname: () => getFirstValue(firstFromFull, meta.name),
+      lastname: () => lastFromFull,
+      pseudo: () => getFirstValue(meta.screen_name, meta.username),
+      avatar: () =>
+        getFirstValue(
+          meta.profile_image_url,
+          meta.profile_image_url_https,
+          meta.avatar_url,
+        ),
+    },
+    linkedin: {
+      firstname: () => getFirstValue(meta.given_name, firstFromFull),
+      lastname: () => getFirstValue(meta.family_name, lastFromFull),
+      pseudo: () => null,
+      avatar: () => getFirstValue(meta.picture, meta.avatar_url),
+    },
+  };
+
+  // Add aliases
+  strategies.x = strategies.twitter;
+  strategies.linkedin_oidc = strategies.linkedin;
+
+  // Default strategy for unknown providers
+  const defaultStrategy = {
+    firstname: () =>
+      getFirstValue(
+        meta.firstname,
+        meta.first_name,
+        meta.given_name,
+        firstFromFull,
+      ),
+    lastname: () =>
+      getFirstValue(
+        meta.lastname,
+        meta.last_name,
+        meta.family_name,
+        lastFromFull,
+      ),
+    pseudo: () =>
+      getFirstValue(
+        meta.username,
+        meta.user_name,
+        meta.preferred_username,
+        meta.nickname,
+      ),
+    avatar: () =>
+      getFirstValue(meta.avatar_url, meta.picture, meta.profile_image_url),
+  };
+
+  const strategy = strategies[provider] || defaultStrategy;
+
+  return {
+    firstname: strategy.firstname(),
+    lastname: strategy.lastname(),
+    pseudo: strategy.pseudo(),
+    avatar_url: strategy.avatar(),
+  };
+}
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -40,33 +203,25 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.user && data.user.email) {
+      // Extract profile data from provider metadata
+      const providerProfile = extractProviderProfile(data.user);
+
       // Check if user exists in public.users, if not create them
       const { data: existingUser } = await supabase
         .from("users")
-        .select("id")
+        .select("id, firstname, lastname, pseudo, avatar_url")
         .eq("id", data.user.id)
         .single();
 
       if (!existingUser) {
-        // Create user profile in public.users table
+        // Create user profile in public.users table with extracted provider data
         const { error: insertError } = await supabase.from("users").insert({
           id: data.user.id,
           email: data.user.email,
-          firstname:
-            data.user.user_metadata?.firstname || 
-            data.user.user_metadata?.first_name ||
-            data.user.user_metadata?.given_name || 
-            data.user.user_metadata?.family_name || 
-            data.user.user_metadata?.name ||
-            data.user.user_metadata?.full_name?.split(" ")[0] ||
-            null,
-          lastname:
-            data.user.user_metadata?.lastname ||
-            data.user.user_metadata?.last_name ||
-            data.user.user_metadata?.full_name?.split(" ").slice(1).join(" ") ||
-            null,
-          pseudo:data.user.user_metadata?.username || data.user.user_metadata?.user_name,
-          avatar_url: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || null,
+          firstname: providerProfile.firstname,
+          lastname: providerProfile.lastname,
+          pseudo: providerProfile.pseudo,
+          avatar_url: providerProfile.avatar_url,
           is_approved: false,
         });
 
@@ -77,18 +232,47 @@ export async function GET(request: NextRequest) {
         // Redirect to pending page for new OAuth users
         return NextResponse.redirect(
           `${origin}/auth/pending?id=${data.user.id}&email=${encodeURIComponent(
-            data.user.email
-          )}&source=oauth`
+            data.user.email,
+          )}&source=oauth`,
         );
-      }
+      } else {
+        // User exists - optionally update missing profile fields from provider
+        const updates: Record<string, string | null> = {};
 
-      // User already exists, redirect to dashboard or home
-      return NextResponse.redirect(`${origin}/admin`);
+        // Only update fields that are currently empty
+        if (!existingUser.firstname && providerProfile.firstname) {
+          updates.firstname = providerProfile.firstname;
+        }
+        if (!existingUser.lastname && providerProfile.lastname) {
+          updates.lastname = providerProfile.lastname;
+        }
+        if (!existingUser.pseudo && providerProfile.pseudo) {
+          updates.pseudo = providerProfile.pseudo;
+        }
+        if (!existingUser.avatar_url && providerProfile.avatar_url) {
+          updates.avatar_url = providerProfile.avatar_url;
+        }
+
+        // Update if there are any missing fields to fill
+        if (Object.keys(updates).length > 0) {
+          const { error: updateError } = await supabase
+            .from("users")
+            .update(updates)
+            .eq("id", data.user.id);
+
+          if (updateError) {
+            console.error("Error updating user profile:", updateError);
+          }
+        }
+
+        // User already exists, redirect to dashboard
+        return NextResponse.redirect(`${origin}/admin`);
+      }
     }
   }
 
   // Return to home on error
   return NextResponse.redirect(
-    `${origin}/auth/signIn?error=auth_callback_error`
+    `${origin}/auth/signIn?error=auth_callback_error`,
   );
 }

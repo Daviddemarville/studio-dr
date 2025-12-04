@@ -6,7 +6,9 @@ export default async function ValidateUsersPage() {
 
   const { data: users, error } = await supabase
     .from("users")
-    .select("id, firstname, lastname, email, role, is_approved, avatar_url, created_at")
+    .select(
+      "id, firstname, lastname, email, role, is_approved, avatar_url, created_at",
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -16,7 +18,9 @@ export default async function ValidateUsersPage() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Validation des utilisateurs</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        Validation des utilisateurs
+      </h1>
       <UserList users={users || []} />
     </div>
   );

@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "react-toastify";
-
-import { createSection, deleteSection, updateSectionPosition, reorderSections } from "./actions";
-import SectionForm from "./_components/SectionForm";
-import SectionReorder from "./_components/SectionReorder";
-import SectionList from "./_components/SectionList";
 import ConfirmModal from "./_components/ConfirmModal";
+import SectionForm from "./_components/SectionForm";
+import SectionList from "./_components/SectionList";
+import SectionReorder from "./_components/SectionReorder";
 import { useConfirm } from "./_components/useConfirm";
-
+import {
+  createSection,
+  deleteSection,
+  reorderSections,
+  updateSectionPosition,
+} from "./actions";
 
 interface Template {
   slug: string;
@@ -86,7 +89,7 @@ export default function NewSectionClient({
   const handleDelete = async (id: number) => {
     const confirmed = await openConfirm(
       "Supprimer cette section",
-      "Êtes-vous sûr de vouloir supprimer cette section ? Le contenu associé sera perdu."
+      "Êtes-vous sûr de vouloir supprimer cette section ? Le contenu associé sera perdu.",
     );
 
     if (!confirmed) return;
@@ -178,5 +181,4 @@ export default function NewSectionClient({
       />
     </div>
   );
-
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Layers } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import IconSelector from "../../components/IconSelector";
 import PreviewSite from "../../components/PreviewSite";
@@ -71,11 +71,11 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
    * -------------------------------------------------------------------------- */
 
   if (loading) return <div className="p-6 text-neutral-400">Chargement...</div>;
-  if (!template) return <div className="p-6 text-red-400">Template non trouvé</div>;
+  if (!template)
+    return <div className="p-6 text-red-400">Template non trouvé</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-8">
-
       {/* HEADER */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -94,7 +94,6 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
       </div>
 
       <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-6">
-
         {/* METADATA */}
         <div className="border-b border-neutral-800 pb-6 mb-6">
           <label className="block text-sm text-neutral-400">
@@ -124,14 +123,13 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
                 sectionSlug: section.slug,
                 onChange: (val) =>
                   setFormData((prev: any) => {
-
                     // CAS 1 — REPEATER (array)
                     if (Array.isArray(val)) {
                       return {
                         ...prev,
                         [field.name]: val.map((item: any) => {
                           const previous = prev[field.name]?.find(
-                            (p: any) => p._id === item._id
+                            (p: any) => p._id === item._id,
                           );
                           return previous?.id
                             ? { ...item, id: previous.id }
@@ -145,9 +143,8 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
                       ...prev,
                       [field.name]: val,
                     };
-                  })
+                  }),
               })}
-
             </div>
           ))
         )}

@@ -1,5 +1,5 @@
-import { getMessages } from "./_components/message-actions";
 import ClientWrapper from "./_components/ClientWrapper";
+import { getMessages } from "./_components/message-actions";
 
 export default async function Page() {
   const messages = await getMessages("all");

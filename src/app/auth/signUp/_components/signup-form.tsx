@@ -31,7 +31,7 @@ export function SignUpForm() {
 
     if (password.length < 6) {
       validationErrors.push(
-        "Le mot de passe doit contenir au moins 6 caractères"
+        "Le mot de passe doit contenir au moins 6 caractères",
       );
     }
 
@@ -93,8 +93,8 @@ export function SignUpForm() {
 
         router.push(
           `/auth/pending?id=${data.user.id}&email=${encodeURIComponent(
-            email
-          )}&source=signup`
+            email,
+          )}&source=signup`,
         );
       }
     } catch {

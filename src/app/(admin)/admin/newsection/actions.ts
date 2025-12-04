@@ -85,8 +85,7 @@ export async function createSection(
   if (slugExists) {
     return {
       success: false,
-      error:
-        "Une section porte déjà ce titre. Veuillez en choisir un autre.",
+      error: "Une section porte déjà ce titre. Veuillez en choisir un autre.",
     };
   }
 
@@ -189,7 +188,6 @@ export async function createSection(
 
   return { success: true };
 }
-
 
 // ---------------------------------------------------------
 // SUPPRESSION D’UNE SECTION
