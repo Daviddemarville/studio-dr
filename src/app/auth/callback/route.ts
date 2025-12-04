@@ -23,7 +23,7 @@ interface ExtractedProfile {
  */
 const getFirstValue = (...values: unknown[]): string | null => {
   const found = values.find(
-    (v) => typeof v === "string" && v.trim().length > 0,
+    (v) => typeof v === "string" && v.trim().length > 0
   );
   return (found as string) || null;
 };
@@ -32,7 +32,7 @@ const getFirstValue = (...values: unknown[]): string | null => {
  * Split a full name into first and last name parts
  */
 const splitFullName = (
-  fullName: string,
+  fullName: string
 ): { first: string | null; last: string | null } => {
   const parts = fullName.trim().split(/\s+/);
   return {
@@ -48,6 +48,12 @@ const splitFullName = (
 function extractProviderProfile(user: OAuthUser): ExtractedProfile {
   const meta = user.user_metadata || {};
   const provider = (user.app_metadata?.provider as string) || "";
+
+  // Debug: log metadata to see what we receive from the provider
+  console.log(
+    `[OAuth ${provider}] user_metadata:`,
+    JSON.stringify(meta, null, 2)
+  );
 
   // Get full name from various possible fields
   const fullName =
@@ -71,7 +77,8 @@ function extractProviderProfile(user: OAuthUser): ExtractedProfile {
       firstname: () => getFirstValue(meta.given_name, firstFromFull),
       lastname: () => getFirstValue(meta.family_name, lastFromFull),
       pseudo: () => null,
-      avatar: () => getFirstValue(meta.picture, meta.avatar_url),
+      // Google uses 'picture' for avatar URL in OIDC, also check 'avatar_url' and 'image'
+      avatar: () => getFirstValue(meta.picture, meta.avatar_url, meta.image),
     },
     github: {
       firstname: () => getFirstValue(firstFromFull, meta.name),
@@ -114,7 +121,7 @@ function extractProviderProfile(user: OAuthUser): ExtractedProfile {
         getFirstValue(
           meta.profile_image_url,
           meta.profile_image_url_https,
-          meta.avatar_url,
+          meta.avatar_url
         ),
     },
     linkedin: {
@@ -136,21 +143,21 @@ function extractProviderProfile(user: OAuthUser): ExtractedProfile {
         meta.firstname,
         meta.first_name,
         meta.given_name,
-        firstFromFull,
+        firstFromFull
       ),
     lastname: () =>
       getFirstValue(
         meta.lastname,
         meta.last_name,
         meta.family_name,
-        lastFromFull,
+        lastFromFull
       ),
     pseudo: () =>
       getFirstValue(
         meta.username,
         meta.user_name,
         meta.preferred_username,
-        meta.nickname,
+        meta.nickname
       ),
     avatar: () =>
       getFirstValue(meta.avatar_url, meta.picture, meta.profile_image_url),
@@ -232,8 +239,8 @@ export async function GET(request: NextRequest) {
         // Redirect to pending page for new OAuth users
         return NextResponse.redirect(
           `${origin}/auth/pending?id=${data.user.id}&email=${encodeURIComponent(
-            data.user.email,
-          )}&source=oauth`,
+            data.user.email
+          )}&source=oauth`
         );
       } else {
         // User exists - optionally update missing profile fields from provider
@@ -273,6 +280,6 @@ export async function GET(request: NextRequest) {
 
   // Return to home on error
   return NextResponse.redirect(
-    `${origin}/auth/signIn?error=auth_callback_error`,
+    `${origin}/auth/signIn?error=auth_callback_error`
   );
 }
