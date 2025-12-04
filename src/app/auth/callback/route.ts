@@ -53,14 +53,15 @@ export async function GET(request: NextRequest) {
           id: data.user.id,
           email: data.user.email,
           firstname:
-            data.user.user_metadata?.firstname ||
+            data.user.user_metadata?.firstname || data.user.user_metadata?.given_name || data.user.user_metadata?.family_name || data.user.user_metadata?.name ||
             data.user.user_metadata?.full_name?.split(" ")[0] ||
             null,
           lastname:
             data.user.user_metadata?.lastname ||
             data.user.user_metadata?.full_name?.split(" ").slice(1).join(" ") ||
             null,
-          avatar_url: data.user.user_metadata?.avatar_url || null,
+          pseudo:data.user.user_metadata?.username,
+          avatar_url: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || null,
           is_approved: false,
         });
 
