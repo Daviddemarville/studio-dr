@@ -75,26 +75,24 @@ export function SignUpForm() {
       // Supabase may return either a `user` or a `session` depending on confirmation
       // settings, so redirecting based on the presence of `data` is more reliable
       // for sending users to the pending/confirmation page so the resend flow works.
-      if (data) {
-        // create a profile row when a user object is available
-        const user = (data as { user?: { id?: string } }).user;
-        if (user) {
-          try {
-            await supabase.from("users").insert([
-              {
-                id: user.id,
-                email,
-                firstname: firstname || null,
-                lastname: lastname || null,
-                is_approved: false,
-              },
-            ]);
-          } catch (err) {
-            console.error("Could not create profile", err);
-          }
+      if (data?.user) {
+        // Create a profile row in public.users table
+        const { error: profileError } = await supabase.from("users").insert({
+          id: data.user.id,
+          email,
+          firstname: firstname || null,
+          lastname: lastname || null,
+          is_approved: false,
+        });
+
+        if (profileError) {
+          // Log the error but don't block the signup flow
+          // The profile might already exist or be created by a database trigger
+          console.error("Could not create profile:", profileError.message);
         }
+
         router.push(
-          `/auth/pending?id=${user?.id}&email=${encodeURIComponent(
+          `/auth/pending?id=${data.user.id}&email=${encodeURIComponent(
             email,
           )}&source=signup`,
         );

@@ -3,12 +3,14 @@
 import { createClient } from "@/lib/supabase-browser";
 import type { providerType } from "@/types/public";
 
-const supabase = createClient();
-
 export function SignInButton({ provider, className }: providerType) {
   async function handleClick() {
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     if (error) {
       console.error(error);
