@@ -3,20 +3,20 @@
  * -------------------------------------------------------------------------- */
 
 export interface TemplateFieldBase {
-    type: string;
-    name: string;
-    label?: string;
+  type: string;
+  name: string;
+  label?: string;
 }
 
 export interface TemplateFieldSingle extends TemplateFieldBase {
-    type: "text" | "textarea" | "number" | "image";
+  type: "text" | "textarea" | "number" | "image";
 }
 
 export interface TemplateFieldRepeater extends TemplateFieldBase {
-    type: "repeater";
-    fields: TemplateFieldSingle[];
-    min?: number;
-    max?: number;
+  type: "repeater";
+  fields: TemplateFieldSingle[];
+  min?: number;
+  max?: number;
 }
 
 export type TemplateField = TemplateFieldSingle | TemplateFieldRepeater;
@@ -26,13 +26,13 @@ export type TemplateField = TemplateFieldSingle | TemplateFieldRepeater;
  * -------------------------------------------------------------------------- */
 
 export interface SiteSection {
-    id: number;
-    slug: string;
-    title: string;
-    table_name: string;
-    template_slug: string | null;
-    is_active: boolean;
-    icon: string;
+  id: number;
+  slug: string;
+  title: string;
+  table_name: string;
+  template_slug: string | null;
+  is_active: boolean;
+  icon: string;
 }
 
 /* --------------------------------------------------------------------------
@@ -40,15 +40,15 @@ export interface SiteSection {
  * -------------------------------------------------------------------------- */
 
 export interface DBRow {
-    id: string;
-    section_slug: string;
-    content: Record<string, unknown>;
-    display_order?: number;
-    price_ht?: number;
-    price_ttc?: number;
-    tva_rate?: number;
-    offer_id?: string;
-    [key: string]: unknown;
+  id: string;
+  section_slug: string;
+  content: Record<string, unknown>;
+  display_order?: number;
+  price_ht?: number;
+  price_ttc?: number;
+  tva_rate?: number;
+  offer_id?: string;
+  [key: string]: unknown;
 }
 
 /* --------------------------------------------------------------------------
@@ -56,8 +56,8 @@ export interface DBRow {
  * -------------------------------------------------------------------------- */
 
 export interface LoadedSectionData {
-    section: SiteSection;
-    template: any; // TemplateWithSlug
-    rows: DBRow[];
-    formData: Record<string, unknown> | null;
+  section: SiteSection;
+  template: any; // TemplateWithSlug
+  rows: DBRow[];
+  formData: Record<string, unknown> | null;
 }

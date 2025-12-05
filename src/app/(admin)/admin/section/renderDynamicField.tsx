@@ -126,18 +126,18 @@ export default function renderDynamicField({
 
   // ---- REPEATER ----
   if (field.type === "repeater") {
-  return (
-    <RepeaterEditor
-      field={{
-        ...field,
-        table_name: tableName,
-        section_slug: sectionSlug,
-      }}
-      value={value}
-      onChange={onChange}
-    />
-  );
-}
+    return (
+      <RepeaterEditor
+        field={{
+          ...field,
+          table_name: tableName,
+          section_slug: sectionSlug,
+        }}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  }
 
   // ---- RELATION ----
   if (field.type === "relation") {

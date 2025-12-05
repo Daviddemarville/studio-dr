@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import renderDynamicField from "./renderDynamicField";
 import ConfirmModal from "./[slug]/_components/ConfirmModal";
 import { deleteSectionItem } from "./[slug]/wrappers/SectionDeleteWrapper";
+import renderDynamicField from "./renderDynamicField";
 
 function calculateTTC(ht: unknown, tva: unknown): number {
   const prixHT = parseFloat(String(ht).replace(",", "."));
@@ -22,8 +22,8 @@ export default function RepeaterEditor({
     name: string;
     label?: string;
     fields: { name: string; type?: string; label?: string }[];
-    table_name?: string;       // PATCH OK
-    section_slug?: string;     // PATCH OK
+    table_name?: string; // PATCH OK
+    section_slug?: string; // PATCH OK
   };
   value: Record<string, unknown>[];
   onChange: (newValue: Record<string, unknown>[]) => void;
@@ -87,9 +87,9 @@ export default function RepeaterEditor({
 
     // Supprimer depuis Supabase
     await deleteSectionItem({
-      table: field.table_name!,            // PATCH
+      table: field.table_name!, // PATCH
       itemId: itemToDelete,
-      sectionSlug: field.section_slug!,    // PATCH
+      sectionSlug: field.section_slug!, // PATCH
     });
 
     const updated = items.filter((item) => item.id !== itemToDelete);
@@ -113,7 +113,7 @@ export default function RepeaterEditor({
 
   const handleRelationChange = (
     index: number,
-    selectedItem: Record<string, unknown>
+    selectedItem: Record<string, unknown>,
   ) => {
     const currentItem = { ...items[index] };
     const content = (selectedItem.content as Record<string, unknown>) || {};
@@ -127,7 +127,7 @@ export default function RepeaterEditor({
 
     currentItem.price_ttc = calculateTTC(
       currentItem.price_ht,
-      currentItem.tva_rate
+      currentItem.tva_rate,
     );
 
     updateItem(index, currentItem);
@@ -137,7 +137,6 @@ export default function RepeaterEditor({
 
   return (
     <div className="flex flex-col gap-4">
-
       <ConfirmModal
         isOpen={isDeleteOpen}
         message="Voulez-vous vraiment supprimer cet élément ?"
