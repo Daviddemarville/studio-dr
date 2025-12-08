@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import type { UserProfile } from "@/types/user-profile";
-import { uploadAvatar } from "../actions";
+import { uploadAvatar, updateAvatarUrl } from "../actions/update-avatar";
+
+// IMPORT ZOD POUR VALIDER LE LIEN AVANT ENVOI
+import { avatarUrlSchema } from "@/lib/zod/user-fields";
 
 export default function ProfileAvatarUploader({
   profile,
@@ -15,7 +18,7 @@ export default function ProfileAvatarUploader({
   const [isUploading, setIsUploading] = useState(false);
 
   // -------------------------------------------
-  // 1) Gestion upload fichier → server action
+  // 1) Upload fichier → Storage → DB
   // -------------------------------------------
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -29,8 +32,19 @@ export default function ProfileAvatarUploader({
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success("Avatar mis à jour !");
-        setProfile({ ...profile, avatar_url: result.url ?? null });
+        const newUrl = result.url ?? null;
+
+        // Mise à jour locale
+        setProfile({ ...profile, avatar_url: newUrl });
+
+        // Mise à jour DB
+        const res = await updateAvatarUrl(profile.id, newUrl);
+
+        if (res.error) {
+          toast.error("Erreur lors de la sauvegarde de l'avatar.");
+        } else {
+          toast.success("Avatar mis à jour !");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -41,20 +55,44 @@ export default function ProfileAvatarUploader({
   }
 
   // -------------------------------------------
-  // 2) Gestion via URL externe
+  // 2) URL externe → Validée + DB immédiate
   // -------------------------------------------
-  function handleUrlChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setProfile({
-      ...profile,
-      avatar_url: e.target.value,
-    });
+  async function handleUrlChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const url = e.target.value.trim();
+
+    // Validation Zod AVANT envoi
+    const parsed = avatarUrlSchema.safeParse(url);
+
+    if (!parsed.success) {
+      toast.error("URL d’avatar invalide ou non autorisée.");
+      return;
+    }
+
+    const validUrl = parsed.data || null;
+
+    // update UI
+    setProfile({ ...profile, avatar_url: validUrl });
+
+    // update DB
+    const res = await updateAvatarUrl(profile.id, validUrl);
+
+    if (res.error) {
+      toast.error("Erreur lors de la mise à jour de l'URL.");
+    } else {
+      toast.success("Avatar mis à jour !");
+    }
   }
 
   return (
     <div className="bg-neutral-900 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Avatar</h2>
 
-      <div className="flex items-center gap-6">
+      <div className="
+        flex flex-col md:flex-row
+        items-start 
+        gap-4 md:gap-6 
+        w-full
+      ">
         {/* Preview avatar */}
         <picture>
           <img
@@ -80,18 +118,30 @@ export default function ProfileAvatarUploader({
             <input
               id="url"
               type="url"
-              value={profile.avatar_url || ""}
-              onChange={handleUrlChange}
-              className="w-full bg-neutral-800 border border-neutral-700 p-2 rounded"
+              defaultValue={profile.avatar_url || ""}
+              onBlur={handleUrlChange}
+              className="
+                w-full 
+                max-w-full 
+                min-w-0
+                bg-neutral-800 
+                border border-neutral-700 
+                p-2 rounded 
+                break-all 
+                overflow-hidden
+              "
               placeholder="https://exemple.com/avatar.jpg"
             />
+
+            <p className="text-xs text-neutral-500 mt-1">
+              http/https ou image data-uri autorisés
+            </p>
           </div>
 
-          {/* Ligne séparation */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-px bg-neutral-700" />
-            <span className="text-neutral-500 text-sm">ou</span>
-            <div className="flex-1 h-px bg-neutral-700" />
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center w-full">
+            <div className="h-px bg-neutral-700 w-full sm:flex-1" />
+            <span className="text-neutral-500 text-sm whitespace-nowrap">ou</span>
+            <div className="h-px bg-neutral-700 w-full sm:flex-1" />
           </div>
 
           {/* Upload fichier */}
@@ -115,12 +165,14 @@ export default function ProfileAvatarUploader({
             )}
           </div>
 
-          {/* FUTUR : Zone de glisser-déposer */}
           <div className="border border-neutral-700 rounded p-3 text-neutral-400 text-sm mt-2 opacity-50">
-            <p className="">
-              Zone Drag & Drop (à activer dans une prochaine branche)
-            </p>
+            <p>Zone Drag & Drop (prochainement)</p>
           </div>
+
+          <p className="text-xs text-neutral-500 mt-1">
+            Formats acceptés : .jpg, .jpeg, .webp, .png
+          </p>
+          <p className="text-xs text-neutral-500 mt-1">Taille max : 1 Mo</p>
         </div>
       </div>
     </div>

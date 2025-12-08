@@ -2,42 +2,36 @@
 
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import type { UseFormRegisterReturn } from "react-hook-form";
 
 interface PasswordFieldProps {
   label?: string;
   placeholder?: string;
-  register: UseFormRegisterReturn;
-  error?: string;
+  value: string;
+  onChange: (value: string) => void;
 }
 
 export default function PasswordField({
   label,
   placeholder,
-  register,
-  error,
+  value,
+  onChange,
 }: PasswordFieldProps) {
   const [show, setShow] = useState(false);
 
   return (
     <div className="space-y-1">
       {label && (
-        <label htmlFor="password" className="text-sm text-gray-300">
-          {label}
-        </label>
+        <label className="text-sm text-gray-300">{label}</label>
       )}
 
       <div className="relative">
         <input
-          id="password"
           type={show ? "text" : "password"}
           placeholder={placeholder}
-          {...register}
-          className={`
-            w-full p-3 pr-10 rounded-lg bg-[#111317] border 
-            focus:border-blue-500 transition 
-            ${error ? "border-red-500" : "border-gray-700"}
-          `}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-3 pr-10 rounded-lg bg-[#111317] border border-gray-700
+                     focus:border-blue-500 transition"
         />
 
         <button
@@ -48,8 +42,6 @@ export default function PasswordField({
           {show ? <EyeOff size={20} /> : <Eye size={20} />}
         </button>
       </div>
-
-      {error && <p className="text-sm text-red-400">{error}</p>}
     </div>
   );
 }

@@ -9,6 +9,8 @@ import ProfileBioFields from "./ProfileBioFields";
 import ProfileIdentityFields from "./ProfileIdentityFields";
 import ProfilePasswordUpdater from "./ProfilePasswordUpdater";
 import ProfileSocialLinks from "./ProfileSocialLinks";
+import Accordion from "../../components/ui/Accordion";
+import AccordionItem from "../../components/ui/AccordionItem";
 
 export default function ProfileEditor() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -16,6 +18,7 @@ export default function ProfileEditor() {
 
   const [isSaving, setIsSaving] = useState(false);
 
+  // Charger profil
   useEffect(() => {
     const load = async () => {
       const data = await getCurrentUserProfile();
@@ -35,27 +38,28 @@ export default function ProfileEditor() {
   if (!profile) {
     return <p className="text-neutral-400">Chargement...</p>;
   }
+
   // ---------------------------------------
-  // 2) Sauvegarde du profil
+  // 2) Sauvegarde du profil (hors avatar)
   // ---------------------------------------
   async function handleSave() {
     if (!profile) return;
 
     setIsSaving(true);
 
-    const formData = new FormData();
-    formData.append("firstname", profile.firstname || "");
-    formData.append("lastname", profile.lastname || "");
-    formData.append("pseudo", profile.pseudo || "");
-    formData.append("email", profile.email || "");
-    formData.append("bio_fr", profile.bio_fr || "");
-    formData.append("bio_en", profile.bio_en || "");
-    formData.append("avatar_url", profile.avatar_url || "");
-    formData.append("url_portfolio", profile.url_portfolio || "");
-    formData.append("url_linkedin", profile.url_linkedin || "");
-    formData.append("url_github", profile.url_github || "");
+    const updates = {
+      firstname: profile.firstname || "",
+      lastname: profile.lastname || "",
+      pseudo: profile.pseudo || null,
+      email: profile.email || "",
+      bio_fr: profile.bio_fr || null,
+      bio_en: profile.bio_en || null,
+      url_portfolio: profile.url_portfolio || null,
+      url_linkedin: profile.url_linkedin || null,
+      url_github: profile.url_github || null,
+    };
 
-    const result = await updateUserProfile(formData);
+    const result = await updateUserProfile(updates);
 
     setIsSaving(false);
 
@@ -65,6 +69,7 @@ export default function ProfileEditor() {
       toast.success("Profil mis à jour !");
     }
   }
+
   return (
     <div className="flex flex-col gap-8">
       {/* Email Auth */}
@@ -100,5 +105,5 @@ export default function ProfileEditor() {
         </button>
       </div>
     </div>
-  );
-}
+  )
+};

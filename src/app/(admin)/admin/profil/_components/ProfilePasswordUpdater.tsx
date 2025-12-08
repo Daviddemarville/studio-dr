@@ -2,29 +2,44 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { updatePassword } from "../actions";
+import PasswordField from "@/app/(public)/components/ui/PasswordField";
+import { passwordUpdateSchema } from "@/lib/zod/passwordUpdateSchema";
+import { updatePasswordUser } from "../actions/update-password-user";
 
+/**
+ * Composant de mise à jour du mot de passe utilisateur.
+ *
+ * Obligations Supabase :
+ * - REAUTHENTIFICATION obligatoire → nécessite l'ancien mot de passe
+ * - Validation stricte du nouveau mot de passe via Zod
+ */
 export default function ProfilePasswordUpdater({ userId }: { userId: string }) {
+  const [oldPassword, setOldPassword] = useState(""); // 🔥 Champ ajouté
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleUpdatePassword() {
-    // 1) Validations client 💡
-    if (!newPassword || newPassword.length < 6) {
-      toast.error("Le mot de passe doit faire au moins 6 caractères.");
+    // -------------------------
+    // 1) Validation client via Zod
+    // -------------------------
+    const parsed = passwordUpdateSchema.safeParse({
+      oldPassword,
+      password: newPassword,
+      confirm,
+    });
+
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message || "Mot de passe invalide.");
       return;
     }
 
-    if (newPassword !== confirm) {
-      toast.error("Les mots de passe ne correspondent pas.");
-      return;
-    }
-
-    // 2) Appel serveur
     setLoading(true);
 
-    const result = await updatePassword(userId, newPassword);
+    // -------------------------
+    // 2) Appel de l'action serveur
+    // -------------------------
+    const result = await updatePasswordUser(userId, oldPassword, newPassword);
 
     setLoading(false);
 
@@ -34,6 +49,7 @@ export default function ProfilePasswordUpdater({ userId }: { userId: string }) {
     }
 
     toast.success("Mot de passe mis à jour !");
+    setOldPassword("");
     setNewPassword("");
     setConfirm("");
   }
@@ -42,21 +58,28 @@ export default function ProfilePasswordUpdater({ userId }: { userId: string }) {
     <div className="bg-neutral-900 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Changer le mot de passe</h2>
 
-      <div className="flex flex-col gap-3 max-w-md">
-        <input
-          type="password"
-          placeholder="Nouveau mot de passe"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="bg-neutral-800 border border-neutral-700 p-2 rounded"
+      <div className="flex flex-col gap-4 max-w-md">
+
+        {/* 🔥 Champ Ancien mot de passe (obligatoire en reauth) */}
+        <PasswordField
+          label="Ancien mot de passe"
+          placeholder="********"
+          value={oldPassword}
+          onChange={setOldPassword}
         />
 
-        <input
-          type="password"
-          placeholder="Confirmer le mot de passe"
+        <PasswordField
+          label="Nouveau mot de passe"
+          placeholder="********"
+          value={newPassword}
+          onChange={setNewPassword}
+        />
+
+        <PasswordField
+          label="Confirmer le mot de passe"
+          placeholder="********"
           value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          className="bg-neutral-800 border border-neutral-700 p-2 rounded"
+          onChange={setConfirm}
         />
 
         <button
