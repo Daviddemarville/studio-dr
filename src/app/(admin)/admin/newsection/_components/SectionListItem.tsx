@@ -27,9 +27,11 @@ export default function SectionListItem({
   return (
     <div className="border border-neutral-800 bg-neutral-800 rounded-lg">
       {/* Barre principale */}
-      <div
+      <button
+        type="button"
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-neutral-700/50 transition cursor-pointer"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-neutral-700/50 transition cursor-pointer text-left"
+        aria-expanded={isOpen}
       >
         <div className="flex items-center gap-3">
           {/* Badge actif/inactif */}
@@ -52,6 +54,7 @@ export default function SectionListItem({
         <div className="flex items-center gap-3">
           {/* Delete */}
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onDelete(section.id);
@@ -68,7 +71,7 @@ export default function SectionListItem({
             <ChevronDown className="w-5 h-5 text-neutral-400" />
           )}
         </div>
-      </div>
+      </button>
 
       {/* Contenu ouvert */}
       {isOpen && (

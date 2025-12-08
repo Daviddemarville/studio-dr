@@ -56,23 +56,29 @@ export default function ProfileAvatarUploader({
 
       <div className="flex items-center gap-6">
         {/* Preview avatar */}
-        <img
-          src={
-            profile.avatar_url && profile.avatar_url.length > 0
-              ? profile.avatar_url
-              : "/default-avatar.png"
-          }
-          alt="avatar"
-          className="w-24 h-24 rounded-full object-cover border border-neutral-700"
-        />
+        <picture>
+          <img
+            src={
+              profile.avatar_url && profile.avatar_url.length > 0
+                ? profile.avatar_url
+                : "/default-avatar.png"
+            }
+            alt="avatar"
+            className="w-24 h-24 rounded-full object-cover border border-neutral-700"
+          />
+        </picture>
 
         <div className="flex flex-col gap-4 w-full">
           {/* URL externe */}
           <div>
-            <label className="block text-sm mb-1 text-neutral-300">
+            <label
+              htmlFor="url"
+              className="block text-sm mb-1 text-neutral-300"
+            >
               URL d’un avatar externe
             </label>
             <input
+              id="url"
               type="url"
               value={profile.avatar_url || ""}
               onChange={handleUrlChange}
@@ -90,10 +96,14 @@ export default function ProfileAvatarUploader({
 
           {/* Upload fichier */}
           <div>
-            <label className="block text-sm mb-1 text-neutral-300">
+            <label
+              htmlFor="file"
+              className="block text-sm mb-1 text-neutral-300"
+            >
               Importer un fichier
             </label>
             <input
+              id="file"
               type="file"
               accept="image/*"
               onChange={handleFileChange}

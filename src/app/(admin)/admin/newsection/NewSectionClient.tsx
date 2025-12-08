@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import type { Section, Template } from "@/types/public";
 import ConfirmModal from "./_components/ConfirmModal";
 import SectionForm from "./_components/SectionForm";
 import SectionList from "./_components/SectionList";
@@ -14,23 +15,6 @@ import {
   reorderSections,
   updateSectionPosition,
 } from "./actions";
-
-interface Template {
-  slug: string;
-  name: string;
-  description?: string;
-}
-
-interface Section {
-  id: number;
-  title: string;
-  slug: string;
-  template_slug: string | null;
-  table_name: string;
-  is_active: boolean;
-  position: number;
-  icon: string | null;
-}
 
 export default function NewSectionClient({
   templates,
@@ -157,7 +141,7 @@ export default function NewSectionClient({
               toast.success("Ordre mis à jour !");
               window.dispatchEvent(new Event("refresh-nav"));
               router.refresh();
-            } catch (error) {
+            } catch {
               toast.error("Erreur lors de la mise à jour de l'ordre.");
             }
           }}

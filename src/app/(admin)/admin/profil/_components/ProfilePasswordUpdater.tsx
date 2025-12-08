@@ -60,6 +60,7 @@ export default function ProfilePasswordUpdater({ userId }: { userId: string }) {
         />
 
         <button
+          type="button"
           onClick={handleUpdatePassword}
           disabled={loading}
           className="bg-blue-600 px-5 py-2 rounded hover:bg-blue-500 disabled:opacity-50 w-fit"

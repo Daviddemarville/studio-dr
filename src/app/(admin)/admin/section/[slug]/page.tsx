@@ -24,7 +24,7 @@ interface SiteSection {
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const supabase = await createClient();
-  const slug = (await params).slug;
+  const slug = params.slug;
 
   // 1) Récupérer la section
   const { data: section, error: sectionError } = await supabase

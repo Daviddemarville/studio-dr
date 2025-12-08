@@ -1,5 +1,6 @@
 "use client";
 
+import type { MessageType } from "@/types/public";
 import DeleteButton from "./DeleteButton";
 import MarkReadButton from "./MarkReadButton";
 
@@ -7,10 +8,10 @@ export default function MessageRow({
   message,
   onOpen,
 }: {
-  message: any;
+  message: MessageType;
   onOpen: (id: string) => void;
 }) {
-  const date = new Date(message.created_at).toLocaleString();
+  const date = new Date(message.created_at || Date.now()).toLocaleString();
 
   return (
     <tr
@@ -37,8 +38,9 @@ export default function MessageRow({
       <td
         className="p-3 flex justify-end gap-2"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
-        <MarkReadButton id={message.id} current={message.is_read} />
+        <MarkReadButton id={message.id} current={message.is_read ?? false} />
         <DeleteButton id={message.id} />
       </td>
     </tr>

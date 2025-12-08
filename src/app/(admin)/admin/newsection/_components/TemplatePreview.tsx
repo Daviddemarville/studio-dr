@@ -1,15 +1,13 @@
-import React from "react";
+import type {
+  TemplateFieldType,
+  TemplateWithSlug,
+} from "@/templates/sections/loader.server";
 
-interface TemplatePreviewProps {
-  template: {
-    name: string;
-    description?: string;
-    type: string;
-    fields: any[];
-  } | null;
-}
-
-export default function TemplatePreview({ template }: TemplatePreviewProps) {
+export default function TemplatePreview({
+  template,
+}: {
+  template: TemplateWithSlug | null;
+}) {
   if (!template) {
     return <p className="text-gray-400">Aucun template sélectionné.</p>;
   }
@@ -33,13 +31,15 @@ export default function TemplatePreview({ template }: TemplatePreviewProps) {
 // -----------------------------------------------------
 // RENDERER PRINCIPAL (récursif)
 // -----------------------------------------------------
-function renderFields(fields: any[]) {
+function renderFields(fields: TemplateFieldType[]) {
   if (!Array.isArray(fields)) return null;
 
   return (
     <div className="space-y-4">
-      {fields.map((field, i) => (
-        <div key={i}>{renderField(field)}</div>
+      {fields.map((field, index) => (
+        <div key={`${field.name || field.type}-${index}`}>
+          {renderField(field)}
+        </div>
       ))}
     </div>
   );
@@ -48,7 +48,7 @@ function renderFields(fields: any[]) {
 // -----------------------------------------------------
 // RENDER FIELD UNIQUE
 // -----------------------------------------------------
-function renderField(field: any) {
+function renderField(field: TemplateFieldType) {
   if (!field || !field.type) return <UnknownBlock />;
 
   switch (field.type) {
@@ -111,13 +111,15 @@ function UnknownBlock() {
 // -----------------------------------------------------
 // REPEATER
 // -----------------------------------------------------
-function RepeaterPreview({ field }: { field: any }) {
+function RepeaterPreview({ field }: { field: TemplateFieldType }) {
   const min = field.min || 1;
   const count = Math.min(min, 4); // limiter à 4 blocs maximum
 
   if (!Array.isArray(field.fields)) {
     return <UnknownBlock />;
   }
+
+  const fields = field.fields; // Extract to a const for type narrowing
 
   return (
     <div
@@ -131,11 +133,13 @@ function RepeaterPreview({ field }: { field: any }) {
     >
       {[...Array(count)].map((_, i) => (
         <div
-          key={i}
+          key={`repeater-item-${field.name || "unnamed"}-${i}`}
           className="bg-gray-800 p-4 rounded-lg space-y-3 border border-gray-700"
         >
-          {field.fields.map((child: any, index: number) => (
-            <div key={index}>{renderField(child)}</div>
+          {fields.map((child: TemplateFieldType, index: number) => (
+            <div key={`${child.name || child.type}-${index}`}>
+              {renderField(child)}
+            </div>
           ))}
         </div>
       ))}

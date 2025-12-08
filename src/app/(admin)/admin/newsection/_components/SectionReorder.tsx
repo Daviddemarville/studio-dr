@@ -3,6 +3,7 @@
 import {
   closestCenter,
   DndContext,
+  type DragEndEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -17,6 +18,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
 import { GripVertical } from "lucide-react";
 import { useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import { SECTION_ICONS } from "@/lib/section-icons";
 
 type Section = {
@@ -32,12 +34,11 @@ interface Props {
 
 /* -------------------------------------------------------------------------- */
 /*                            Carte sortable premium                           */
-/* -------------------------------------------------------------------------- */
 function SortableCard({ section }: { section: Section }) {
-  const IconComponent =
+  const IconComponent: LucideIcon =
     section.icon && SECTION_ICONS[section.icon]
-      ? SECTION_ICONS[section.icon]
-      : SECTION_ICONS["FileText"];
+      ? (SECTION_ICONS[section.icon] as LucideIcon)
+      : (SECTION_ICONS.FileText as LucideIcon);
 
   const {
     setNodeRef,
@@ -46,7 +47,6 @@ function SortableCard({ section }: { section: Section }) {
     transform,
     transition,
     isDragging,
-    isSorting,
   } = useSortable({ id: section.id });
 
   return (
@@ -114,7 +114,7 @@ export default function SectionReorder({ sections, onReorder }: Props) {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
-  function handleDragEnd(event: any) {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;

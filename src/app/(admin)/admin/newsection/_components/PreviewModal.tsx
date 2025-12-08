@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { TemplateWithSlug } from "../../../../../templates/sections/loader.server";
 import { getTemplate } from "../../../../../templates/sections/loader.server";
 import TemplatePreview from "./TemplatePreview";
 
@@ -15,7 +16,7 @@ export default function PreviewModal({
   onClose,
   templateSlug,
 }: PreviewModalProps) {
-  const [template, setTemplate] = useState<any | null>(null);
+  const [template, setTemplate] = useState<TemplateWithSlug | null>(null);
 
   useEffect(() => {
     if (open && templateSlug) {
@@ -35,7 +36,11 @@ export default function PreviewModal({
             Prévisualisation du template
           </h2>
 
-          <button className="text-gray-400 hover:text-white" onClick={onClose}>
+          <button
+            type="button"
+            className="text-gray-400 hover:text-white"
+            onClick={onClose}
+          >
             ✕
           </button>
         </div>

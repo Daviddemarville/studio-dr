@@ -10,6 +10,7 @@ export function showConfirmDeleteToast(onConfirm: () => void) {
 
         <div className="flex justify-end gap-2">
           <button
+            type="button"
             onClick={() => closeToast()}
             className="px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100"
           >
@@ -17,6 +18,7 @@ export function showConfirmDeleteToast(onConfirm: () => void) {
           </button>
 
           <button
+            type="button"
             onClick={() => {
               closeToast();
               onConfirm();

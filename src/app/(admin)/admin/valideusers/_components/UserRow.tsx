@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
+import type { UserProfile } from "@/types/user-profile";
 import { toggleUserApproval } from "../actions";
 
-export default function UserRow({ user }: { user: any }) {
-  const handleToggle = async () => {
+export default function UserRow({ user }: { user: UserProfile }) {
+  const handleToggle = useCallback(async () => {
     try {
       const nextStatus = !user.is_approved;
       await toggleUserApproval(user.id, nextStatus);
@@ -16,19 +17,20 @@ export default function UserRow({ user }: { user: any }) {
       } else {
         toast.info("Utilisateur désapprouvé.");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la mise à jour.");
+    } catch {
+      toast.error("Erreur lors de la mise à jour.");
     }
-  };
+  }, [user.id, user.is_approved]);
 
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: CustomEvent<string>) => {
       if (e.detail === user.id) handleToggle();
     };
 
-    window.addEventListener("toggle-user", handler);
-    return () => window.removeEventListener("toggle-user", handler);
-  }, []);
+    window.addEventListener("toggle-user", handler as EventListener);
+    return () =>
+      window.removeEventListener("toggle-user", handler as EventListener);
+  }, [user.id, handleToggle]);
 
   return (
     <tr className="border-b">
@@ -61,6 +63,7 @@ export default function UserRow({ user }: { user: any }) {
 
       <td className="p-3 text-center">
         <button
+          type="button"
           onClick={handleToggle}
           className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
         >

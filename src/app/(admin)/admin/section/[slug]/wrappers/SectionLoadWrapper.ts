@@ -1,11 +1,6 @@
 import { createClient } from "@/lib/supabase-browser";
 import { getTemplate } from "@/templates/sections/loader.server";
-import {
-  type DBRow,
-  type LoadedSectionData,
-  SiteSection,
-  type TemplateFieldRepeater,
-} from "./types";
+import type { DBRow, LoadedSectionData, TemplateFieldRepeater } from "./types";
 
 /* --------------------------------------------------------------------------
  * LOAD WRAPPER : lecture section + template + données + formData
@@ -59,7 +54,7 @@ export async function loadSection(slug: string): Promise<LoadedSectionData> {
 
     if (repeaterField) {
       formData = {
-        [repeaterField.name]: rows.map((row) => ({
+        [repeaterField.name as string]: rows.map((row) => ({
           ...row.content,
           id: row.id,
           display_order: row.display_order,

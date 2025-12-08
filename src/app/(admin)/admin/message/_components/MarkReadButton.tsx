@@ -15,6 +15,7 @@ export default function MarkReadButton({
 
   return (
     <button
+      type="button"
       onClick={() => startTransition(() => toggleRead(id, !current))}
       className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition"
       title={current ? "Marquer non lu" : "Marquer comme lu"}

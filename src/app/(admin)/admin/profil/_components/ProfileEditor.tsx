@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import type { UserProfile } from "@/types/user-profile";
 import { getCurrentUserProfile, updateUserProfile } from "../actions";
 import ProfileAvatarUploader from "./ProfileAvatarUploader";
 import ProfileBioFields from "./ProfileBioFields";
@@ -10,7 +11,7 @@ import ProfilePasswordUpdater from "./ProfilePasswordUpdater";
 import ProfileSocialLinks from "./ProfileSocialLinks";
 
 export default function ProfileEditor() {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -38,6 +39,8 @@ export default function ProfileEditor() {
   // 2) Sauvegarde du profil
   // ---------------------------------------
   async function handleSave() {
+    if (!profile) return;
+
     setIsSaving(true);
 
     const formData = new FormData();
@@ -88,6 +91,7 @@ export default function ProfileEditor() {
       {/* Bouton Sauvegarder */}
       <div className="flex justify-start">
         <button
+          type="button"
           onClick={handleSave}
           disabled={isSaving}
           className="bg-blue-600 px-6 py-2 rounded hover:bg-blue-500 disabled:opacity-50"

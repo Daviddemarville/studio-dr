@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase-server";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "");
 
 export async function POST(req: Request) {
   try {
@@ -84,9 +84,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (e: any) {
+  } catch (e) {
+    const errorMessage =
+      e instanceof Error ? e.message : "Une erreur inconnue s'est produite";
     return NextResponse.json(
-      { error: `Erreur serveur : ${e.message}` },
+      { error: `Erreur serveur : ${errorMessage}` },
       { status: 500 },
     );
   }

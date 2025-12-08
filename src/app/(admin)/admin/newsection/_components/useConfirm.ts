@@ -1,44 +1,50 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import type { ConfirmOptionsType } from "@/types/public";
 
 export function useConfirm() {
   const [isOpen, setIsOpen] = useState(false);
-  const [options, setOptions] = useState<{
-    title: string;
-    message: string;
-    onConfirm?: () => void;
-  }>({
+  const [options, setOptions] = useState<ConfirmOptionsType>({
     title: "",
     message: "",
   });
 
-  const confirm = useCallback(
+  const cancelRef = useRef<(() => void) | null>(null);
+
+  const openConfirm = useCallback(
     (title: string, message: string) =>
       new Promise<boolean>((resolve) => {
         setOptions({
           title,
           message,
-          onConfirm: () => resolve(true),
+          onConfirm: () => {
+            resolve(true);
+            cancelRef.current = null;
+          },
         });
-        setIsOpen(true);
 
-        // Si l’utilisateur ferme sans confirmer
-        const cancel = () => resolve(false);
-        (confirm as any).cancel = cancel;
+        // Si l'utilisateur ferme sans confirmer
+        cancelRef.current = () => {
+          resolve(false);
+          cancelRef.current = null;
+        };
+        setIsOpen(true);
       }),
     [],
   );
 
-  const close = () => {
+  const closeConfirm = useCallback(() => {
     setIsOpen(false);
-    if ((confirm as any).cancel) (confirm as any).cancel();
-  };
+    if (cancelRef.current) {
+      cancelRef.current();
+    }
+  }, []);
 
   return {
     isOpen,
     options,
-    openConfirm: confirm,
-    closeConfirm: close,
+    openConfirm,
+    closeConfirm,
   };
 }

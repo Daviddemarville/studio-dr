@@ -54,7 +54,7 @@ export default function RepeaterEditor({
   const updateItem = (index: number, newVal: Record<string, unknown>) => {
     const previous = items[index];
 
-    const merged: Record<string, any> = {
+    const merged: Record<string, unknown> = {
       ...previous,
       ...newVal,
       id: previous.id,
@@ -87,9 +87,9 @@ export default function RepeaterEditor({
 
     // Supprimer depuis Supabase
     await deleteSectionItem({
-      table: field.table_name!, // PATCH
+      table: field.table_name || "",
       itemId: itemToDelete,
-      sectionSlug: field.section_slug!, // PATCH
+      sectionSlug: field.section_slug || "",
     });
 
     const updated = items.filter((item) => item.id !== itemToDelete);

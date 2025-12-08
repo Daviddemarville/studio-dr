@@ -1,10 +1,11 @@
 "use client";
 
+import type { MessageType } from "@/types/public";
 import DeleteButton from "./DeleteButton";
 import MarkReadButton from "./MarkReadButton";
 
-export default function MessageCard({ message }: { message: any }) {
-  const date = new Date(message.created_at).toLocaleString();
+export default function MessageCard({ message }: { message: MessageType }) {
+  const date = new Date(message.created_at || Date.now()).toLocaleString();
 
   return (
     <div className="space-y-6 text-white">
@@ -13,7 +14,7 @@ export default function MessageCard({ message }: { message: any }) {
         <div className="text-lg font-semibold">{message.subject}</div>
 
         <div className="flex gap-3">
-          <MarkReadButton id={message.id} current={message.is_read} />
+          <MarkReadButton id={message.id} current={message.is_read ?? false} />
           <DeleteButton id={message.id} />
         </div>
       </div>

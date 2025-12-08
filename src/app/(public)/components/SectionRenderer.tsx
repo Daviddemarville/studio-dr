@@ -117,7 +117,7 @@ export default function SectionRenderer({
 
                 return (
                   <div key={step.id} className="flex gap-6 items-start">
-                    <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                    <div className="shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
                       {String(step.step_number)}
                     </div>
 

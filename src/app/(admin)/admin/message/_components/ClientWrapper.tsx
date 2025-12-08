@@ -1,15 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { InitialMessagesType } from "@/types/public";
 import FilterBar from "./FilterBar";
 import MessageDrawer from "./MessageDrawer";
 import MessageList from "./MessageList";
 
 export default function ClientWrapper({
   initialMessages,
-}: {
-  initialMessages: any[];
-}) {
+}: InitialMessagesType) {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [currentId, setCurrentId] = useState<string | null>(null);

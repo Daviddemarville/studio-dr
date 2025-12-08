@@ -3,24 +3,29 @@
 import { Layers } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
+import type {
+  TemplateFieldType,
+  TemplateWithSlug,
+} from "@/templates/sections/loader.server";
 import IconSelector from "../../components/IconSelector";
 import PreviewSite from "../../components/PreviewSite";
 import TeamVisibilityManager from "../../components/TeamVisibilityManager";
 import OpenPreviewButton from "../../components/ui/OpenPreviewButton";
 import renderDynamicField from "../renderDynamicField";
-
 // WRAPPERS
 import { loadSection } from "./wrappers/SectionLoadWrapper";
 import { saveSection } from "./wrappers/SectionSaveWrapper";
+import type { DBRow, RepeaterItem, SiteSection } from "./wrappers/types";
 
 export default function SectionEditorWrapper({ slug }: { slug: string }) {
   const router = useRouter();
 
-  const [section, setSection] = useState<any>(null);
-  const [template, setTemplate] = useState<any>(null);
-  const [rows, setRows] = useState<any[]>([]);
-  const [formData, setFormData] = useState<any>(null);
+  const [section, setSection] = useState<SiteSection | null>(null);
+  const [template, setTemplate] = useState<TemplateWithSlug | null>(null);
+  const [rows, setRows] = useState<DBRow[]>([]);
+  const [formData, setFormData] = useState<Record<string, unknown> | null>(
+    null,
+  );
 
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState("FileText");
@@ -52,6 +57,8 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
    * SAVE
    * -------------------------------------------------------------------------- */
   const handleSave = async () => {
+    if (!section || !template || !formData) return;
+
     await saveSection({
       section,
       template,
@@ -71,8 +78,10 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
    * -------------------------------------------------------------------------- */
 
   if (loading) return <div className="p-6 text-neutral-400">Chargement...</div>;
-  if (!template)
-    return <div className="p-6 text-red-400">Template non trouvé</div>;
+  if (!template || !section)
+    return (
+      <div className="p-6 text-red-400">Template ou section non trouvé</div>
+    );
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -114,22 +123,27 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
         {section.table_name === "users" ? (
           <TeamVisibilityManager />
         ) : (
-          template.fields.map((field: any) => (
+          template.fields.map((field: TemplateFieldType) => (
             <div key={field.name}>
               {renderDynamicField({
                 field,
-                value: formData[field.name],
+                value: formData?.[field.name || ""],
                 tableName: section.table_name,
                 sectionSlug: section.slug,
                 onChange: (val) =>
-                  setFormData((prev: any) => {
+                  setFormData((prev) => {
+                    if (!prev || !field.name) return prev;
+
                     // CAS 1 — REPEATER (array)
                     if (Array.isArray(val)) {
+                      const prevArray = Array.isArray(prev[field.name])
+                        ? (prev[field.name] as RepeaterItem[])
+                        : [];
                       return {
                         ...prev,
-                        [field.name]: val.map((item: any) => {
-                          const previous = prev[field.name]?.find(
-                            (p: any) => p._id === item._id,
+                        [field.name]: val.map((item: RepeaterItem) => {
+                          const previous = prevArray.find(
+                            (p: RepeaterItem) => p._id === item._id,
                           );
                           return previous?.id
                             ? { ...item, id: previous.id }

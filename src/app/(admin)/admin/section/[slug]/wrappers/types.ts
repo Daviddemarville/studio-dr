@@ -2,24 +2,18 @@
  * TYPES COMMUNS POUR LE SYSTÈME DE SECTIONS
  * -------------------------------------------------------------------------- */
 
-export interface TemplateFieldBase {
-  type: string;
-  name: string;
-  label?: string;
-}
+import type {
+  TemplateFieldType,
+  TemplateWithSlug,
+} from "@/templates/sections/loader.server";
 
-export interface TemplateFieldSingle extends TemplateFieldBase {
-  type: "text" | "textarea" | "number" | "image";
-}
+// Re-export for convenience
+export type { TemplateFieldType };
 
-export interface TemplateFieldRepeater extends TemplateFieldBase {
+export interface TemplateFieldRepeater extends TemplateFieldType {
   type: "repeater";
-  fields: TemplateFieldSingle[];
-  min?: number;
-  max?: number;
+  fields: TemplateFieldType[];
 }
-
-export type TemplateField = TemplateFieldSingle | TemplateFieldRepeater;
 
 /* --------------------------------------------------------------------------
  * STRUCTURE DES SECTIONS
@@ -57,7 +51,22 @@ export interface DBRow {
 
 export interface LoadedSectionData {
   section: SiteSection;
-  template: any; // TemplateWithSlug
+  template: TemplateWithSlug | null;
   rows: DBRow[];
   formData: Record<string, unknown> | null;
+}
+
+/* --------------------------------------------------------------------------
+ * REPEATER ITEM TYPE
+ * -------------------------------------------------------------------------- */
+
+export interface RepeaterItem {
+  _id?: string;
+  id?: string;
+  display_order?: number;
+  price_ht?: number;
+  price_ttc?: number;
+  tva_rate?: number;
+  offer_id?: string;
+  [key: string]: unknown;
 }

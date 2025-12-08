@@ -5,6 +5,15 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import RepeaterEditor from "./RepeaterEditor";
 
+interface DynamicField {
+  name: string;
+  type?: string;
+  label?: string;
+  relation_table?: string;
+  relation_label_field?: string;
+  fields?: DynamicField[];
+}
+
 export default function renderDynamicField({
   field,
   value,
@@ -13,12 +22,12 @@ export default function renderDynamicField({
   onChange,
   onRelationChange,
 }: {
-  field: any;
-  value: any;
+  field: DynamicField;
+  value: unknown;
   tableName?: string;
   sectionSlug?: string;
-  onChange: (value: any) => void;
-  onRelationChange?: (selectedItem: any) => void;
+  onChange: (value: unknown) => void;
+  onRelationChange?: (selectedItem: Record<string, unknown>) => void;
 }) {
   // Champs non modifiables (titre auto + TTC auto)
   if (

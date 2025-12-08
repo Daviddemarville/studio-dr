@@ -25,6 +25,7 @@ export default function DeleteButton({ id }: { id: string }) {
 
   return (
     <button
+      type="button"
       onClick={(e) => {
         e.stopPropagation();
         handleDelete();

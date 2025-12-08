@@ -14,7 +14,6 @@ interface Section {
 export default function SectionList({
   sections,
   onDelete,
-  onPositionUpdate,
 }: {
   sections: Section[];
   onDelete: (id: number) => void;
