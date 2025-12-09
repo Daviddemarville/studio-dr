@@ -30,12 +30,12 @@ export default function ClientWrapper({
   };
 
   const prev = () => {
-    if (currentIndex > 0) setCurrentId(messages[currentIndex - 1].id);
+    if (currentIndex > 0) setCurrentId(messages[currentIndex - 1].id ?? null);
   };
 
   const next = () => {
     if (currentIndex < messages.length - 1)
-      setCurrentId(messages[currentIndex + 1].id);
+      setCurrentId(messages[currentIndex + 1].id ?? null);
   };
 
   return (
