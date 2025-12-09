@@ -68,7 +68,9 @@ export default function ProfileEditor() {
         <div key={field.name}>
           {renderDynamicField({
             field,
-            value: profile[field.name],
+            value: profile[
+              field.name
+            ] as import("@/types/public").FieldValueType,
             onChange: (newVal) =>
               setProfile({ ...profile, [field.name]: newVal }),
           })}
