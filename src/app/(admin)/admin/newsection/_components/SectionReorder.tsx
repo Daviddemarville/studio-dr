@@ -3,6 +3,7 @@
 import {
   closestCenter,
   DndContext,
+  type DragEndEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -37,7 +38,7 @@ function SortableCard({ section }: { section: Section }) {
   const IconComponent =
     section.icon && SECTION_ICONS[section.icon]
       ? SECTION_ICONS[section.icon]
-      : SECTION_ICONS["FileText"];
+      : SECTION_ICONS.FileText;
 
   const {
     setNodeRef,
@@ -46,7 +47,6 @@ function SortableCard({ section }: { section: Section }) {
     transform,
     transition,
     isDragging,
-    isSorting,
   } = useSortable({ id: section.id });
 
   return (
@@ -114,7 +114,7 @@ export default function SectionReorder({ sections, onReorder }: Props) {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
-  function handleDragEnd(event: any) {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;

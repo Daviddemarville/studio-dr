@@ -8,12 +8,7 @@ import SectionForm from "./_components/SectionForm";
 import SectionList from "./_components/SectionList";
 import SectionReorder from "./_components/SectionReorder";
 import { useConfirm } from "./_components/useConfirm";
-import {
-  createSection,
-  deleteSection,
-  reorderSections,
-  updateSectionPosition,
-} from "./actions";
+import { createSection, deleteSection, reorderSections } from "./actions";
 
 interface Template {
   slug: string;
@@ -109,25 +104,6 @@ export default function NewSectionClient({
     }
   };
 
-  // ============================================================
-  // MISE À JOUR DE POSITION
-  // ============================================================
-  const handlePositionUpdate = async (id: number, newPos: number) => {
-    try {
-      const result = await updateSectionPosition(id, newPos);
-
-      if (result.success) {
-        toast.success("Position mise à jour !");
-        window.dispatchEvent(new Event("refresh-nav"));
-        router.refresh();
-      } else {
-        toast.error(`Erreur de mise à jour : ${result.error}`);
-      }
-    } catch {
-      toast.error("Erreur interne lors de la mise à jour");
-    }
-  };
-
   return (
     <div className="space-y-8">
       <SectionForm
@@ -157,18 +133,14 @@ export default function NewSectionClient({
               toast.success("Ordre mis à jour !");
               window.dispatchEvent(new Event("refresh-nav"));
               router.refresh();
-            } catch (error) {
+            } catch (_error) {
               toast.error("Erreur lors de la mise à jour de l'ordre.");
             }
           }}
         />
       </div>
 
-      <SectionList
-        sections={sections}
-        onDelete={handleDelete}
-        onPositionUpdate={handlePositionUpdate}
-      />
+      <SectionList sections={sections} onDelete={handleDelete} />
       <ConfirmModal
         open={isOpen}
         title={options.title}

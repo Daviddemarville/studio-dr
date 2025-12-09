@@ -15,8 +15,11 @@ export default function ProfileIdentityFields({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1">Prénom</label>
+          <label htmlFor="firstname" className="block mb-1">
+            Prénom
+          </label>
           <input
+            id="firstname"
             type="text"
             value={profile.firstname || ""}
             onChange={(e) =>
@@ -27,8 +30,11 @@ export default function ProfileIdentityFields({
         </div>
 
         <div>
-          <label className="block mb-1">Nom</label>
+          <label htmlFor="lastname" className="block mb-1">
+            Nom
+          </label>
           <input
+            id="lastname"
             type="text"
             value={profile.lastname || ""}
             onChange={(e) =>
@@ -39,8 +45,11 @@ export default function ProfileIdentityFields({
         </div>
 
         <div>
-          <label className="block mb-1">Pseudo</label>
+          <label htmlFor="pseudo" className="block mb-1">
+            Pseudo
+          </label>
           <input
+            id="pseudo"
             type="text"
             value={profile.pseudo || ""}
             onChange={(e) => setProfile({ ...profile, pseudo: e.target.value })}
@@ -49,8 +58,11 @@ export default function ProfileIdentityFields({
         </div>
 
         <div>
-          <label className="block mb-1">Email (profil)</label>
+          <label htmlFor="email" className="block mb-1">
+            Email (profil)
+          </label>
           <input
+            id="email"
             type="text"
             value={profile.email || ""}
             onChange={(e) => setProfile({ ...profile, email: e.target.value })}

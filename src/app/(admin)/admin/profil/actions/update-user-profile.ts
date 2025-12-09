@@ -9,42 +9,42 @@ import { userProfileSchema } from "@/lib/zod/user-profile-schema";
  * (PRÉNOM, NOM, BIO, LIENS, EMAIL, PSEUDO)
  */
 export async function updateUserProfile(updates: Record<string, unknown>) {
-    const supabase = await createClient();
+  const supabase = await createClient();
 
-    // Vérifier utilisateur connecté
-    const { data: authData } = await supabase.auth.getUser();
-    if (!authData?.user) {
-        return { error: "Utilisateur non authentifié." };
-    }
+  // Vérifier utilisateur connecté
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData?.user) {
+    return { error: "Utilisateur non authentifié." };
+  }
 
-    const userId = authData.user.id;
+  const userId = authData.user.id;
 
-    // Validation Zod (tous les champs du schéma sont optionnels)
-    const parsed = userProfileSchema.partial().safeParse(updates);
-    if (!parsed.success) {
-        return {
-            error: "Validation échouée.",
-            issues: parsed.error.format(),
-        };
-    }
+  // Validation Zod (tous les champs du schéma sont optionnels)
+  const parsed = userProfileSchema.partial().safeParse(updates);
+  if (!parsed.success) {
+    return {
+      error: "Validation échouée.",
+      issues: parsed.error.format(),
+    };
+  }
 
-    const data = parsed.data;
+  const data = parsed.data;
 
-    // Mise à jour
-    const { error } = await supabase
-        .from("users")
-        .update({
-            ...data,
-            updated_at: new Date().toISOString(),
-        })
-        .eq("id", userId);
+  // Mise à jour
+  const { error } = await supabase
+    .from("users")
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId);
 
-    if (error) {
-        console.error(error);
-        return { error: "Impossible de mettre à jour le profil." };
-    }
+  if (error) {
+    console.error(error);
+    return { error: "Impossible de mettre à jour le profil." };
+  }
 
-    revalidatePath("/admin/profil");
+  revalidatePath("/admin/profil");
 
-    return { success: true };
+  return { success: true };
 }

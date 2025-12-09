@@ -2,6 +2,8 @@
  * TYPES COMMUNS POUR LE SYSTÈME DE SECTIONS
  * -------------------------------------------------------------------------- */
 
+import type { TemplateType } from "@/types/public";
+
 export interface TemplateFieldBase {
   type: string;
   name: string;
@@ -57,7 +59,7 @@ export interface DBRow {
 
 export interface LoadedSectionData {
   section: SiteSection;
-  template: any; // TemplateWithSlug
+  template: TemplateType; // TemplateWithSlug
   rows: DBRow[];
   formData: Record<string, unknown> | null;
 }

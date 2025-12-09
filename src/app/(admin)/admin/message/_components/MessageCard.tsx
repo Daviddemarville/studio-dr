@@ -1,9 +1,10 @@
 "use client";
 
+import type { MessageType } from "@/types/public";
 import DeleteButton from "./DeleteButton";
 import MarkReadButton from "./MarkReadButton";
 
-export default function MessageCard({ message }: { message: any }) {
+export default function MessageCard({ message }: { message: MessageType }) {
   const date = new Date(message.created_at).toLocaleString();
 
   return (

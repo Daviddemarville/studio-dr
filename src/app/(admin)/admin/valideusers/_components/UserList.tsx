@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
+import type { UserProfile } from "@/types/user-profile";
 import UserRow from "./UserRow";
 
-export default function UserList({ users }: { users: any[] }) {
+export default function UserList({ users }: { users: UserProfile[] }) {
   return (
     <div className="w-full">
       {/* DESKTOP VERSION (tableau) */}
@@ -36,7 +38,7 @@ export default function UserList({ users }: { users: any[] }) {
   );
 }
 
-function MobileUserCard({ user }: { user: any }) {
+function MobileUserCard({ user }: { user: UserProfile }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,9 +47,11 @@ function MobileUserCard({ user }: { user: any }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {user.avatar_url ? (
-            <img
+            <Image
               src={user.avatar_url}
               alt="avatar"
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover border border-gray-600"
             />
           ) : (
@@ -76,6 +80,7 @@ function MobileUserCard({ user }: { user: any }) {
 
       {/* Accordéon */}
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className="w-full text-left mt-3 text-sm text-gray-300 hover:text-white transition"
       >
@@ -99,7 +104,7 @@ function MobileUserCard({ user }: { user: any }) {
 }
 
 /* Petit bouton stylé, réutilise la logique via UserRow */
-function ActionButton({ user }: { user: any }) {
+function ActionButton({ user }: { user: UserProfile }) {
   // On exploite ton UserRow actuel en isolant la logique
   const action = user.is_approved ? "Désapprouver" : "Valider";
   const color = user.is_approved
@@ -108,6 +113,7 @@ function ActionButton({ user }: { user: any }) {
 
   return (
     <button
+      type="button"
       onClick={() => {
         const evt = new CustomEvent("toggle-user", { detail: user.id });
         window.dispatchEvent(evt);

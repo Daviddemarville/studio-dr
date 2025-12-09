@@ -17,15 +17,19 @@ export default function PasswordField({
   onChange,
 }: PasswordFieldProps) {
   const [show, setShow] = useState(false);
+  const id = `password-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="space-y-1">
       {label && (
-        <label className="text-sm text-gray-300">{label}</label>
+        <label htmlFor={id} className="text-sm text-gray-300">
+          {label}
+        </label>
       )}
 
       <div className="relative">
         <input
+          id={id}
           type={show ? "text" : "password"}
           placeholder={placeholder}
           value={value}
