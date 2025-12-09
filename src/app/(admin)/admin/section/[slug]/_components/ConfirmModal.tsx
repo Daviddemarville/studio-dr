@@ -21,6 +21,7 @@ export default function ConfirmModal({
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg text-white font-semibold">Confirmation</h2>
           <button
+            type="button"
             onClick={onCancel}
             className="text-neutral-400 hover:text-white"
           >
@@ -32,6 +33,7 @@ export default function ConfirmModal({
 
         <div className="flex justify-end gap-2">
           <button
+            type="button"
             className="px-4 py-2 rounded bg-neutral-700 text-white hover:bg-neutral-600"
             onClick={onCancel}
           >
@@ -39,6 +41,7 @@ export default function ConfirmModal({
           </button>
 
           <button
+            type="button"
             className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-500"
             onClick={onConfirm}
           >

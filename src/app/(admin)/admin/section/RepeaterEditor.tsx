@@ -54,14 +54,17 @@ export default function RepeaterEditor({
   const updateItem = (index: number, newVal: Record<string, unknown>) => {
     const previous = items[index];
 
-    const merged: Record<string, any> = {
+    const merged: Record<string, unknown> = {
       ...previous,
       ...newVal,
       id: previous.id,
       _id: previous._id,
     };
 
-    merged.price_ttc = calculateTTC(merged.price_ht, merged.tva_rate);
+    merged.price_ttc = calculateTTC(
+      merged.price_ht as number | undefined,
+      merged.tva_rate as number | undefined,
+    );
 
     const updated = [...items];
     updated[index] = merged;
@@ -86,11 +89,13 @@ export default function RepeaterEditor({
     }
 
     // Supprimer depuis Supabase
-    await deleteSectionItem({
-      table: field.table_name!, // PATCH
-      itemId: itemToDelete,
-      sectionSlug: field.section_slug!, // PATCH
-    });
+    if (field.table_name && field.section_slug) {
+      await deleteSectionItem({
+        table: field.table_name,
+        itemId: itemToDelete,
+        sectionSlug: field.section_slug,
+      });
+    }
 
     const updated = items.filter((item) => item.id !== itemToDelete);
     onChange(updated);

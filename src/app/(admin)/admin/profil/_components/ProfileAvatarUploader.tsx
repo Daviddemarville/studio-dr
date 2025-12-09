@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
-import type { UserProfile } from "@/types/user-profile";
-import { uploadAvatar, updateAvatarUrl } from "../actions/update-avatar";
-
 // IMPORT ZOD POUR VALIDER LE LIEN AVANT ENVOI
 import { avatarUrlSchema } from "@/lib/zod/user-fields";
+import type { UserProfile } from "@/types/user-profile";
+import { updateAvatarUrl, uploadAvatar } from "../actions/update-avatar";
 
 export default function ProfileAvatarUploader({
   profile,
@@ -87,30 +86,38 @@ export default function ProfileAvatarUploader({
     <div className="bg-neutral-900 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Avatar</h2>
 
-      <div className="
+      <div
+        className="
         flex flex-col md:flex-row
         items-start 
         gap-4 md:gap-6 
         w-full
-      ">
+      "
+      >
         {/* Preview avatar */}
-        <img
-          src={
-            profile.avatar_url && profile.avatar_url.length > 0
-              ? profile.avatar_url
-              : "/default-avatar.png"
-          }
-          alt="avatar"
-          className="w-24 h-24 rounded-full object-cover border border-neutral-700"
-        />
+        <picture>
+          <img
+            src={
+              profile.avatar_url && profile.avatar_url.length > 0
+                ? profile.avatar_url
+                : "/default-avatar.png"
+            }
+            alt="avatar"
+            className="w-24 h-24 rounded-full object-cover border border-neutral-700"
+          />
+        </picture>
 
         <div className="flex flex-col gap-4 w-full">
           {/* URL externe */}
           <div>
-            <label className="block text-sm mb-1 text-neutral-300">
+            <label
+              htmlFor="url"
+              className="block text-sm mb-1 text-neutral-300"
+            >
               URL d’un avatar externe
             </label>
             <input
+              id="url"
               type="url"
               defaultValue={profile.avatar_url || ""}
               onBlur={handleUrlChange}
@@ -134,16 +141,22 @@ export default function ProfileAvatarUploader({
 
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center w-full">
             <div className="h-px bg-neutral-700 w-full sm:flex-1" />
-            <span className="text-neutral-500 text-sm whitespace-nowrap">ou</span>
+            <span className="text-neutral-500 text-sm whitespace-nowrap">
+              ou
+            </span>
             <div className="h-px bg-neutral-700 w-full sm:flex-1" />
           </div>
 
           {/* Upload fichier */}
           <div>
-            <label className="block text-sm mb-1 text-neutral-300">
+            <label
+              htmlFor="file"
+              className="block text-sm mb-1 text-neutral-300"
+            >
               Importer un fichier
             </label>
             <input
+              id="file"
               type="file"
               accept="image/*"
               onChange={handleFileChange}

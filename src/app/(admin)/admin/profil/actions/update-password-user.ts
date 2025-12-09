@@ -6,7 +6,7 @@ import { passwordSchema } from "@/lib/zod/user-fields";
 /**
  * Change le mot de passe de l'utilisateur connecté.
  * Supabase impose une REAUTHENTIFICATION récente pour les actions sensibles.
- * 
+ *
  * Process :
  * 1) Vérifier que l'utilisateur est authentifié
  * 2) Vérifier que c'est bien SON compte (sécurité)
@@ -17,7 +17,7 @@ import { passwordSchema } from "@/lib/zod/user-fields";
 export async function updatePasswordUser(
   userId: string,
   oldPassword: string,
-  newPassword: string
+  newPassword: string,
 ) {
   const supabase = await createClient();
 
@@ -53,7 +53,8 @@ export async function updatePasswordUser(
   const parsed = passwordSchema.safeParse(newPassword);
   if (!parsed.success) {
     return {
-      error: parsed.error.issues[0]?.message || "Nouveau mot de passe invalide.",
+      error:
+        parsed.error.issues[0]?.message || "Nouveau mot de passe invalide.",
     };
   }
 

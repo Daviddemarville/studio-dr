@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import {
   BookText,
   FileText,
@@ -10,7 +11,7 @@ import {
   Wrench,
 } from "lucide-react";
 
-export const SECTION_ICONS: Record<string, any> = {
+export const SECTION_ICONS: Record<string, LucideIcon> = {
   Layers,
   FileText,
   LayoutGrid,

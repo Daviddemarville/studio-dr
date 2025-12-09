@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import type { TemplateType } from "@/types/public";
 
 interface SectionRendererProps {
   section: {
@@ -11,8 +12,8 @@ interface SectionRendererProps {
     template_slug: string | null;
     table_name: string;
   };
-  content: any[];
-  template: any;
+  content: Array<Record<string, unknown>>;
+  template: TemplateType;
 }
 
 export default function SectionRenderer({

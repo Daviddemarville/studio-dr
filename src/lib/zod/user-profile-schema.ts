@@ -1,10 +1,10 @@
 import { z } from "zod";
 import {
+  avatarUrlSchema,
+  emailSchema,
   firstnameSchema,
   lastnameSchema,
   pseudoSchema,
-  emailSchema,
-  avatarUrlSchema,
 } from "./user-fields";
 
 export const userProfileSchema = z.object({

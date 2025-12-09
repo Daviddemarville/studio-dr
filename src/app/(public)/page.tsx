@@ -27,7 +27,7 @@ export default async function HomePage() {
       if (!template) return null;
 
       // Fetch content from the section's table
-      let content: any[] = [];
+      let content: Array<Record<string, unknown>> = [];
 
       if (section.table_name === "users") {
         // Special case: users table (for team section)
@@ -50,11 +50,15 @@ export default async function HomePage() {
           ["content_offers", "content_pricing"].includes(section.table_name)
         ) {
           content = (data || []).sort(
-            (a: any, b: any) => (a.display_order || 0) - (b.display_order || 0),
+            (a: Record<string, unknown>, b: Record<string, unknown>) =>
+              ((a.display_order as number) || 0) -
+              ((b.display_order as number) || 0),
           );
         } else if (section.table_name === "content_workflow_steps") {
           content = (data || []).sort(
-            (a: any, b: any) => (a.step_number || 0) - (b.step_number || 0),
+            (a: Record<string, unknown>, b: Record<string, unknown>) =>
+              ((a.step_number as number) || 0) -
+              ((b.step_number as number) || 0),
           );
         } else {
           content = data || [];

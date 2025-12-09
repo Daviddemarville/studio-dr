@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@/lib/supabase-server";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resendApiKey = process.env.RESEND_API_KEY;
+if (!resendApiKey) {
+  throw new Error("RESEND_API_KEY is not defined");
+}
+const resend = new Resend(resendApiKey);
 
 export async function POST(req: Request) {
   try {
@@ -84,9 +88,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : "Erreur inconnue";
     return NextResponse.json(
-      { error: `Erreur serveur : ${e.message}` },
+      { error: `Erreur serveur : ${errorMessage}` },
       { status: 500 },
     );
   }

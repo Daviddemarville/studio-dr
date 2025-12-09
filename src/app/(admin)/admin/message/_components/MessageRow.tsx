@@ -1,5 +1,6 @@
 "use client";
 
+import type { MessageType } from "@/types/public";
 import DeleteButton from "./DeleteButton";
 import MarkReadButton from "./MarkReadButton";
 
@@ -7,14 +8,16 @@ export default function MessageRow({
   message,
   onOpen,
 }: {
-  message: any;
+  message: MessageType;
   onOpen: (id: string) => void;
 }) {
-  const date = new Date(message.created_at).toLocaleString();
+  const date = message.created_at
+    ? new Date(message.created_at).toLocaleString()
+    : "";
 
   return (
     <tr
-      onClick={() => onOpen(message.id)}
+      onClick={() => message.id && onOpen(message.id)}
       className={`cursor-pointer transition-colors border-b border-white/5 hover:bg-white/10 ${
         message.is_read ? "bg-transparent" : "bg-blue-700/10"
       }`}
@@ -37,6 +40,7 @@ export default function MessageRow({
       <td
         className="p-3 flex justify-end gap-2"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <MarkReadButton id={message.id} current={message.is_read} />
         <DeleteButton id={message.id} />

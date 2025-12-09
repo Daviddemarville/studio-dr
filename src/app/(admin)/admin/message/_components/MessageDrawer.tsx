@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect } from "react";
+import type { MessageType } from "@/types/public";
 import MessageCard from "./MessageCard";
 
 export default function MessageDrawer({
@@ -15,7 +16,7 @@ export default function MessageDrawer({
 }: {
   open: boolean;
   onClose: () => void;
-  message: any | null;
+  message: MessageType | null;
   onPrev: () => void;
   onNext: () => void;
   hasPrev: boolean;
@@ -33,10 +34,11 @@ export default function MessageDrawer({
     <>
       {/* BACKDROP */}
       {open && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={onClose}
-        />
+        ></button>
       )}
 
       {/* DRAWER */}
@@ -49,6 +51,7 @@ export default function MessageDrawer({
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               disabled={!hasPrev}
               onClick={onPrev}
               className={`p-2 rounded-lg ${
@@ -61,6 +64,7 @@ export default function MessageDrawer({
             </button>
 
             <button
+              type="button"
               disabled={!hasNext}
               onClick={onNext}
               className={`p-2 rounded-lg ${
@@ -74,6 +78,7 @@ export default function MessageDrawer({
           </div>
 
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-lg text-white"
           >
