@@ -5,7 +5,9 @@ import DeleteButton from "./DeleteButton";
 import MarkReadButton from "./MarkReadButton";
 
 export default function MessageCard({ message }: { message: MessageType }) {
-  const date = new Date(message.created_at).toLocaleString();
+  const date = message.created_at
+    ? new Date(message.created_at).toLocaleString()
+    : "Date inconnue";
 
   return (
     <div className="space-y-6 text-white">

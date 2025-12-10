@@ -18,7 +18,6 @@ export default function ProfileBioFields({
       </label>
       <textarea
         id="bio_fr"
-
         value={profile.bio_fr || ""}
         onChange={(e) => setProfile({ ...profile, bio_fr: e.target.value })}
         className="w-full bg-neutral-800 border border-neutral-700 p-2 rounded min-h-[120px]"
@@ -29,7 +28,6 @@ export default function ProfileBioFields({
       </label>
       <textarea
         id="bio_en"
-
         value={profile.bio_en || ""}
         onChange={(e) => setProfile({ ...profile, bio_en: e.target.value })}
         className="w-full bg-neutral-800 border border-neutral-700 p-2 rounded min-h-[120px]"

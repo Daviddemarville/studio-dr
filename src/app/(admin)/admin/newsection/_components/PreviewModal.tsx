@@ -1,21 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { TemplateType } from "@/types/public";
+import type {
+  NewSectionTemplate,
+  PreviewModalProps,
+  PreviewTemplate,
+} from "@/types/newsection";
 import { getTemplate } from "../../../../../templates/sections/loader.server";
 import TemplatePreview from "./TemplatePreview";
 
+/* ----------------------------------------------------------
+ * Convertit un NewSectionTemplate → PreviewTemplate
+ * ---------------------------------------------------------- */
+function toPreviewTemplate(
+  raw: NewSectionTemplate | null,
+): PreviewTemplate | null {
+  if (!raw) return null;
+
+  return {
+    name: raw.name,
+    description: raw.description,
+    fields: raw.fields, // déjà typés via Zod
+  };
+}
+
+/* ----------------------------------------------------------
+ * PreviewModal (corrigé)
+ * ---------------------------------------------------------- */
 export default function PreviewModal({
   open,
   onClose,
   templateSlug,
-}: TemplateType) {
-  const [template, setTemplate] = useState<TemplateType | null>(null);
+}: PreviewModalProps) {
+  const [template, setTemplate] = useState<PreviewTemplate | null>(null);
 
   useEffect(() => {
     if (open && templateSlug) {
-      // Appel server → charge le template complet
-      getTemplate(templateSlug).then(setTemplate);
+      getTemplate(templateSlug).then((raw) =>
+        setTemplate(toPreviewTemplate(raw)),
+      );
     }
   }, [open, templateSlug]);
 

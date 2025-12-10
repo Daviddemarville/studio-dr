@@ -1,98 +1,157 @@
+/* ============================================================
+   PUBLIC TYPES — utilisés uniquement côté front public
+   ============================================================ */
+
+/* -------------------------
+   Offre commerciale (pricing)
+-------------------------- */
 export interface Offer {
   id: string;
-  price_ht?: number | string;
+  price_ht?: number;
   is_active?: boolean;
   display_order?: number;
 
   title_fr?: string;
   title_en?: string;
+
   short_fr?: string;
   short_en?: string;
+
   long_fr?: string;
   long_en?: string;
 }
 
-export interface providerType {
+/* -------------------------
+   Provider OAuth (public)
+-------------------------- */
+export interface ProviderType {
   provider: "github" | "google" | "discord";
   className?: string;
 }
 
+/* -------------------------
+   Messages du formulaire de contact
+-------------------------- */
 export interface MessageType {
-  created_at?: string;
   id?: string;
+  created_at?: string;
   is_read?: boolean;
+
   firstname?: string;
   lastname?: string;
   email?: string;
   subject?: string;
   message?: string;
+
   current?: boolean;
   title?: string;
 }
 
-export interface TemplateType {
-  open?: boolean;
-  onClose?: () => void;
-  templateSlug?: string;
-  type?: string;
-  min?: number;
-  field?: string;
-  fields?: FieldType[];
-  template?: {
-    name?: string;
-    description?: string;
-    type?: string;
-    fields?: [];
-  } | null;
-}
+/* ============================================================
+   TEMPLATES PUBLICS (version simplifiée)
+   ============================================================ */
 
-export interface FieldType {
-  _id?: string;
+export interface PublicField {
   name: string;
-  type?: string;
-  field?: string;
-  min?: number;
+  type: string;
   label?: string;
-  fields?: FieldType[];
+  min?: number;
+  max?: number;
+  fields?: PublicField[]; // repeater interne
 }
 
-export interface SectionType {
+export interface PublicTemplate {
+  name: string;
+  description?: string;
+  type?: string;
+  fields: PublicField[];
+}
+
+/* ============================================================
+   SECTION (métadonnées)
+   ============================================================ */
+export interface PublicSection {
   id: number;
   slug: string;
-  table_name: string;
   title: string;
-  is_active: boolean;
-  icon: string;
+  icon: string | null;
+  table_name: string;
+  template_slug: string | null;
 }
 
-export interface DBRow {
-  id: number;
-  section_slug: string;
-  content: Record<string, unknown>;
-}
+/* ============================================================
+   🔵 PUBLIC USER ROW
+   (pour section Qui Sommes-Nous)
+   ============================================================ */
+export interface PublicUserRow {
+  id?: string | number;
 
-// un item dans un repeater
-export interface RepeaterItemType {
-  _id?: string;
-  id?: string;
+  avatar_url?: string;
+  pseudo?: string;
+
+  firstname?: string;
+  lastname?: string;
+
+  bio_fr?: string;
+  bio_en?: string;
+
+  is_public?: boolean;
+  is_approved?: boolean;
+
+  // fallback dynamique
   [key: string]: unknown;
 }
 
-export type SaveSectionParamsType = {
-  section: SectionType;
-  template: TemplateType; // ou: { fields: TemplateField[] } si tu veux limiter
-  formData: FormDataType;
-  rows: DBRow[];
-  title: string;
-  icon: string;
-  isVisible: boolean;
-};
+/* ============================================================
+   🔵 PUBLIC WORKFLOW STEP
+   (pour section Comment travaillons-nous ?)
+   ============================================================ */
+export interface PublicWorkflowStep {
+  id?: string | number;
 
-// valeur simple d’un champ
-export type PrimitiveFieldValueType = string | number | boolean | null;
+  step_number?: number;
+  content?: Record<string, unknown>;
 
-// valeur possible pour un champ
-export type FieldValueType = PrimitiveFieldValueType | RepeaterItemType[];
+  step_title_fr?: string;
+  step_title_en?: string;
 
-// tout le formData : un objet clé/valeur
-export type FormDataType = Record<string, FieldValueType>;
+  body_fr?: string;
+  body_en?: string;
+
+  [key: string]: unknown;
+}
+
+/* ============================================================
+   🔵 GENERIC PUBLIC ROW (fallback dynamique)
+   ============================================================ */
+export interface PublicDBRow {
+  id: number | string;
+  section_slug?: string;
+
+  content: Record<string, unknown>; // structure flexible
+
+  // Support des champs potentiels
+  title_fr?: string;
+  title_en?: string;
+
+  subtitle_fr?: string;
+  subtitle_en?: string;
+
+  body_fr?: string;
+  body_en?: string;
+
+  price_ht?: number;
+
+  // fallback dynamique final
+  [key: string]: unknown;
+}
+
+/* ============================================================
+   Item dans un repeater
+   ============================================================ */
+export interface PublicRepeaterItem {
+  id?: string | number;
+  _id?: string;
+
+  [key: string]: unknown;
+}

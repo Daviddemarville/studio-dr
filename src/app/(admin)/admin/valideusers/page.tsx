@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase-server";
+import type { AdminUser } from "@/types/admin-user";
 import UserList from "./_components/UserList";
 
 export default async function ValidateUsersPage() {
   const supabase = await createClient();
 
-  const { data: users, error } = await supabase
+  const { data, error } = await supabase
     .from("users")
     .select(
       "id, firstname, lastname, email, role, is_approved, avatar_url, created_at",
@@ -16,12 +17,14 @@ export default async function ValidateUsersPage() {
     return <div>Erreur lors du chargement des utilisateurs.</div>;
   }
 
+  const users = (data ?? []) as AdminUser[];
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-semibold mb-4">
         Validation des utilisateurs
       </h1>
-      <UserList users={users || []} />
+      <UserList users={users} />
     </div>
   );
 }
