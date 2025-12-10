@@ -2,20 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
+import type { UserProfile } from "@/types/user-profile";
+import Accordion from "../../components/ui/Accordion";
+import AccordionItem from "../../components/ui/AccordionItem";
 import { getCurrentUserProfile } from "../actions/get-current-profile";
 import { updateUserProfile } from "../actions/update-user-profile";
-
 import ProfileAvatarUploader from "./ProfileAvatarUploader";
 import ProfileBioFields from "./ProfileBioFields";
 import ProfileIdentityFields from "./ProfileIdentityFields";
 import ProfilePasswordUpdater from "./ProfilePasswordUpdater";
 import ProfileSocialLinks from "./ProfileSocialLinks";
-import Accordion from "../../components/ui/Accordion";
-import AccordionItem from "../../components/ui/AccordionItem";
 
 export default function ProfileEditor() {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
   const [authEmail, setAuthEmail] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -45,6 +45,7 @@ export default function ProfileEditor() {
   // 2) Sauvegarde du profil (hors avatar)
   // ---------------------------------------
   async function handleSave() {
+    if (!profile) return;
     setIsSaving(true);
 
     const updates = {
@@ -73,7 +74,6 @@ export default function ProfileEditor() {
   return (
     <div className="flex flex-col gap-8">
       <Accordion type="multiple">
-
         <AccordionItem id="email" title="Email de connexion">
           <p className="text-neutral-400">{authEmail}</p>
         </AccordionItem>
@@ -109,8 +109,7 @@ export default function ProfileEditor() {
         <AccordionItem id="password" title="Mot de passe">
           <ProfilePasswordUpdater userId={profile.id} />
         </AccordionItem>
-
       </Accordion>
     </div>
-  )
-};
+  );
+}

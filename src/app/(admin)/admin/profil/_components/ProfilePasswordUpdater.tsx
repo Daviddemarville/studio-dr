@@ -59,7 +59,6 @@ export default function ProfilePasswordUpdater({ userId }: { userId: string }) {
       <h2 className="text-xl font-semibold mb-4">Changer le mot de passe</h2>
 
       <div className="flex flex-col gap-4 max-w-md">
-
         {/* 🔥 Champ Ancien mot de passe (obligatoire en reauth) */}
         <PasswordField
           label="Ancien mot de passe"
