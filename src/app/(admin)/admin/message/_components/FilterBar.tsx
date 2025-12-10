@@ -10,6 +10,7 @@ export default function FilterBar({
   return (
     <div className="flex gap-4 mb-4">
       <button
+        type="button"
         onClick={() => setFilter("all")}
         className={`px-4 py-2 rounded-lg text-sm transition ${
           filter === "all"
@@ -21,6 +22,7 @@ export default function FilterBar({
       </button>
 
       <button
+        type="button"
         onClick={() => setFilter("unread")}
         className={`px-4 py-2 rounded-lg text-sm transition ${
           filter === "unread"

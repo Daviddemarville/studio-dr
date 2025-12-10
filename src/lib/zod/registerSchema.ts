@@ -1,10 +1,10 @@
 import { z } from "zod";
 import {
+  emailSchema,
   firstnameSchema,
   lastnameSchema,
-  emailSchema,
-  pseudoSchema,
   passwordSchema,
+  pseudoSchema,
 } from "./user-fields";
 
 export const registerSchema = z

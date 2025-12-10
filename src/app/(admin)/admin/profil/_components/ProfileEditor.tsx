@@ -45,7 +45,8 @@ export default function ProfileEditor() {
   // 2) Sauvegarde du profil (hors avatar)
   // ---------------------------------------
   async function handleSave() {
-    if (!profile) return;
+    if (!profile) return toast.error("Erreur profile");
+
     setIsSaving(true);
 
     const updates = {

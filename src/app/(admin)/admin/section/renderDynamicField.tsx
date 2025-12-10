@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import type { FieldType, FieldValueType } from "@/types/public";
 import RepeaterEditor from "./RepeaterEditor";
 
 export default function renderDynamicField({
@@ -13,12 +14,12 @@ export default function renderDynamicField({
   onChange,
   onRelationChange,
 }: {
-  field: any;
-  value: any;
+  field: FieldType;
+  value: FieldValueType;
   tableName?: string;
   sectionSlug?: string;
-  onChange: (value: any) => void;
-  onRelationChange?: (selectedItem: any) => void;
+  onChange: (value: FieldValueType) => void;
+  onRelationChange?: (selectedItem: Record<string, unknown>) => void;
 }) {
   // Champs non modifiables (titre auto + TTC auto)
   if (
@@ -30,7 +31,7 @@ export default function renderDynamicField({
     return (
       <div className="flex flex-col gap-1 opacity-60">
         <label className="text-sm text-white">
-          {field.label as string}
+          {field.label}
           <input
             type="text"
             value={(value as string) || ""}
@@ -48,7 +49,7 @@ export default function renderDynamicField({
     return (
       <div className="flex flex-col gap-1">
         <label className="text-sm text-neutral-300">
-          {field.label as string}
+          {field.label}
           <input
             type="text"
             value={(value as string) || ""}

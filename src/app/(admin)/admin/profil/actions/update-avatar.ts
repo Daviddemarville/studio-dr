@@ -19,11 +19,13 @@ export async function uploadAvatar(file: File, userId: string) {
   const supabase = await createClient();
 
   // ----------- 1) Sécurité : vérifier l'utilisateur connecté -----------
+
   const { data: authData } = await supabase.auth.getUser();
   if (!authData?.user) return { error: "Utilisateur non authentifié." };
   if (authData.user.id !== userId) return { error: "Permission refusée." };
 
   // ----------- 2) Sécurité fichier : taille maximale -----------
+
   if (file.size > MAX_FILE_SIZE) {
     return { error: "Le fichier dépasse la taille maximale de 1 Mo." };
   }
@@ -34,6 +36,7 @@ export async function uploadAvatar(file: File, userId: string) {
   }
 
   // ----------- 4) Déterminer l’extension cible -----------
+
   const ext =
     file.type === "image/png"
       ? "png"
@@ -63,6 +66,7 @@ export async function uploadAvatar(file: File, userId: string) {
     .from("avatars")
     .upload(filePath, file, {
       upsert: true, // écrase automatiquement
+
       cacheControl: "0",
       contentType: file.type,
     });
@@ -73,6 +77,7 @@ export async function uploadAvatar(file: File, userId: string) {
   }
 
   // ----------- 7) Récupérer l’URL publique -----------
+
   const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
   return {
@@ -89,12 +94,14 @@ export async function uploadAvatar(file: File, userId: string) {
 export async function updateAvatarUrl(userId: string, url: string | null) {
   const supabase = await createClient();
 
-  // ----------- 1) Vérifier utilisateur -----------
+  // ----------- 1) Vérifier utilisateur connecté -----------
+
   const { data: authData } = await supabase.auth.getUser();
   if (!authData?.user) return { error: "Utilisateur non authentifié." };
   if (authData.user.id !== userId) return { error: "Permission refusée." };
 
-  // ----------- 2) Valider l’URL via Zod -----------
+  // ----------- 2) Valider l'URL externe (ou null) via Zod -----------
+
   const parsed = avatarUrlSchema.safeParse(url);
   if (!parsed.success) {
     return { error: "URL d’avatar invalide." };
@@ -105,6 +112,7 @@ export async function updateAvatarUrl(userId: string, url: string | null) {
     .from("users")
     .update({
       avatar_url: parsed.data,
+
       updated_at: new Date().toISOString(),
     })
     .eq("id", userId);

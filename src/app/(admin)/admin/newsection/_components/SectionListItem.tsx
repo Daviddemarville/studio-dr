@@ -27,39 +27,32 @@ export default function SectionListItem({
   return (
     <div className="border border-neutral-800 bg-neutral-800 rounded-lg">
       {/* Barre principale */}
-      <div
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-neutral-700/50 transition cursor-pointer"
-      >
-        <div className="flex items-center gap-3">
-          {/* Badge actif/inactif */}
-          <span
-            className={`
-                            px-2 py-0.5 rounded-full text-xs font-medium
-                            ${
-                              isActive
-                                ? "bg-green-700/40 text-green-300 border border-green-700/60"
-                                : "bg-red-700/40 text-red-300 border border-red-700/60"
-                            }
-                        `}
-          >
-            {isActive ? "Actif" : "Inactif"}
-          </span>
+      <div className="w-full flex items-center justify-between">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={isOpen}
+          className="w-full flex items-center justify-between px-4 py-3 hover:bg-neutral-700/50 transition text-left"
+        >
+          <div className="flex items-center gap-3">
+            {/* Badge actif/inactif */}
+            <span
+              className={`
+                        px-2 py-0.5 rounded-full text-xs font-medium
+                        ${
+                          isActive
+                            ? "bg-green-700/40 text-green-300 border border-green-700/60"
+                            : "bg-red-700/40 text-red-300 border border-red-700/60"
+                        }
+                    `}
+            >
+              {isActive ? "Actif" : "Inactif"}
+            </span>
 
-          <span className="text-neutral-200 font-medium">{section.title}</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Delete */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(section.id);
-            }}
-            className="text-red-400 hover:text-red-300 transition"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
+            <span className="text-neutral-200 font-medium">
+              {section.title}
+            </span>
+          </div>
 
           {/* Chevron */}
           {isOpen ? (
@@ -67,7 +60,19 @@ export default function SectionListItem({
           ) : (
             <ChevronDown className="w-5 h-5 text-neutral-400" />
           )}
-        </div>
+        </button>
+
+        {/* Delete */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(section.id);
+          }}
+          className="ml-3 text-red-400 hover:text-red-300 transition"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Contenu ouvert */}

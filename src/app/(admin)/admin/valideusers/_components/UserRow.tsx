@@ -3,9 +3,10 @@
 import Image from "next/image";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import type { UserProfile } from "@/types/user-profile";
 import { toggleUserApproval } from "../actions";
 
-export default function UserRow({ user }: { user: any }) {
+export default function UserRow({ user }: { user: UserProfile }) {
   const handleToggle = async () => {
     try {
       const nextStatus = !user.is_approved;
@@ -16,13 +17,14 @@ export default function UserRow({ user }: { user: any }) {
       } else {
         toast.info("Utilisateur désapprouvé.");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Erreur lors de la mise à jour.");
+    } catch {
+      toast.error("Erreur lors de la mise à jour.");
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <Dependence sur le montage>
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: CustomEvent) => {
       if (e.detail === user.id) handleToggle();
     };
 
@@ -61,6 +63,7 @@ export default function UserRow({ user }: { user: any }) {
 
       <td className="p-3 text-center">
         <button
+          type="button"
           onClick={handleToggle}
           className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700"
         >

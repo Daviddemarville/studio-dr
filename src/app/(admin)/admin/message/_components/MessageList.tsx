@@ -1,10 +1,11 @@
+import type { MessageType } from "@/types/public";
 import MessageRow from "./MessageRow";
 
 export default function MessageList({
   messages,
   onOpen,
 }: {
-  messages: any[];
+  messages: MessageType[];
   onOpen: (id: string) => void;
 }) {
   if (!messages.length) {
