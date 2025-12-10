@@ -15,6 +15,7 @@ import ProfileSocialLinks from "./ProfileSocialLinks";
 
 export default function ProfileEditor() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+
   const [authEmail, setAuthEmail] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -45,6 +46,7 @@ export default function ProfileEditor() {
   // ---------------------------------------
   async function handleSave() {
     if (!profile) return toast.error("Erreur profile");
+
     setIsSaving(true);
 
     const updates = {

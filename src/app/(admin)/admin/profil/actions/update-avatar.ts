@@ -7,42 +7,66 @@ const MAX_FILE_SIZE = 1_000_000; // 1 Mo
 const ALLOWED_MIME = ["image/jpeg", "image/png", "image/webp"];
 
 /**
- * Upload un avatar vers Supabase Storage
- * Retourne l'URL publique + path final
+ * Upload un avatar en écrasant l'ancien.
+ *
+ * Règles :
+ * - Chaque user ne possède qu’un seul avatar.
+ * - Le fichier s'enregistre sous : avatars/{userId}.{ext}
+ * - Tous les anciens formats (jpg/png/webp) sont supprimés avant upload.
+ * - Retourne l’URL publique finale.
  */
 export async function uploadAvatar(file: File, userId: string) {
   const supabase = await createClient();
 
-  // ----------- 1) Sécurité : vérifier l'utilisateur -----------
+  // ----------- 1) Sécurité : vérifier l'utilisateur connecté -----------
+
   const { data: authData } = await supabase.auth.getUser();
   if (!authData?.user) return { error: "Utilisateur non authentifié." };
   if (authData.user.id !== userId) return { error: "Permission refusée." };
 
-  // ----------- 2) Sécurité fichier : taille -----------
+  // ----------- 2) Sécurité fichier : taille maximale -----------
+
   if (file.size > MAX_FILE_SIZE) {
     return { error: "Le fichier dépasse la taille maximale de 1 Mo." };
   }
 
-  // ----------- 3) Sécurité fichier : MIME type -----------
+  // ----------- 3) Sécurité fichier : type MIME autorisé -----------
   if (!ALLOWED_MIME.includes(file.type)) {
-    return { error: "Format de fichier non supporté. (jpg, png, webp)" };
+    return { error: "Format non supporté. (jpg, png, webp)" };
   }
 
-  // ----------- 4) Extension sécurisée -----------
+  // ----------- 4) Déterminer l’extension cible -----------
+
   const ext =
     file.type === "image/png"
       ? "png"
       : file.type === "image/webp"
         ? "webp"
-        : "jpg"; // JPEG / JPG
+        : "jpg"; // fallback JPEG
 
-  const filePath = `avatar-${userId}-${Date.now()}.${ext}`;
+  const filePath = `${userId}.${ext}`;
 
-  // ----------- 5) Upload vers Storage -----------
+  // ----------- 5) Supprimer toutes les anciennes versions -----------
+  // Exemple : userId.jpg, userId.png, userId.webp
+  const possibleOldFiles = [`${userId}.jpg`, `${userId}.png`, `${userId}.webp`];
+
+  const { error: removeError } = await supabase.storage
+    .from("avatars")
+    .remove(possibleOldFiles);
+
+  if (removeError) {
+    console.warn(
+      "Aucun ancien avatar à supprimer ou erreur mineure :",
+      removeError,
+    );
+  }
+
+  // ----------- 6) Upload en écrasant le fichier précédent -----------
   const { error: uploadError } = await supabase.storage
     .from("avatars")
     .upload(filePath, file, {
-      upsert: false,
+      upsert: true, // écrase automatiquement
+
       cacheControl: "0",
       contentType: file.type,
     });
@@ -52,7 +76,8 @@ export async function uploadAvatar(file: File, userId: string) {
     return { error: "Impossible d’uploader l’avatar." };
   }
 
-  // ----------- 6) URL publique -----------
+  // ----------- 7) Récupérer l’URL publique -----------
+
   const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
   return {
@@ -63,18 +88,20 @@ export async function uploadAvatar(file: File, userId: string) {
 }
 
 /**
- * Met à jour uniquement l'avatar_url en DB
- * Utilisé après upload OU URL externe
+ * Met à jour le champ avatar_url dans la DB.
+ * Appelé après upload ou après suppression.
  */
 export async function updateAvatarUrl(userId: string, url: string | null) {
   const supabase = await createClient();
 
   // ----------- 1) Vérifier utilisateur connecté -----------
+
   const { data: authData } = await supabase.auth.getUser();
   if (!authData?.user) return { error: "Utilisateur non authentifié." };
   if (authData.user.id !== userId) return { error: "Permission refusée." };
 
   // ----------- 2) Valider l'URL externe (ou null) via Zod -----------
+
   const parsed = avatarUrlSchema.safeParse(url);
   if (!parsed.success) {
     return { error: "URL d’avatar invalide." };
@@ -84,7 +111,8 @@ export async function updateAvatarUrl(userId: string, url: string | null) {
   const { error } = await supabase
     .from("users")
     .update({
-      avatar_url: parsed.data, // string | null validé par Zod
+      avatar_url: parsed.data,
+
       updated_at: new Date().toISOString(),
     })
     .eq("id", userId);

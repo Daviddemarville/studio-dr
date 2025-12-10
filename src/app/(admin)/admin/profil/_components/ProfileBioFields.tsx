@@ -13,21 +13,23 @@ export default function ProfileBioFields({
     <div className="bg-neutral-900 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Biographie</h2>
 
-      <label htmlFor="bio-fr" className="block mb-2">
+      <label htmlFor="bio_fr" className="block mb-2">
         Biographie FR
       </label>
       <textarea
-        id="bio-fr"
+        id="bio_fr"
+
         value={profile.bio_fr || ""}
         onChange={(e) => setProfile({ ...profile, bio_fr: e.target.value })}
         className="w-full bg-neutral-800 border border-neutral-700 p-2 rounded min-h-[120px]"
       />
 
-      <label htmlFor="bio-en" className="block mt-4 mb-2">
+      <label htmlFor="bio_en" className="block mt-4 mb-2">
         Biographie EN
       </label>
       <textarea
-        id="bio-en"
+        id="bio_en"
+
         value={profile.bio_en || ""}
         onChange={(e) => setProfile({ ...profile, bio_en: e.target.value })}
         className="w-full bg-neutral-800 border border-neutral-700 p-2 rounded min-h-[120px]"
