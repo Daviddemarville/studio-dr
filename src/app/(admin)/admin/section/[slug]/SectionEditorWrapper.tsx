@@ -4,20 +4,24 @@ import { Layers } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+
 import type {
+  AdminTemplateType,
   DBRow,
-  FieldType,
   FieldValueType,
   FormDataType,
   RepeaterItemType,
-  SectionType,
-  TemplateType,
-} from "@/types/public";
+  SiteSection,
+  TemplateField,
+} from "@/types/section";
+
 import IconSelector from "../../components/IconSelector";
 import PreviewSite from "../../components/PreviewSite";
 import TeamVisibilityManager from "../../components/TeamVisibilityManager";
 import OpenPreviewButton from "../../components/ui/OpenPreviewButton";
+
 import renderDynamicField from "../renderDynamicField";
+
 // WRAPPERS
 import { loadSection } from "./wrappers/SectionLoadWrapper";
 import { saveSection } from "./wrappers/SectionSaveWrapper";
@@ -25,8 +29,8 @@ import { saveSection } from "./wrappers/SectionSaveWrapper";
 export default function SectionEditorWrapper({ slug }: { slug: string }) {
   const router = useRouter();
 
-  const [section, setSection] = useState<SectionType | null>(null);
-  const [template, setTemplate] = useState<TemplateType | null>(null);
+  const [section, setSection] = useState<SiteSection | null>(null);
+  const [template, setTemplate] = useState<AdminTemplateType | null>(null);
   const [rows, setRows] = useState<DBRow[]>([]);
   const [formData, setFormData] = useState<FormDataType>({});
 
@@ -42,10 +46,11 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
   useEffect(() => {
     async function fetchData() {
       const data = await loadSection(slug);
+
       setSection(data.section);
       setTemplate(data.template);
       setRows(data.rows);
-      setFormData(data.formData);
+      setFormData((data.formData as FormDataType) ?? {});
 
       setTitle(data.section.title);
       setIcon(data.section.icon);
@@ -64,7 +69,9 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
 
     await saveSection({
       section,
-      template,
+      template: {
+        fields: template.fields ?? [],
+      },
       formData,
       rows,
       title,
@@ -124,16 +131,16 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
         {section.table_name === "users" ? (
           <TeamVisibilityManager />
         ) : (
-          template.fields?.map((field: FieldType) => (
+          (template.fields ?? []).map((field: TemplateField) => (
             <div key={field.name}>
               {renderDynamicField({
                 field,
-                value: formData[field.name],
+                value: formData[field.name] as FieldValueType,
                 tableName: section.table_name,
                 sectionSlug: section.slug,
                 onChange: (val: FieldValueType) =>
-                  setFormData((prev: FormDataType) => {
-                    // CAS 1 — REPEATER (array)
+                  setFormData((prev) => {
+                    // REPEATER
                     if (Array.isArray(val)) {
                       const previousArray = Array.isArray(prev[field.name])
                         ? (prev[field.name] as RepeaterItemType[])
@@ -147,13 +154,14 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
                           ? { ...item, id: previous.id }
                           : item;
                       });
+
                       return {
                         ...prev,
                         [field.name]: nextArray,
                       };
                     }
 
-                    // CAS 2 — SIMPLE
+                    // SIMPLE
                     return {
                       ...prev,
                       [field.name]: val,

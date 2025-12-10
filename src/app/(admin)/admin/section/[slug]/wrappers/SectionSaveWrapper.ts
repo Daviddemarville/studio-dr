@@ -4,7 +4,7 @@ import type {
   SiteSection,
   TemplateField,
   TemplateFieldRepeater,
-} from "./types";
+} from "@/types/section";
 
 /* --------------------------------------------------------------------------
  * SAVE WRAPPER : enregistre repeater / single row / metadata
@@ -30,9 +30,9 @@ export async function saveSection({
   const supabase = createClient();
   const table = section.table_name;
 
-  const repeaterField = template.fields.find(
-    (f: TemplateField) => f.type === "repeater",
-  ) as TemplateFieldRepeater | undefined;
+  const repeaterField = template.fields.find((f) => f.type === "repeater") as
+    | TemplateFieldRepeater
+    | undefined;
 
   /* ----------------------------------------------------------------------
    * CASE 1 — REPEATER
@@ -43,6 +43,7 @@ export async function saveSection({
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      const itemId = item.id as string | undefined;
 
       const contentFields: Record<string, unknown> = {};
       repeaterField.fields.forEach((f) => {
@@ -64,9 +65,9 @@ export async function saveSection({
         payload.step_number = i + 1;
       }
 
-      if (item.id) {
-        await supabase.from(table).update(payload).eq("id", item.id);
-        currentIds.push(item.id as string);
+      if (itemId) {
+        await supabase.from(table).update(payload).eq("id", itemId);
+        currentIds.push(itemId);
       } else {
         const { data: inserted } = await supabase
           .from(table)
@@ -78,10 +79,9 @@ export async function saveSection({
       }
     }
 
-    // Delete removed items safely
-    const initialIds = rows.map((r: DBRow) => r.id);
-    const toDelete = initialIds.filter(
-      (id: string) => !currentIds.includes(id),
+    const initialIds = rows.map((r) => r.id);
+    const toDelete: string[] = initialIds.filter(
+      (id) => !currentIds.includes(id),
     );
 
     if (toDelete.length > 0) {

@@ -1,36 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
-import type { UserProfile } from "@/types/user-profile";
+import type { AdminUser } from "@/types/admin-user";
 import { toggleUserApproval } from "../actions";
 
-export default function UserRow({ user }: { user: UserProfile }) {
-  const handleToggle = async () => {
+export default function UserRow({ user }: { user: AdminUser }) {
+  const handleToggle = useCallback(async () => {
     try {
       const nextStatus = !user.is_approved;
       await toggleUserApproval(user.id, nextStatus);
 
-      if (nextStatus) {
-        toast.success("Utilisateur approuvé !");
-      } else {
-        toast.info("Utilisateur désapprouvé.");
-      }
+      toast[nextStatus ? "success" : "info"](
+        nextStatus ? "Utilisateur approuvé !" : "Utilisateur désapprouvé.",
+      );
     } catch {
       toast.error("Erreur lors de la mise à jour.");
     }
-  };
+  }, [user.id, user.is_approved]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <Dependence sur le montage>
   useEffect(() => {
-    const handler = (e: CustomEvent) => {
+    const handler = (e: CustomEvent<string>) => {
       if (e.detail === user.id) handleToggle();
     };
 
-    window.addEventListener("toggle-user", handler);
-    return () => window.removeEventListener("toggle-user", handler);
-  }, []);
+    window.addEventListener("toggle-user", handler as EventListener);
+    return () => {
+      window.removeEventListener("toggle-user", handler as EventListener);
+    };
+  }, [user.id, handleToggle]);
 
   return (
     <tr className="border-b">
@@ -50,7 +49,6 @@ export default function UserRow({ user }: { user: UserProfile }) {
       </td>
 
       <td className="p-3">{user.email}</td>
-
       <td className="p-3 capitalize">{user.role}</td>
 
       <td className="p-3 text-center">

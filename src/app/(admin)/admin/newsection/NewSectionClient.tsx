@@ -35,7 +35,7 @@ export default function NewSectionClient({
   sections: Section[];
 }) {
   const router = useRouter();
-  const { isOpen, options, openConfirm, closeConfirm } = useConfirm();
+  const { isOpen, options, openConfirm, confirm, cancel } = useConfirm();
 
   // FORM STATE
   const [isCreating, setIsCreating] = useState(false);
@@ -82,10 +82,11 @@ export default function NewSectionClient({
   // SUPPRESSION
   // ============================================================
   const handleDelete = async (id: number) => {
-    const confirmed = await openConfirm(
-      "Supprimer cette section",
-      "Êtes-vous sûr de vouloir supprimer cette section ? Le contenu associé sera perdu.",
-    );
+    const confirmed = await openConfirm({
+      title: "Supprimer cette section",
+      message:
+        "Êtes-vous sûr de vouloir supprimer cette section ? Le contenu associé sera perdu.",
+    });
 
     if (!confirmed) return;
 
@@ -145,11 +146,8 @@ export default function NewSectionClient({
         open={isOpen}
         title={options.title}
         message={options.message}
-        onConfirm={() => {
-          options.onConfirm?.();
-          closeConfirm();
-        }}
-        onCancel={closeConfirm}
+        onConfirm={confirm}
+        onCancel={cancel}
       />
     </div>
   );

@@ -3,8 +3,20 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
-import type { FieldType, FieldValueType } from "@/types/public";
+
+import type {
+  FieldValueType,
+  RepeaterItemType,
+  SectionField,
+  SectionFieldRelation,
+  SectionFieldRepeater,
+} from "@/types/section";
+
 import RepeaterEditor from "./RepeaterEditor";
+
+/* ==========================================================================
+ * RENDER DYNAMIC FIELD
+ * ========================================================================== */
 
 export default function renderDynamicField({
   field,
@@ -14,27 +26,24 @@ export default function renderDynamicField({
   onChange,
   onRelationChange,
 }: {
-  field: FieldType;
+  field: SectionField;
   value: FieldValueType;
   tableName?: string;
   sectionSlug?: string;
   onChange: (value: FieldValueType) => void;
-  onRelationChange?: (selectedItem: Record<string, unknown>) => void;
+  onRelationChange?: (row: Record<string, unknown>) => void;
 }) {
-  // Champs non modifiables (titre auto + TTC auto)
-  if (
-    (field.name === "title_fr" ||
-      field.name === "title_en" ||
-      field.name === "price_ttc") &&
-    typeof onChange === "function"
-  ) {
+  /* --------------------------------------------------------------------------
+   * Champs non modifiables
+   * -------------------------------------------------------------------------- */
+  if (["title_fr", "title_en", "price_ttc"].includes(field.name)) {
     return (
       <div className="flex flex-col gap-1 opacity-60">
         <label className="text-sm text-white">
           {field.label}
           <input
             type="text"
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             readOnly
             disabled
             className="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white mt-1 cursor-not-allowed"
@@ -44,7 +53,9 @@ export default function renderDynamicField({
     );
   }
 
-  // ---- TEXT INPUT ----
+  /* --------------------------------------------------------------------------
+   * TEXT
+   * -------------------------------------------------------------------------- */
   if (field.type === "text") {
     return (
       <div className="flex flex-col gap-1">
@@ -52,7 +63,7 @@ export default function renderDynamicField({
           {field.label}
           <input
             type="text"
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             onChange={(e) => onChange(e.target.value)}
             className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
           />
@@ -61,14 +72,16 @@ export default function renderDynamicField({
     );
   }
 
-  // ---- TEXTAREA ----
+  /* --------------------------------------------------------------------------
+   * TEXTAREA
+   * -------------------------------------------------------------------------- */
   if (field.type === "textarea") {
     return (
       <div className="flex flex-col gap-1">
         <label className="text-sm text-neutral-300">
-          {field.label as string}
+          {field.label}
           <textarea
-            value={(value as string) || ""}
+            value={(value as string) ?? ""}
             onChange={(e) => onChange(e.target.value)}
             className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white min-h-20 mt-1"
           />
@@ -77,18 +90,17 @@ export default function renderDynamicField({
     );
   }
 
-  // Valeur sécurisée pour les prévisualisations
-  const safeValue = typeof value === "string" ? value : "";
-
-  // ---- NUMBER ----
+  /* --------------------------------------------------------------------------
+   * NUMBER
+   * -------------------------------------------------------------------------- */
   if (field.type === "number") {
     return (
       <div className="flex flex-col gap-1">
         <label className="text-sm text-neutral-300">
-          {field.label as string}
+          {field.label}
           <input
             type="number"
-            value={(value as number) || 0}
+            value={(value as number) ?? 0}
             onChange={(e) => onChange(parseFloat(e.target.value))}
             className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
           />
@@ -97,22 +109,27 @@ export default function renderDynamicField({
     );
   }
 
-  // ---- IMAGE URL ----
+  /* --------------------------------------------------------------------------
+   * IMAGE (URL)
+   * -------------------------------------------------------------------------- */
   if (field.type === "image") {
+    const safeValue =
+      typeof value === "string" && value.trim() !== "" ? value : "";
+
     return (
       <div className="flex flex-col gap-1">
         <label className="text-sm text-neutral-300">
-          {field.label as string}
+          {field.label}
           <input
             type="text"
             placeholder="https://..."
-            value={(value as string) || ""}
+            value={safeValue}
             onChange={(e) => onChange(e.target.value)}
             className="w-full bg-neutral-900 border border-neutral-700 rounded px-3 py-2 text-white mt-1"
           />
         </label>
 
-        {typeof value === "string" && value.trim() !== "" && (
+        {safeValue && (
           <Image
             src={safeValue}
             alt="preview"
@@ -125,26 +142,32 @@ export default function renderDynamicField({
     );
   }
 
-  // ---- REPEATER ----
+  /* --------------------------------------------------------------------------
+   * REPEATER
+   * -------------------------------------------------------------------------- */
   if (field.type === "repeater") {
+    const repeater = field as SectionFieldRepeater;
+
     return (
       <RepeaterEditor
         field={{
-          ...field,
+          ...repeater,
           table_name: tableName,
           section_slug: sectionSlug,
         }}
-        value={value}
+        value={(value as RepeaterItemType[]) ?? []}
         onChange={onChange}
       />
     );
   }
 
-  // ---- RELATION ----
+  /* --------------------------------------------------------------------------
+   * RELATION
+   * -------------------------------------------------------------------------- */
   if (field.type === "relation") {
     return (
       <RelationField
-        field={field}
+        field={field as SectionFieldRelation}
         value={value}
         onChange={onChange}
         onRelationChange={onRelationChange}
@@ -159,50 +182,51 @@ export default function renderDynamicField({
   );
 }
 
+/* ==========================================================================
+ * COMPONENT — RELATION FIELD
+ * ========================================================================== */
+
 function RelationField({
   field,
   value,
   onChange,
   onRelationChange,
 }: {
-  field: Record<string, unknown>;
-  value: unknown;
-  onChange: (val: unknown) => void;
-  onRelationChange?: (item: Record<string, unknown>) => void;
+  field: SectionFieldRelation;
+  value: FieldValueType;
+  onChange: (v: FieldValueType) => void;
+  onRelationChange?: (row: Record<string, unknown>) => void;
 }) {
   const [options, setOptions] = useState<
-    { label: string; value: string; original: Record<string, unknown> }[]
+    { value: string; label: string; original: Record<string, unknown> }[]
   >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOptions = async () => {
+    async function fetchOptions() {
       const supabase = createClient();
-      const tableName = field.relation_table as string;
-      if (!tableName) return;
 
-      const { data } = await supabase.from(tableName).select("id, content");
+      const { data } = await supabase
+        .from(field.relation_table)
+        .select("id, content");
 
       if (data) {
-        const opts = data.map(
-          (row: { id: string; content: Record<string, unknown> }) => ({
+        setOptions(
+          data.map((row: { id: string; content: Record<string, unknown> }) => ({
             value: row.id,
             label:
-              (row.content?.title_fr as string) ||
-              (row.content?.title as string) ||
+              (row.content?.title_fr as string) ??
+              (row.content?.title as string) ??
               "Sans titre",
             original: row,
-          }),
+          })),
         );
-        setOptions(opts);
       }
 
       setLoading(false);
-    };
-
-    if (field.relation_table) {
-      fetchOptions();
     }
+
+    fetchOptions();
   }, [field.relation_table]);
 
   if (loading) return <p className="text-xs text-neutral-500">Chargement...</p>;
@@ -210,22 +234,20 @@ function RelationField({
   return (
     <div className="flex flex-col gap-1">
       <label className="text-sm text-neutral-300">
-        {field.label as string}
+        {field.label}
         <select
           className="w-full rounded-md bg-neutral-800 border border-neutral-700 px-3 py-2 text-neutral-100 mt-1"
           value={(value as string) ?? ""}
           onChange={(e) => {
-            const val = e.target.value;
-            onChange(val);
+            const selected = options.find((o) => o.value === e.target.value);
+            onChange(e.target.value);
 
-            if (onRelationChange) {
-              const selected = options.find((o) => o.value === val);
-              if (selected) onRelationChange(selected.original);
+            if (selected && onRelationChange) {
+              onRelationChange(selected.original);
             }
           }}
         >
           <option value="">-- Sélectionner --</option>
-
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}

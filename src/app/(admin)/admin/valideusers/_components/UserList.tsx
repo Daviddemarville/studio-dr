@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import type { UserProfile } from "@/types/user-profile";
+import type { AdminUser } from "@/types/admin-user";
 import UserRow from "./UserRow";
 
-export default function UserList({ users }: { users: UserProfile[] }) {
+export default function UserList({ users }: { users: AdminUser[] }) {
   return (
     <div className="w-full">
-      {/* DESKTOP VERSION (tableau) */}
+      {/* DESKTOP VERSION */}
       <div className="hidden md:block border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-[#0f1623] border-b">
@@ -28,7 +28,7 @@ export default function UserList({ users }: { users: UserProfile[] }) {
         </table>
       </div>
 
-      {/* MOBILE VERSION (cartes) */}
+      {/* MOBILE */}
       <div className="md:hidden flex flex-col gap-4">
         {users.map((user) => (
           <MobileUserCard key={user.id} user={user} />
@@ -38,12 +38,11 @@ export default function UserList({ users }: { users: UserProfile[] }) {
   );
 }
 
-function MobileUserCard({ user }: { user: UserProfile }) {
+function MobileUserCard({ user }: { user: AdminUser }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="bg-[#0f1623] border border-gray-700 rounded-lg p-4 shadow">
-      {/* Header : Avatar + Nom + Statut */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {user.avatar_url ? (
@@ -57,6 +56,7 @@ function MobileUserCard({ user }: { user: UserProfile }) {
           ) : (
             <div className="w-10 h-10 rounded-full bg-gray-600/40" />
           )}
+
           <div>
             <p className="font-medium text-white">
               {user.firstname} {user.lastname}
@@ -73,12 +73,10 @@ function MobileUserCard({ user }: { user: UserProfile }) {
         </div>
       </div>
 
-      {/* Bouton d'action */}
       <div className="mt-4">
         <ActionButton user={user} />
       </div>
 
-      {/* Accordéon */}
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -103,9 +101,7 @@ function MobileUserCard({ user }: { user: UserProfile }) {
   );
 }
 
-/* Petit bouton stylé, réutilise la logique via UserRow */
-function ActionButton({ user }: { user: UserProfile }) {
-  // On exploite ton UserRow actuel en isolant la logique
+function ActionButton({ user }: { user: AdminUser }) {
   const action = user.is_approved ? "Désapprouver" : "Valider";
   const color = user.is_approved
     ? "bg-red-600 hover:bg-red-700"

@@ -1,9 +1,9 @@
 "use client";
 
 import { createClient } from "@/lib/supabase-browser";
-import type { providerType } from "@/types/public";
+import type { ProviderType } from "@/types/public";
 
-export function SignInButton({ provider, className }: providerType) {
+export function SignInButton({ provider, className }: ProviderType) {
   async function handleClick() {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
