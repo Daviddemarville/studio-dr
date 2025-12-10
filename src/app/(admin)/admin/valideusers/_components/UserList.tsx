@@ -1,12 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
+import type { AdminUser } from "@/types/admin-user";
 import UserRow from "./UserRow";
 
-export default function UserList({ users }: { users: any[] }) {
+export default function UserList({ users }: { users: AdminUser[] }) {
   return (
     <div className="w-full">
-      {/* DESKTOP VERSION (tableau) */}
+      {/* DESKTOP VERSION */}
       <div className="hidden md:block border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-[#0f1623] border-b">
@@ -26,7 +28,7 @@ export default function UserList({ users }: { users: any[] }) {
         </table>
       </div>
 
-      {/* MOBILE VERSION (cartes) */}
+      {/* MOBILE */}
       <div className="md:hidden flex flex-col gap-4">
         {users.map((user) => (
           <MobileUserCard key={user.id} user={user} />
@@ -36,23 +38,25 @@ export default function UserList({ users }: { users: any[] }) {
   );
 }
 
-function MobileUserCard({ user }: { user: any }) {
+function MobileUserCard({ user }: { user: AdminUser }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="bg-[#0f1623] border border-gray-700 rounded-lg p-4 shadow">
-      {/* Header : Avatar + Nom + Statut */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {user.avatar_url ? (
-            <img
+            <Image
               src={user.avatar_url}
               alt="avatar"
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover border border-gray-600"
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gray-600/40" />
           )}
+
           <div>
             <p className="font-medium text-white">
               {user.firstname} {user.lastname}
@@ -69,13 +73,12 @@ function MobileUserCard({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* Bouton d'action */}
       <div className="mt-4">
         <ActionButton user={user} />
       </div>
 
-      {/* Accordéon */}
       <button
+        type="button"
         onClick={() => setOpen(!open)}
         className="w-full text-left mt-3 text-sm text-gray-300 hover:text-white transition"
       >
@@ -98,9 +101,7 @@ function MobileUserCard({ user }: { user: any }) {
   );
 }
 
-/* Petit bouton stylé, réutilise la logique via UserRow */
-function ActionButton({ user }: { user: any }) {
-  // On exploite ton UserRow actuel en isolant la logique
+function ActionButton({ user }: { user: AdminUser }) {
   const action = user.is_approved ? "Désapprouver" : "Valider";
   const color = user.is_approved
     ? "bg-red-600 hover:bg-red-700"
@@ -108,6 +109,7 @@ function ActionButton({ user }: { user: any }) {
 
   return (
     <button
+      type="button"
       onClick={() => {
         const evt = new CustomEvent("toggle-user", { detail: user.id });
         window.dispatchEvent(evt);

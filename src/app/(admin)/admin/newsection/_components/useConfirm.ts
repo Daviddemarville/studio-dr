@@ -1,44 +1,48 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import type { ConfirmOptions, ConfirmResult } from "@/types/newsection";
 
 export function useConfirm() {
   const [isOpen, setIsOpen] = useState(false);
-  const [options, setOptions] = useState<{
-    title: string;
-    message: string;
-    onConfirm?: () => void;
-  }>({
+
+  // Options visibles dans le modal
+  const [options, setOptions] = useState<ConfirmOptions>({
     title: "",
     message: "",
   });
 
-  const confirm = useCallback(
-    (title: string, message: string) =>
-      new Promise<boolean>((resolve) => {
-        setOptions({
-          title,
-          message,
-          onConfirm: () => resolve(true),
-        });
-        setIsOpen(true);
+  // La fonction qui va résoudre la promesse
+  type Resolver = ((value: ConfirmResult) => void) | undefined;
+  const resolverRef = useRef<Resolver>(undefined);
 
-        // Si l’utilisateur ferme sans confirmer
-        const cancel = () => resolve(false);
-        (confirm as any).cancel = cancel;
-      }),
-    [],
-  );
+  // Ouvre le modal et retourne une promesse
+  const openConfirm = useCallback((opts: ConfirmOptions) => {
+    setOptions(opts);
+    setIsOpen(true);
 
-  const close = () => {
+    return new Promise<ConfirmResult>((resolve) => {
+      resolverRef.current = resolve;
+    });
+  }, []);
+
+  const confirm = () => {
+    resolverRef.current?.(true);
+    resolverRef.current = undefined;
     setIsOpen(false);
-    if ((confirm as any).cancel) (confirm as any).cancel();
+  };
+
+  const cancel = () => {
+    resolverRef.current?.(false);
+    resolverRef.current = undefined;
+    setIsOpen(false);
   };
 
   return {
     isOpen,
     options,
-    openConfirm: confirm,
-    closeConfirm: close,
+    openConfirm,
+    confirm,
+    cancel,
   };
 }

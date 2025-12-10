@@ -1,18 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import type {
+  FieldValueType,
+  RepeaterItemType,
+  TemplateFieldSingle,
+} from "@/types/section";
 import ConfirmModal from "./[slug]/_components/ConfirmModal";
 import { deleteSectionItem } from "./[slug]/wrappers/SectionDeleteWrapper";
 import renderDynamicField from "./renderDynamicField";
 
+/* --------------------------------------------------------------------------
+ * CALCUL TTC
+ * -------------------------------------------------------------------------- */
 function calculateTTC(ht: unknown, tva: unknown): number {
-  const prixHT = parseFloat(String(ht).replace(",", "."));
-  const tauxTVA = parseFloat(String(tva).replace(",", "."));
+  const prixHT = parseFloat(String(ht ?? "").replace(",", "."));
+  const tauxTVA = parseFloat(String(tva ?? "").replace(",", "."));
 
   if (!Number.isFinite(prixHT) || !Number.isFinite(tauxTVA)) return 0;
+
   return parseFloat((prixHT * (1 + tauxTVA / 100)).toFixed(2));
 }
 
+/* --------------------------------------------------------------------------
+ * REPEATER EDITOR
+ * -------------------------------------------------------------------------- */
 export default function RepeaterEditor({
   field,
   value,
@@ -21,23 +33,23 @@ export default function RepeaterEditor({
   field: {
     name: string;
     label?: string;
-    fields: { name: string; type?: string; label?: string }[];
-    table_name?: string; // PATCH OK
-    section_slug?: string; // PATCH OK
+    fields: TemplateFieldSingle[];
+    table_name?: string;
+    section_slug?: string;
   };
-  value: Record<string, unknown>[];
-  onChange: (newValue: Record<string, unknown>[]) => void;
+  value: RepeaterItemType[];
+  onChange: (newValue: RepeaterItemType[]) => void;
 }) {
-  const items = value ?? [];
+  const items: RepeaterItemType[] = value ?? [];
+
   const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-  const typedFields =
-    (field.fields as { name: string; type?: string; label?: string }[]) ?? [];
+  const typedFields = field.fields ?? [];
 
   /* -------------------- Ajout -------------------- */
   const addItem = () => {
-    const emptyItem: Record<string, unknown> = {
+    const emptyItem: RepeaterItemType = {
       _id: crypto.randomUUID(),
     };
 
@@ -54,7 +66,7 @@ export default function RepeaterEditor({
   const updateItem = (index: number, newVal: Record<string, unknown>) => {
     const previous = items[index];
 
-    const merged: Record<string, any> = {
+    const merged: RepeaterItemType = {
       ...previous,
       ...newVal,
       id: previous.id,
@@ -70,14 +82,13 @@ export default function RepeaterEditor({
   };
 
   /* -------------------- Suppression -------------------- */
-
-  const requestDeleteItem = (itemId: string | undefined) => {
+  const requestDeleteItem = (itemId?: string) => {
     setItemToDelete(itemId ?? null);
     setDeleteOpen(true);
   };
 
   const confirmDeleteItem = async () => {
-    // Si l’élément n’a pas encore d’ID => suppression locale
+    // suppression locale si non présent en DB
     if (!itemToDelete) {
       const updated = items.filter((it) => it.id !== undefined);
       onChange(updated);
@@ -85,12 +96,14 @@ export default function RepeaterEditor({
       return;
     }
 
-    // Supprimer depuis Supabase
-    await deleteSectionItem({
-      table: field.table_name!, // PATCH
-      itemId: itemToDelete,
-      sectionSlug: field.section_slug!, // PATCH
-    });
+    // suppression DB
+    if (field.table_name && field.section_slug) {
+      await deleteSectionItem({
+        table: field.table_name,
+        itemId: itemToDelete,
+        sectionSlug: field.section_slug,
+      });
+    }
 
     const updated = items.filter((item) => item.id !== itemToDelete);
     onChange(updated);
@@ -111,30 +124,27 @@ export default function RepeaterEditor({
     onChange(updated);
   };
 
+  /* -------------------- Relation sélectionnée -------------------- */
   const handleRelationChange = (
     index: number,
     selectedItem: Record<string, unknown>,
   ) => {
-    const currentItem = { ...items[index] };
-    const content = (selectedItem.content as Record<string, unknown>) || {};
+    const current = { ...items[index] };
+    const content = (selectedItem.content as Record<string, unknown>) ?? {};
 
-    if (content.title_fr) currentItem.title_fr = content.title_fr;
-    if (content.title_en) currentItem.title_en = content.title_en;
+    if (content.title_fr) current.title_fr = content.title_fr;
+    if (content.title_en) current.title_en = content.title_en;
 
-    if (content.title && !currentItem.title_fr) {
-      currentItem.title_fr = content.title;
+    if (content.title && !current.title_fr) {
+      current.title_fr = content.title;
     }
 
-    currentItem.price_ttc = calculateTTC(
-      currentItem.price_ht,
-      currentItem.tva_rate,
-    );
+    current.price_ttc = calculateTTC(current.price_ht, current.tva_rate);
 
-    updateItem(index, currentItem);
+    updateItem(index, current);
   };
 
   /* -------------------- RENDER -------------------- */
-
   return (
     <div className="flex flex-col gap-4">
       <ConfirmModal
@@ -145,7 +155,7 @@ export default function RepeaterEditor({
       />
 
       <div className="flex justify-between items-center">
-        <h4 className="text-neutral-200 text-sm">{field.label as string}</h4>
+        <h4 className="text-neutral-200 text-sm">{field.label}</h4>
 
         <button
           type="button"
@@ -161,7 +171,7 @@ export default function RepeaterEditor({
 
         return (
           <div
-            key={item._id as string}
+            key={item._id}
             className="border border-neutral-700 rounded-lg p-4 flex flex-col gap-3 bg-neutral-800"
           >
             <div className="flex justify-between mb-1">
@@ -202,9 +212,9 @@ export default function RepeaterEditor({
               <div key={subField.name}>
                 {renderDynamicField({
                   field: subField,
-                  value: item[subField.name],
+                  value: item[subField.name] as FieldValueType,
                   onChange: (newVal) =>
-                    updateItem(index, { ...item, [subField.name]: newVal }),
+                    updateItem(index, { [subField.name]: newVal }),
                   onRelationChange: (selectedItem) =>
                     handleRelationChange(index, selectedItem),
                 })}

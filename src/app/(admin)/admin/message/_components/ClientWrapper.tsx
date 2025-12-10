@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { MessageType } from "@/types/public";
 import FilterBar from "./FilterBar";
 import MessageDrawer from "./MessageDrawer";
 import MessageList from "./MessageList";
@@ -8,7 +9,7 @@ import MessageList from "./MessageList";
 export default function ClientWrapper({
   initialMessages,
 }: {
-  initialMessages: any[];
+  initialMessages: MessageType[];
 }) {
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -29,12 +30,12 @@ export default function ClientWrapper({
   };
 
   const prev = () => {
-    if (currentIndex > 0) setCurrentId(messages[currentIndex - 1].id);
+    if (currentIndex > 0) setCurrentId(messages[currentIndex - 1].id ?? null);
   };
 
   const next = () => {
     if (currentIndex < messages.length - 1)
-      setCurrentId(messages[currentIndex + 1].id);
+      setCurrentId(messages[currentIndex + 1].id ?? null);
   };
 
   return (

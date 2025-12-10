@@ -3,11 +3,23 @@
 import { Layers } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
+import type {
+  AdminTemplateType,
+  DBRow,
+  FieldValueType,
+  FormDataType,
+  RepeaterItemType,
+  SiteSection,
+  TemplateField,
+} from "@/types/section";
 
 import IconSelector from "../../components/IconSelector";
 import PreviewSite from "../../components/PreviewSite";
 import TeamVisibilityManager from "../../components/TeamVisibilityManager";
 import OpenPreviewButton from "../../components/ui/OpenPreviewButton";
+
 import renderDynamicField from "../renderDynamicField";
 
 // WRAPPERS
@@ -17,10 +29,10 @@ import { saveSection } from "./wrappers/SectionSaveWrapper";
 export default function SectionEditorWrapper({ slug }: { slug: string }) {
   const router = useRouter();
 
-  const [section, setSection] = useState<any>(null);
-  const [template, setTemplate] = useState<any>(null);
-  const [rows, setRows] = useState<any[]>([]);
-  const [formData, setFormData] = useState<any>(null);
+  const [section, setSection] = useState<SiteSection | null>(null);
+  const [template, setTemplate] = useState<AdminTemplateType | null>(null);
+  const [rows, setRows] = useState<DBRow[]>([]);
+  const [formData, setFormData] = useState<FormDataType>({});
 
   const [title, setTitle] = useState("");
   const [icon, setIcon] = useState("FileText");
@@ -34,10 +46,11 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
   useEffect(() => {
     async function fetchData() {
       const data = await loadSection(slug);
+
       setSection(data.section);
       setTemplate(data.template);
       setRows(data.rows);
-      setFormData(data.formData);
+      setFormData((data.formData as FormDataType) ?? {});
 
       setTitle(data.section.title);
       setIcon(data.section.icon);
@@ -52,9 +65,13 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
    * SAVE
    * -------------------------------------------------------------------------- */
   const handleSave = async () => {
+    if (!section || !template) return;
+
     await saveSection({
       section,
-      template,
+      template: {
+        fields: template.fields ?? [],
+      },
       formData,
       rows,
       title,
@@ -62,7 +79,7 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
       isVisible,
     });
 
-    alert("Sauvegardé");
+    toast.success("Sauvegardé");
     router.refresh();
   };
 
@@ -71,7 +88,7 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
    * -------------------------------------------------------------------------- */
 
   if (loading) return <div className="p-6 text-neutral-400">Chargement...</div>;
-  if (!template)
+  if (!template || !section)
     return <div className="p-6 text-red-400">Template non trouvé</div>;
 
   return (
@@ -114,31 +131,37 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
         {section.table_name === "users" ? (
           <TeamVisibilityManager />
         ) : (
-          template.fields.map((field: any) => (
+          (template.fields ?? []).map((field: TemplateField) => (
             <div key={field.name}>
               {renderDynamicField({
                 field,
-                value: formData[field.name],
+                value: formData[field.name] as FieldValueType,
                 tableName: section.table_name,
                 sectionSlug: section.slug,
-                onChange: (val) =>
-                  setFormData((prev: any) => {
-                    // CAS 1 — REPEATER (array)
+                onChange: (val: FieldValueType) =>
+                  setFormData((prev) => {
+                    // REPEATER
                     if (Array.isArray(val)) {
+                      const previousArray = Array.isArray(prev[field.name])
+                        ? (prev[field.name] as RepeaterItemType[])
+                        : [];
+
+                      const nextArray = val.map((item) => {
+                        const previous = previousArray.find(
+                          (p) => p._id === item._id,
+                        );
+                        return previous?.id
+                          ? { ...item, id: previous.id }
+                          : item;
+                      });
+
                       return {
                         ...prev,
-                        [field.name]: val.map((item: any) => {
-                          const previous = prev[field.name]?.find(
-                            (p: any) => p._id === item._id,
-                          );
-                          return previous?.id
-                            ? { ...item, id: previous.id }
-                            : item;
-                        }),
+                        [field.name]: nextArray,
                       };
                     }
 
-                    // CAS 2 — SIMPLE FIELD (string, number, image, textarea)
+                    // SIMPLE
                     return {
                       ...prev,
                       [field.name]: val,

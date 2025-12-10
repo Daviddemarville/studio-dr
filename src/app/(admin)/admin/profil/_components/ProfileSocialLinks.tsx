@@ -13,7 +13,7 @@ export default function ProfileSocialLinks({
     <div className="bg-neutral-900 p-6 rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Liens & réseaux sociaux</h2>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 w-full">
         <input
           type="url"
           placeholder="URL Portfolio"
@@ -21,7 +21,16 @@ export default function ProfileSocialLinks({
           onChange={(e) =>
             setProfile({ ...profile, url_portfolio: e.target.value })
           }
-          className="bg-neutral-800 border border-neutral-700 p-2 rounded"
+          className="
+            w-full 
+            max-w-full 
+            min-w-0
+            bg-neutral-800 
+            border border-neutral-700 
+            p-2 rounded
+            break-all
+            overflow-hidden
+          "
         />
 
         <input
@@ -31,7 +40,16 @@ export default function ProfileSocialLinks({
           onChange={(e) =>
             setProfile({ ...profile, url_linkedin: e.target.value })
           }
-          className="bg-neutral-800 border border-neutral-700 p-2 rounded"
+          className="
+            w-full 
+            max-w-full 
+            min-w-0
+            bg-neutral-800 
+            border border-neutral-700 
+            p-2 rounded
+            break-all
+            overflow-hidden
+          "
         />
 
         <input
@@ -41,7 +59,16 @@ export default function ProfileSocialLinks({
           onChange={(e) =>
             setProfile({ ...profile, url_github: e.target.value })
           }
-          className="bg-neutral-800 border border-neutral-700 p-2 rounded"
+          className="
+            w-full 
+            max-w-full 
+            min-w-0
+            bg-neutral-800 
+            border border-neutral-700 
+            p-2 rounded
+            break-all
+            overflow-hidden
+          "
         />
       </div>
     </div>

@@ -1,34 +1,103 @@
 import { createClient } from "@/lib/supabase-browser";
+import type {
+  TemplateFieldType,
+  TemplateSchemaType,
+} from "@/lib/zod/sectionTemplateSchema";
 import { getTemplate } from "@/templates/sections/loader.server";
-import {
-  type DBRow,
-  type LoadedSectionData,
-  SiteSection,
-  type TemplateFieldRepeater,
-} from "./types";
+import type {
+  AdminTemplateType,
+  DBRow,
+  LoadedSectionData,
+  RepeaterItemType,
+  TemplateField,
+  TemplateFieldRepeater,
+  TemplateFieldSingle,
+} from "@/types/section";
 
-/* --------------------------------------------------------------------------
- * LOAD WRAPPER : lecture section + template + données + formData
- * -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------
+ * Liste stricte des types autorisés pour TemplateFieldSingle
+ * -------------------------------------------------------------- */
+const allowedSingleTypes = ["text", "textarea", "number", "image"] as const;
+type AllowedSingleFieldType = (typeof allowedSingleTypes)[number];
 
+function asSingleFieldType(type: string): AllowedSingleFieldType {
+  if (allowedSingleTypes.includes(type as AllowedSingleFieldType)) {
+    return type as AllowedSingleFieldType;
+  }
+  throw new Error(`Invalid field type "${type}" for TemplateFieldSingle`);
+}
+
+/* --------------------------------------------------------------
+ * Conversion TemplateSchemaType → AdminTemplateType (typée)
+ * -------------------------------------------------------------- */
+function normalizeTemplate(
+  raw: TemplateSchemaType | null,
+): AdminTemplateType | null {
+  if (!raw) return null;
+
+  const normalizedFields: TemplateField[] = raw.fields.map(
+    (f: TemplateFieldType) => {
+      // Repeater field
+      if (f.type === "repeater") {
+        const subfieldsArray = Array.isArray(f.fields) ? f.fields : [];
+
+        const subfields: TemplateFieldSingle[] = subfieldsArray.map((sf) => ({
+          type: asSingleFieldType(sf.type),
+          name: sf.name,
+          label: sf.label,
+        }));
+
+        return {
+          type: "repeater",
+          name: f.name,
+          label: f.label,
+          min: f.min,
+          max: f.max,
+          fields: subfields,
+        } satisfies TemplateFieldRepeater;
+      }
+
+      // Single field
+      return {
+        type: asSingleFieldType(f.type),
+        name: f.name,
+        label: f.label,
+      } satisfies TemplateFieldSingle;
+    },
+  );
+
+  return {
+    name: raw.name,
+    description: raw.description,
+    fields: normalizedFields,
+  };
+}
+
+/* --------------------------------------------------------------
+ * LOAD WRAPPER ADMIN
+ * -------------------------------------------------------------- */
 export async function loadSection(slug: string): Promise<LoadedSectionData> {
   const supabase = createClient();
 
-  /* --- 1) SECTION -------------------------------------------------------- */
+  /* --- 1) SECTION --- */
   const { data: section } = await supabase
     .from("site_sections")
     .select("*")
     .eq("slug", slug)
     .single();
 
-  if (!section) throw new Error("Section introuvable");
+  if (!section) {
+    throw new Error("Section introuvable");
+  }
 
-  /* --- 2) TEMPLATE ------------------------------------------------------- */
-  const template = section.template_slug
+  /* --- 2) TEMPLATE --- */
+  const rawTemplate = section.template_slug
     ? await getTemplate(section.template_slug)
     : null;
 
-  /* --- 3) ROWS ----------------------------------------------------------- */
+  const template = normalizeTemplate(rawTemplate);
+
+  /* --- 3) ROWS --- */
   let query = supabase
     .from(section.table_name)
     .select("*")
@@ -47,36 +116,35 @@ export async function loadSection(slug: string): Promise<LoadedSectionData> {
   }
 
   const { data: rowsData } = await query;
-  const rows: DBRow[] = rowsData ?? [];
+  const rows = (rowsData ?? []) as DBRow[];
 
-  /* --- 4) FORMDATA ------------------------------------------------------- */
+  /* --- 4) FORMDATA --- */
   let formData: Record<string, unknown> | null = null;
 
-  if (template) {
-    const repeaterField = template.fields.find((f) => f.type === "repeater") as
-      | TemplateFieldRepeater
-      | undefined;
+  const repeaterField = template?.fields?.find(
+    (f): f is TemplateFieldRepeater => f.type === "repeater",
+  );
 
-    if (repeaterField) {
-      formData = {
-        [repeaterField.name]: rows.map((row) => ({
-          ...row.content,
-          id: row.id,
-          display_order: row.display_order,
-          ...(row.price_ht !== null &&
-            row.price_ht !== undefined && { price_ht: row.price_ht }),
-          ...(row.price_ttc !== null &&
-            row.price_ttc !== undefined && { price_ttc: row.price_ttc }),
-          ...(row.tva_rate !== null &&
-            row.tva_rate !== undefined && { tva_rate: row.tva_rate }),
-          ...(row.offer_id !== null &&
-            row.offer_id !== undefined && { offer_id: row.offer_id }),
-        })),
-      };
-    } else {
-      const row = rows[0] ?? { content: {} };
-      formData = section.table_name === "users" ? row : row.content;
-    }
+  if (repeaterField) {
+    const items: RepeaterItemType[] = rows.map((row) => ({
+      _id: crypto.randomUUID(),
+      ...row.content,
+      id: row.id,
+      display_order: row.display_order,
+      ...(row.price_ht !== undefined ? { price_ht: row.price_ht } : {}),
+      ...(row.price_ttc !== undefined ? { price_ttc: row.price_ttc } : {}),
+      ...(row.tva_rate !== undefined ? { tva_rate: row.tva_rate } : {}),
+      ...(row.offer_id !== undefined ? { offer_id: row.offer_id } : {}),
+    }));
+
+    formData = { [repeaterField.name]: items };
+  } else {
+    const row = rows[0] ?? { content: {} };
+
+    formData =
+      section.table_name === "users"
+        ? row
+        : (row.content as Record<string, unknown>);
   }
 
   return {

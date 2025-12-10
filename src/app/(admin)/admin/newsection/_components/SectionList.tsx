@@ -14,11 +14,9 @@ interface Section {
 export default function SectionList({
   sections,
   onDelete,
-  onPositionUpdate,
 }: {
   sections: Section[];
   onDelete: (id: number) => void;
-  onPositionUpdate: (id: number, position: number) => void;
 }) {
   const [openId, setOpenId] = useState<number | null>(null);
 

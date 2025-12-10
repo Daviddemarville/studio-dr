@@ -8,12 +8,7 @@ import SectionForm from "./_components/SectionForm";
 import SectionList from "./_components/SectionList";
 import SectionReorder from "./_components/SectionReorder";
 import { useConfirm } from "./_components/useConfirm";
-import {
-  createSection,
-  deleteSection,
-  reorderSections,
-  updateSectionPosition,
-} from "./actions";
+import { createSection, deleteSection, reorderSections } from "./actions";
 
 interface Template {
   slug: string;
@@ -40,7 +35,7 @@ export default function NewSectionClient({
   sections: Section[];
 }) {
   const router = useRouter();
-  const { isOpen, options, openConfirm, closeConfirm } = useConfirm();
+  const { isOpen, options, openConfirm, confirm, cancel } = useConfirm();
 
   // FORM STATE
   const [isCreating, setIsCreating] = useState(false);
@@ -87,10 +82,11 @@ export default function NewSectionClient({
   // SUPPRESSION
   // ============================================================
   const handleDelete = async (id: number) => {
-    const confirmed = await openConfirm(
-      "Supprimer cette section",
-      "Êtes-vous sûr de vouloir supprimer cette section ? Le contenu associé sera perdu.",
-    );
+    const confirmed = await openConfirm({
+      title: "Supprimer cette section",
+      message:
+        "Êtes-vous sûr de vouloir supprimer cette section ? Le contenu associé sera perdu.",
+    });
 
     if (!confirmed) return;
 
@@ -106,25 +102,6 @@ export default function NewSectionClient({
       }
     } catch {
       toast.error("Erreur interne lors de la suppression");
-    }
-  };
-
-  // ============================================================
-  // MISE À JOUR DE POSITION
-  // ============================================================
-  const handlePositionUpdate = async (id: number, newPos: number) => {
-    try {
-      const result = await updateSectionPosition(id, newPos);
-
-      if (result.success) {
-        toast.success("Position mise à jour !");
-        window.dispatchEvent(new Event("refresh-nav"));
-        router.refresh();
-      } else {
-        toast.error(`Erreur de mise à jour : ${result.error}`);
-      }
-    } catch {
-      toast.error("Erreur interne lors de la mise à jour");
     }
   };
 
@@ -157,27 +134,20 @@ export default function NewSectionClient({
               toast.success("Ordre mis à jour !");
               window.dispatchEvent(new Event("refresh-nav"));
               router.refresh();
-            } catch (error) {
+            } catch (_error) {
               toast.error("Erreur lors de la mise à jour de l'ordre.");
             }
           }}
         />
       </div>
 
-      <SectionList
-        sections={sections}
-        onDelete={handleDelete}
-        onPositionUpdate={handlePositionUpdate}
-      />
+      <SectionList sections={sections} onDelete={handleDelete} />
       <ConfirmModal
         open={isOpen}
         title={options.title}
         message={options.message}
-        onConfirm={() => {
-          options.onConfirm?.();
-          closeConfirm();
-        }}
-        onCancel={closeConfirm}
+        onConfirm={confirm}
+        onCancel={cancel}
       />
     </div>
   );
