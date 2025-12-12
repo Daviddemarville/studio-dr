@@ -1,33 +1,74 @@
 import { z } from "zod";
 
 /* ----------------------------------------------------------
-   FieldSchema — inchangé, on garde exactement ce que tu avais
+   Types TS de référence (pour la récursivité)
 ----------------------------------------------------------- */
-export const FieldSchema = z.object({
-  type: z.string(),
+export type TemplateFieldType =
+  | {
+      type: "text" | "textarea" | "number" | "image";
+      name: string;
+      label?: string;
+    }
+  | {
+      type: "relation";
+      name: string;
+      label?: string;
+      relation_table: string;
+    }
+  | {
+      type: "repeater";
+      name: string;
+      label?: string;
+      min?: number;
+      max?: number;
+      fields: TemplateFieldType[];
+    };
+
+/* ----------------------------------------------------------
+   Schémas Zod atomiques
+----------------------------------------------------------- */
+const SingleFieldSchema = z.object({
+  type: z.enum(["text", "textarea", "number", "image"]),
   name: z.string(),
   label: z.string().optional(),
-  min: z.number().optional(),
-  max: z.number().optional(),
-  fields: z.any().optional(), // permet repeater + fields dynamiques
+});
+
+const RelationFieldSchema = z.object({
+  type: z.literal("relation"),
+  name: z.string(),
+  label: z.string().optional(),
+  relation_table: z.string(),
 });
 
 /* ----------------------------------------------------------
-   TemplateSchema — seulement sécurisation + type automatique
+   Schéma principal récursif (clé du fix)
+----------------------------------------------------------- */
+export const FieldSchema: z.ZodType<TemplateFieldType> = z.lazy(() =>
+  z.union([
+    SingleFieldSchema,
+    RelationFieldSchema,
+    z.object({
+      type: z.literal("repeater"),
+      name: z.string(),
+      label: z.string().optional(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+      fields: z.array(FieldSchema),
+    }),
+  ]),
+);
+
+/* ----------------------------------------------------------
+   TemplateSchema
 ----------------------------------------------------------- */
 export const TemplateSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  type: z.string(), // on laisse EXACTEMENT ce que tu avais
+  type: z.string(),
   fields: z.array(FieldSchema),
 });
 
 /* ----------------------------------------------------------
-   ✔ Type TS généré automatiquement depuis ton schema Zod
+   Types inférés
 ----------------------------------------------------------- */
 export type TemplateSchemaType = z.infer<typeof TemplateSchema>;
-
-/* ----------------------------------------------------------
-   ✔ Type des champs (plus pratique dans SectionEditor)
------------------------------------------------------------ */
-export type TemplateFieldType = z.infer<typeof FieldSchema>;
