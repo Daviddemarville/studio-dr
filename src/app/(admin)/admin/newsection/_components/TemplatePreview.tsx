@@ -27,26 +27,26 @@ function isValidPreviewType(t: string): t is ValidPreviewType {
 
 function normalizeFields(fields: TemplateFieldType[]): PreviewField[] {
   return fields.map((f): PreviewField => {
-    // 🔒 1) On sécurise le type
-    const safeType: ValidPreviewType = isValidPreviewType(f.type)
-      ? f.type
-      : "text"; // fallback pour éviter les erreurs TS
-
-    // 🔁 2) REPEATER
-    if (safeType === "repeater") {
-      const subFields = Array.isArray(f.fields) ? f.fields : [];
-
+    // 🔁 1) REPEATER — narrowing STRUCTUREL
+    if (f.type === "repeater") {
       return {
         type: "repeater",
         name: f.name,
         label: f.label,
         min: f.min,
         max: f.max,
-        fields: normalizeFields(subFields),
+        fields: normalizeFields(f.fields),
       };
     }
 
-    // 🔤 3) FIELDS SIMPLES
+    // 🔒 2) Type UI sécurisé (fallback)
+    const safeType: Exclude<ValidPreviewType, "repeater"> = isValidPreviewType(
+      f.type,
+    )
+      ? f.type
+      : "text";
+
+    // 🔤 3) FIELDS SIMPLES / RELATION
     return {
       type: safeType,
       name: f.name,

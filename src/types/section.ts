@@ -24,12 +24,20 @@ export interface TemplateFieldSingle extends TemplateFieldBase {
 
 export interface TemplateFieldRepeater extends TemplateFieldBase {
   type: "repeater";
-  fields: TemplateFieldSingle[];
+  fields: TemplateField[];
   min?: number;
   max?: number;
 }
 
-export type TemplateField = TemplateFieldSingle | TemplateFieldRepeater;
+export interface TemplateFieldRelation extends TemplateFieldBase {
+  type: "relation";
+  relation_table: string;
+}
+
+export type TemplateField =
+  | TemplateFieldSingle
+  | TemplateFieldRepeater
+  | TemplateFieldRelation;
 
 /* --------------------------------------------------------------------------
  * TEMPLATE ADMIN (chargé par getTemplate)

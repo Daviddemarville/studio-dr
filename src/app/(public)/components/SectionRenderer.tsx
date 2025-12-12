@@ -7,10 +7,12 @@ import type {
   PublicTemplate,
 } from "@/types/public";
 import {
+  CardsWithImage,
   FAQ,
   GenericRepeater,
   GenericSimple,
   Logos,
+  Pricing,
   QuiSommesNous,
   Testimonials,
   Workflow,
@@ -41,6 +43,8 @@ const SPECIAL_VIEWS: Record<string, React.FC<ViewProps>> = {
   section_faq: FAQ,
   section_logos_confiance: Logos,
   section_temoignages: Testimonials,
+  section_pricing: Pricing,
+  section_cards_with_image: CardsWithImage,
 };
 
 /** Utilitaire FR/EN */

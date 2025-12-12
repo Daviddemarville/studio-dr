@@ -11,6 +11,10 @@ import type {
   FieldValueType,
   FormDataType,
   RepeaterItemType,
+  SectionField,
+  SectionFieldRelation,
+  SectionFieldRepeater,
+  SectionFieldSingle,
   SiteSection,
   TemplateField,
 } from "@/types/section";
@@ -25,6 +29,43 @@ import renderDynamicField from "../renderDynamicField";
 // WRAPPERS
 import { loadSection } from "./wrappers/SectionLoadWrapper";
 import { saveSection } from "./wrappers/SectionSaveWrapper";
+
+/* --------------------------------------------------------------------------
+ * TEMPLATE → SECTION FIELD MAPPER (clé de la correction)
+ * -------------------------------------------------------------------------- */
+function mapTemplateFieldToSectionField(field: TemplateField): SectionField {
+  // REPEATER
+  if (field.type === "repeater") {
+    return {
+      type: "repeater",
+      name: field.name,
+      label: field.label,
+      fields: field.fields
+        .map(mapTemplateFieldToSectionField)
+        .filter(
+          (f): f is SectionFieldSingle =>
+            f.type !== "repeater" && f.type !== "relation",
+        ),
+    } satisfies SectionFieldRepeater;
+  }
+
+  // RELATION
+  if (field.type === "relation") {
+    return {
+      type: "relation",
+      name: field.name,
+      label: field.label,
+      relation_table: field.relation_table,
+    } satisfies SectionFieldRelation;
+  }
+
+  // SINGLE FIELD
+  return {
+    type: field.type,
+    name: field.name,
+    label: field.label,
+  } satisfies SectionFieldSingle;
+}
 
 export default function SectionEditorWrapper({ slug }: { slug: string }) {
   const router = useRouter();
@@ -58,6 +99,7 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
 
       setLoading(false);
     }
+
     fetchData();
   }, [slug]);
 
@@ -86,10 +128,13 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
   /* --------------------------------------------------------------------------
    * UI
    * -------------------------------------------------------------------------- */
+  if (loading) {
+    return <div className="p-6 text-neutral-400">Chargement...</div>;
+  }
 
-  if (loading) return <div className="p-6 text-neutral-400">Chargement...</div>;
-  if (!template || !section)
+  if (!template || !section) {
     return <div className="p-6 text-red-400">Template non trouvé</div>;
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -131,45 +176,49 @@ export default function SectionEditorWrapper({ slug }: { slug: string }) {
         {section.table_name === "users" ? (
           <TeamVisibilityManager />
         ) : (
-          (template.fields ?? []).map((field: TemplateField) => (
-            <div key={field.name}>
-              {renderDynamicField({
-                field,
-                value: formData[field.name] as FieldValueType,
-                tableName: section.table_name,
-                sectionSlug: section.slug,
-                onChange: (val: FieldValueType) =>
-                  setFormData((prev) => {
-                    // REPEATER
-                    if (Array.isArray(val)) {
-                      const previousArray = Array.isArray(prev[field.name])
-                        ? (prev[field.name] as RepeaterItemType[])
-                        : [];
+          (template.fields ?? []).map((field) => {
+            const sectionField = mapTemplateFieldToSectionField(field);
 
-                      const nextArray = val.map((item) => {
-                        const previous = previousArray.find(
-                          (p) => p._id === item._id,
-                        );
-                        return previous?.id
-                          ? { ...item, id: previous.id }
-                          : item;
-                      });
+            return (
+              <div key={field.name}>
+                {renderDynamicField({
+                  field: sectionField,
+                  value: formData[field.name] as FieldValueType,
+                  tableName: section.table_name,
+                  sectionSlug: section.slug,
+                  onChange: (val: FieldValueType) =>
+                    setFormData((prev) => {
+                      // REPEATER
+                      if (Array.isArray(val)) {
+                        const previousArray = Array.isArray(prev[field.name])
+                          ? (prev[field.name] as RepeaterItemType[])
+                          : [];
 
+                        const nextArray = val.map((item) => {
+                          const previous = previousArray.find(
+                            (p) => p._id === item._id,
+                          );
+                          return previous?.id
+                            ? { ...item, id: previous.id }
+                            : item;
+                        });
+
+                        return {
+                          ...prev,
+                          [field.name]: nextArray,
+                        };
+                      }
+
+                      // SIMPLE
                       return {
                         ...prev,
-                        [field.name]: nextArray,
+                        [field.name]: val,
                       };
-                    }
-
-                    // SIMPLE
-                    return {
-                      ...prev,
-                      [field.name]: val,
-                    };
-                  }),
-              })}
-            </div>
-          ))
+                    }),
+                })}
+              </div>
+            );
+          })
         )}
 
         <button
