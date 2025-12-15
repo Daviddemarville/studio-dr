@@ -43,7 +43,7 @@ export default function Workflow({ section, content }: WorkflowProps) {
 
             return (
               <div key={String(step.id)} className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                <div className="shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
                   {String(stepNumber ?? "")}
                 </div>
 

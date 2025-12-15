@@ -39,13 +39,48 @@ export default async function HomePage() {
           .eq("is_public", true);
 
         content = (data || []).map((row) => ({
-          id: row.id,
-          content: row, // pas de row.content dans users
+          ...row,
         }));
       }
 
       // -----------------------------------------
-      // CASE 2: All sections stored in custom tables
+      // CASE 2: WORKFLOW (content_workflow_steps)
+      // -----------------------------------------
+      if (section.table_name === "content_workflow_steps") {
+        const { data } = await supabase
+          .from("content_workflow_steps")
+          .select("*")
+          .eq("section_slug", section.slug)
+          .eq("is_active", true);
+
+        content = (data || []).map((row) => ({
+          ...row,
+          content: row.content ?? {},
+        }));
+      }
+
+      // -----------------------------------------
+      // CASE 3: PRICING (content_pricing)
+      // -----------------------------------------
+      if (section.table_name === "content_pricing") {
+        const { data } = await supabase
+          .from("content_pricing")
+          .select("*")
+          .eq("section_slug", section.slug)
+          .eq("is_active", true)
+          .order("display_order", { ascending: true });
+
+        content = (data || []).map((row) => ({
+          id: row.id,
+          price_ht: row.price_ht,
+          tva_rate: row.tva_rate,
+          price_ttc: row.price_ttc,
+          content: row.content ?? {},
+        }));
+      }
+
+      // -----------------------------------------
+      // CASE 4: All sections stored in custom tables
       // -----------------------------------------
       else {
         const { data } = await supabase
