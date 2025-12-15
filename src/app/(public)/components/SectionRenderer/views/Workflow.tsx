@@ -22,7 +22,12 @@ export default function Workflow({ section, content }: WorkflowProps) {
         <div className="space-y-8">
           {content.map((step: PublicWorkflowStep | PublicDBRow) => {
             // Compatibilité totale (Supabase + repeater)
-            const stepNumber = step.step_number as number | string | undefined;
+            const stepNumber =
+              (step.step_number as number | string | undefined) ??
+              ((step.content as Record<string, unknown>)?.step_number as
+                | number
+                | string
+                | undefined);
 
             const stepContent =
               (step.content as Record<string, unknown>) ?? step;
