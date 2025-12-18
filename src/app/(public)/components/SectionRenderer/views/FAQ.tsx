@@ -1,17 +1,27 @@
-"use client";
+import type {
+  PublicDBRow,
+  PublicSection,
+  PublicTemplate,
+} from "@/types/public";
 
-import type { PublicDBRow, PublicRepeaterItem } from "@/types/public";
-
-interface FAQProps {
-  section: {
-    id: number;
-    slug: string;
-    title: string;
-  };
-  content: Array<PublicDBRow | PublicRepeaterItem>;
+interface ViewProps {
+  section: PublicSection;
+  content: PublicDBRow[];
+  template: PublicTemplate;
+  lang: "fr" | "en";
+  getLocalizedValue: (
+    obj: Record<string, unknown>,
+    field: string,
+    lang: "fr" | "en",
+  ) => string;
 }
 
-export default function FAQ({ section, content }: FAQProps) {
+export default function FAQ({
+  section,
+  content,
+  lang,
+  getLocalizedValue,
+}: ViewProps) {
   return (
     <section id={section.slug} className="scroll-mt-24 py-16 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -20,26 +30,24 @@ export default function FAQ({ section, content }: FAQProps) {
         </h2>
 
         <div className="space-y-4 max-w-3xl mx-auto">
-          {content.map((item: PublicDBRow | PublicRepeaterItem) => {
-            const c = (item.content as Record<string, unknown>) ?? item;
+          {content.map((item) => {
+            const c = item.content ?? {};
 
-            const question = c.question as string | undefined;
-            const answer = c.answer as string | undefined;
+            const question = getLocalizedValue(c, "question", lang);
+            const answer = getLocalizedValue(c, "answer", lang);
 
             return (
               <details
                 key={String(item.id)}
                 className="bg-white p-6 rounded-lg shadow-sm group"
               >
-                <summary className="text-xl font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                  <span>{question ?? ""}</span>
-                  <span className="text-blue-600 group-open:rotate-180 transition-transform">
-                    ▼
-                  </span>
+                <summary className="text-xl font-semibold cursor-pointer flex justify-between">
+                  <span>{question}</span>
+                  <span className="text-blue-600 group-open:rotate-180">▼</span>
                 </summary>
 
-                <p className="mt-4 text-gray-700 leading-relaxed whitespace-pre-line">
-                  {answer ?? ""}
+                <p className="mt-4 text-gray-700 whitespace-pre-line">
+                  {answer}
                 </p>
               </details>
             );

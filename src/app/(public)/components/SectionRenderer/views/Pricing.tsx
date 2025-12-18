@@ -57,7 +57,7 @@ export default function Pricing({
 
                 <div className="mt-auto">
                   {priceHT !== undefined && (
-                    <div className="text-3xl font-bold text-gray-900">
+                    <div className="text-3xl font-bold text-blue-600">
                       {priceHT} € HT
                     </div>
                   )}
