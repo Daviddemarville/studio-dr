@@ -10,6 +10,7 @@ import type {
   LoadedSectionData,
   RepeaterItemType,
   TemplateField,
+  TemplateFieldRelation,
   TemplateFieldRepeater,
   TemplateFieldSingle,
 } from "@/types/section";
@@ -28,48 +29,68 @@ function asSingleFieldType(type: string): AllowedSingleFieldType {
 }
 
 /* --------------------------------------------------------------
- * Conversion TemplateSchemaType → AdminTemplateType (typée)
+ * Normalisation d’un champ de template (SINGLE / RELATION / REPEATER)
+ * -------------------------------------------------------------- */
+function normalizeField(f: TemplateFieldType): TemplateField {
+  // -----------------------------
+  // SINGLE FIELDS (logique existante, inchangée)
+  // -----------------------------
+  if (
+    f.type === "text" ||
+    f.type === "textarea" ||
+    f.type === "number" ||
+    f.type === "image"
+  ) {
+    return {
+      type: asSingleFieldType(f.type),
+      name: f.name,
+      label: f.label,
+    } satisfies TemplateFieldSingle;
+  }
+
+  // -----------------------------
+  // RELATION FIELD (nouveau chemin explicite)
+  // -----------------------------
+  if (f.type === "relation") {
+    return {
+      type: "relation",
+      name: f.name,
+      label: f.label,
+      relation_table: f.relation_table,
+    } satisfies TemplateFieldRelation;
+  }
+
+  // -----------------------------
+  // REPEATER FIELD (récursif, sécurisé)
+  // -----------------------------
+  if (f.type === "repeater") {
+    const subfieldsArray = Array.isArray(f.fields) ? f.fields : [];
+
+    return {
+      type: "repeater",
+      name: f.name,
+      label: f.label,
+      min: f.min,
+      max: f.max,
+      fields: subfieldsArray.map(normalizeField),
+    } satisfies TemplateFieldRepeater;
+  }
+
+  throw new Error(`Unsupported template field type "${f.type}"`);
+}
+
+/* --------------------------------------------------------------
+ * Conversion TemplateSchemaType → AdminTemplateType
  * -------------------------------------------------------------- */
 function normalizeTemplate(
   raw: TemplateSchemaType | null,
 ): AdminTemplateType | null {
   if (!raw) return null;
 
-  const normalizedFields: TemplateField[] = raw.fields.map(
-    (f: TemplateFieldType) => {
-      // Repeater field
-      if (f.type === "repeater") {
-        const subfieldsArray = Array.isArray(f.fields) ? f.fields : [];
-
-        const subfields: TemplateFieldSingle[] = subfieldsArray.map((sf) => ({
-          type: asSingleFieldType(sf.type),
-          name: sf.name,
-          label: sf.label,
-        }));
-
-        return {
-          type: "repeater",
-          name: f.name,
-          label: f.label,
-          min: f.min,
-          max: f.max,
-          fields: subfields,
-        } satisfies TemplateFieldRepeater;
-      }
-
-      // Single field
-      return {
-        type: asSingleFieldType(f.type),
-        name: f.name,
-        label: f.label,
-      } satisfies TemplateFieldSingle;
-    },
-  );
-
   return {
     name: raw.name,
     description: raw.description,
-    fields: normalizedFields,
+    fields: raw.fields.map(normalizeField),
   };
 }
 

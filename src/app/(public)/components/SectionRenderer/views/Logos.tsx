@@ -1,48 +1,51 @@
 "use client";
 
 import Image from "next/image";
-import type { PublicDBRow, PublicRepeaterItem } from "@/types/public";
 
-interface LogosProps {
-  section: {
-    id: number;
-    slug: string;
-    title: string;
-  };
-  content: Array<PublicDBRow | PublicRepeaterItem>;
+import type {
+  PublicDBRow,
+  PublicSection,
+  PublicTemplate,
+} from "@/types/public";
+
+interface ViewProps {
+  section: PublicSection;
+  content: PublicDBRow[];
+  template: PublicTemplate;
+  lang: "fr" | "en";
+  getLocalizedValue: (
+    obj: Record<string, unknown>,
+    field: string,
+    lang: "fr" | "en",
+  ) => string;
 }
 
-export default function Logos({ section, content }: LogosProps) {
+export default function Logos({ section, content }: ViewProps) {
   return (
     <section id={section.slug} className="scroll-mt-24 py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8 text-gray-900 text-center">
+      <div className="container mx-auto px-4 text-center">
+        <h2 className="text-3xl font-bold mb-8 text-gray-900">
           {section.title}
         </h2>
 
-        <div className="flex flex-wrap items-center justify-center gap-8">
-          {content.map((item: PublicDBRow | PublicRepeaterItem) => {
-            // Support repeater ou simple ligne
-            const c = (item.content as Record<string, unknown>) ?? item;
+        <div className="flex flex-wrap justify-center gap-8">
+          {content.map((item) => {
+            const c = item.content ?? {};
 
             const logo = c.logo as string | undefined;
             const name = c.name as string | undefined;
 
+            if (!logo) return null;
+
             return (
-              <div
+              <Image
                 key={String(item.id)}
-                className="grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100"
-              >
-                {logo && (
-                  <Image
-                    src={logo}
-                    alt={name ?? "Logo partenaire"}
-                    width={150}
-                    height={80}
-                    className="h-20 w-auto object-contain"
-                  />
-                )}
-              </div>
+                src={logo}
+                alt={name ?? "Logo partenaire"}
+                width={150}
+                height={80}
+                className="h-20 w-auto object-contain grayscale hover:grayscale-0"
+              />
             );
           })}
         </div>

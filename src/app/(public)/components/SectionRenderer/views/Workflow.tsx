@@ -22,7 +22,12 @@ export default function Workflow({ section, content }: WorkflowProps) {
         <div className="space-y-8">
           {content.map((step: PublicWorkflowStep | PublicDBRow) => {
             // Compatibilité totale (Supabase + repeater)
-            const stepNumber = step.step_number as number | string | undefined;
+            const stepNumber =
+              (step.step_number as number | string | undefined) ??
+              ((step.content as Record<string, unknown>)?.step_number as
+                | number
+                | string
+                | undefined);
 
             const stepContent =
               (step.content as Record<string, unknown>) ?? step;
@@ -43,7 +48,7 @@ export default function Workflow({ section, content }: WorkflowProps) {
 
             return (
               <div key={String(step.id)} className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                <div className="shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
                   {String(stepNumber ?? "")}
                 </div>
 
