@@ -5,6 +5,9 @@ import SectionContact from "./components/SectionContact";
 import SectionRenderer from "./components/SectionRenderer";
 import BackToTop from "./components/ui/BackToTop";
 
+// Revalidation ISR: regénère la page toutes les 60 secondes si requêtes
+export const revalidate = 60;
+
 export default async function HomePage() {
   const supabase = await createClient();
 
@@ -138,12 +141,12 @@ export default async function HomePage() {
         content,
         template,
       };
-    }),
+    })
   );
 
   // Remove null entries
   const validSections = sectionsWithData.filter(
-    (s): s is NonNullable<typeof s> => s !== null,
+    (s): s is NonNullable<typeof s> => s !== null
   );
 
   return (

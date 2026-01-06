@@ -1,33 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase-browser";
+import type { NavSection } from "@/lib/get-active-sections";
+import type { SiteSettings } from "@/lib/get-site-settings";
 import Navbar from "./Navbar";
 
-export default function Header() {
-  const supabase = createClient();
+interface HeaderProps {
+  sections: NavSection[];
+  settings: SiteSettings;
+}
 
-  const [siteName, setSiteName] = useState<string | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-
-  // Chargement dynamique des settings
-  useEffect(() => {
-    async function loadSettings() {
-      const { data, error } = await supabase
-        .from("settings")
-        .select("site_name, logo_url")
-        .limit(1)
-        .maybeSingle();
-
-      if (!error && data) {
-        setSiteName(data.site_name ?? null);
-        setLogoUrl(data.logo_url ?? null);
-      }
-    }
-
-    loadSettings();
-  }, [supabase]);
+export default function Header({ sections, settings }: HeaderProps) {
+  const { site_name, logo_url } = settings;
 
   return (
     <header
@@ -42,18 +26,17 @@ export default function Header() {
         {/* LOGO / NOM DU SITE */}
 
         <div className="flex items-center">
-          {/*showLogo || title || fallback*/}
-          {logoUrl && logoUrl.trim() !== "" ? (
+          {logo_url && logo_url.trim() !== "" ? (
             <Image
-              src={logoUrl}
+              src={logo_url}
               alt="Logo"
               width={120}
               height={40}
               className="h-10 w-auto object-contain select-none"
             />
-          ) : siteName ? (
+          ) : site_name ? (
             <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
-              {siteName}
+              {site_name}
             </span>
           ) : (
             <span className="text-xl font-semibold text-gray-900 tracking-tight select-none">
@@ -63,7 +46,7 @@ export default function Header() {
         </div>
 
         {/* NAVBAR */}
-        <Navbar />
+        <Navbar sections={sections} />
       </div>
     </header>
   );

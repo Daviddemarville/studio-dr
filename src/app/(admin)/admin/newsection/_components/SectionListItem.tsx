@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { toggleShowInNav } from "../actions";
 
 export default function SectionListItem({
   section,
@@ -17,12 +20,40 @@ export default function SectionListItem({
     table_name: string;
     position: number;
     is_active?: boolean;
+    show_in_nav?: boolean;
   };
   onDelete: (id: number) => void;
   isOpen: boolean;
   onToggle: () => void;
 }) {
   const isActive = section.is_active !== false; // true si non présent
+  const [showInNav, setShowInNav] = useState(section.show_in_nav !== false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleToggleNav = async () => {
+    setIsUpdating(true);
+    const newValue = !showInNav;
+
+    try {
+      const result = await toggleShowInNav(section.id, newValue);
+
+      if (result.success) {
+        setShowInNav(newValue);
+        toast.success(
+          newValue
+            ? "Section affichée dans la navbar"
+            : "Section masquée de la navbar",
+        );
+        window.dispatchEvent(new Event("refresh-nav"));
+      } else {
+        toast.error(result.error || "Erreur lors de la mise à jour");
+      }
+    } catch {
+      toast.error("Erreur lors de la mise à jour");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
     <div className="border border-neutral-800 bg-neutral-800 rounded-lg">
@@ -62,6 +93,28 @@ export default function SectionListItem({
           )}
         </button>
 
+        {/* Toggle Nav Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleNav();
+          }}
+          disabled={isUpdating}
+          className={`ml-3 transition ${
+            showInNav
+              ? "text-blue-400 hover:text-blue-300"
+              : "text-gray-500 hover:text-gray-400"
+          } disabled:opacity-50`}
+          title={showInNav ? "Masquer de la navbar" : "Afficher dans la navbar"}
+        >
+          {showInNav ? (
+            <Eye className="w-5 h-5" />
+          ) : (
+            <EyeOff className="w-5 h-5" />
+          )}
+        </button>
+
         {/* Delete */}
         <button
           type="button"
@@ -93,6 +146,12 @@ export default function SectionListItem({
           <p>
             <span className="text-neutral-500">Position :</span>{" "}
             {section.position}
+          </p>
+          <p>
+            <span className="text-neutral-500">Affichée dans la navbar :</span>{" "}
+            <span className={showInNav ? "text-green-400" : "text-red-400"}>
+              {showInNav ? "Oui" : "Non"}
+            </span>
           </p>
 
           <Link

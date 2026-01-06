@@ -25,6 +25,7 @@ interface Section {
   is_active: boolean;
   position: number;
   icon: string | null;
+  show_in_nav?: boolean;
 }
 
 export default function NewSectionClient({

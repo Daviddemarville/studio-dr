@@ -40,7 +40,7 @@ export async function createSection(
   title: string,
   templateSlug: string,
   position: number | null = null,
-  icon: string = "FileText",
+  icon: string = "FileText"
 ) {
   const supabase = await createClient();
 
@@ -182,9 +182,10 @@ export async function createSection(
   }
 
   // ---------------------------------------------------------
-  // 6. Revalidation de la page Admin
+  // 6. Revalidation de la page Admin et invalidation du cache
   // ---------------------------------------------------------
   revalidatePath("/(admin)/admin/newsection");
+  revalidatePath("/", "layout"); // Revalide le layout public et tous les caches
 
   return { success: true };
 }
@@ -225,7 +226,7 @@ export async function deleteSection(id: number) {
     if (deleteContentError) {
       console.error(
         "Erreur suppression contenu lié (rollback total) :",
-        deleteContentError,
+        deleteContentError
       );
       return {
         success: false,
@@ -253,6 +254,7 @@ export async function deleteSection(id: number) {
   await reindex();
 
   revalidatePath("/(admin)/admin/newsection");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -277,6 +279,7 @@ export async function updateSectionPosition(id: number, position: number) {
   await reindex();
 
   revalidatePath("/(admin)/admin/newsection");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -295,5 +298,25 @@ export async function reorderSections(orderedIds: number[]) {
     throw new Error(error.message);
   }
 
+  return { success: true };
+}
+
+// Active ou désactive l'affichage d'une section dans la navbar
+
+export async function toggleShowInNav(id: number, showInNav: boolean) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("site_sections")
+    .update({ show_in_nav: showInNav })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erreur lors du toggle show_in_nav:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/(admin)/admin/newsection");
+  revalidatePath("/", "layout");
   return { success: true };
 }
