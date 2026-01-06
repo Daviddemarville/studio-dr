@@ -9,6 +9,7 @@ interface Section {
   slug: string;
   table_name: string;
   position: number;
+  show_in_nav?: boolean;
 }
 
 export default function SectionList({
