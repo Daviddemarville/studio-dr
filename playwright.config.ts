@@ -1,12 +1,12 @@
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
-
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(__dirname, ".env.test") });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -44,10 +44,11 @@ export default defineConfig({
       use: { ...devices["Desktop Firefox"] },
     },
 
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },
+    // Webkit disabled - requires system dependencies not available on this OS
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
 
     /* Test against mobile viewports. */
     // {
