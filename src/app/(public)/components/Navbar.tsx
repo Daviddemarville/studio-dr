@@ -2,19 +2,20 @@
 
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { NavSection } from "@/lib/get-active-sections";
 
-export default function Navbar() {
+interface NavbarProps {
+  sections: NavSection[];
+}
+
+export default function Navbar({ sections }: NavbarProps) {
   const [open, setOpen] = useState(false);
 
-  const links = [
-    { label: "Accueil", href: "/" },
-    { label: "Qui sommes-nous?", href: "#qui-sommes-nous" },
-    { label: "Notre travail", href: "#notre-travail" },
-    { label: "Notre offre", href: "#nos-offres" },
-    { label: "Nos tarifs", href: "#nos-tarifs" },
-    { label: "Comment travaillons-nous", href: "#comment-travaillons-nous" },
-    { label: "Nous contacter", href: "#contact" },
-  ];
+  // Générer les liens dynamiquement à partir des sections
+  const links = sections.map((section) => ({
+    label: section.title,
+    href: `#${section.slug}`,
+  }));
 
   // 🔒 Désactive le scroll quand le menu mobile est ouvert
   useEffect(() => {
