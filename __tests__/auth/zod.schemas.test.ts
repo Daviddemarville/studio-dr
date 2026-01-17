@@ -103,7 +103,7 @@ describe("Schéma de Prénom", () => {
     });
   });
 
-  it("should reject names shorter than 3 characters", () => {
+  it("devrait rejeter les noms plus courts que 3 caractères", () => {
     const shortNames = ["Jo", "Al", "A", ""];
 
     shortNames.forEach((name) => {
@@ -112,18 +112,18 @@ describe("Schéma de Prénom", () => {
     });
   });
 
-  it("should reject names longer than 50 characters", () => {
+  it("devrait rejeter les noms plus longs que 50 caractères", () => {
     const longName = "A".repeat(51);
     const result = firstnameSchema.safeParse(longName);
     expect(result.success).toBe(false);
   });
 
-  it("should reject names with numbers", () => {
+  it("devrait rejeter les noms avec des chiffres", () => {
     const result = firstnameSchema.safeParse("Jean123");
     expect(result.success).toBe(false);
   });
 
-  it("should reject names with invalid special characters", () => {
+  it("devrait rejeter les noms avec des caractères spéciaux invalides", () => {
     const invalidNames = ["Jean@", "Marie#", "Paul!"];
 
     invalidNames.forEach((name) => {
@@ -132,7 +132,7 @@ describe("Schéma de Prénom", () => {
     });
   });
 
-  it("should trim whitespace", () => {
+  it("devrait supprimer les espaces blancs", () => {
     const result = firstnameSchema.safeParse("  Jean  ");
     expect(result.success).toBe(true);
     if (result.success) {
@@ -141,8 +141,8 @@ describe("Schéma de Prénom", () => {
   });
 });
 
-describe("LastName Schema", () => {
-  it("should accept valid last names", () => {
+describe("Schéma de Nom de Famille", () => {
+  it("devrait accepter les noms de famille valides", () => {
     const validNames = [
       "Dupont",
       "Martin-Garcia",
@@ -157,7 +157,7 @@ describe("LastName Schema", () => {
     });
   });
 
-  it("should reject names shorter than 2 characters", () => {
+  it("devrait rejeter les noms plus courts que 2 caractères", () => {
     const shortNames = ["A", ""];
 
     shortNames.forEach((name) => {
@@ -166,19 +166,19 @@ describe("LastName Schema", () => {
     });
   });
 
-  it("should accept 2 character names", () => {
+  it("devrait accepter les noms de 2 caractères", () => {
     const result = lastnameSchema.safeParse("Jo");
     expect(result.success).toBe(true);
   });
 
-  it("should reject names with numbers", () => {
+  it("devrait rejeter les noms avec des chiffres", () => {
     const result = lastnameSchema.safeParse("Smith123");
     expect(result.success).toBe(false);
   });
 });
 
-describe("Pseudo Schema", () => {
-  it("should accept valid pseudo names", () => {
+describe("Schéma de Pseudo", () => {
+  it("devrait accepter les pseudos valides", () => {
     const validPseudos = [
       "user123", // alphanum
       "john_doe", // with underscore

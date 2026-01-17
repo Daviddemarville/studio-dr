@@ -145,7 +145,7 @@ describe("Structure des Pages d'Authentification", () => {
   });
 
   describe("Page de Réinitialisation de Mot de Passe", () => {
-    it("should exist and be accessible", () => {
+    it("devrait exister et être accessible", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -157,7 +157,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(fs.existsSync(resetPath)).toBe(true);
     });
 
-    it("should be a client component", () => {
+    it("devrait être un composant client", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -170,7 +170,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(content).toContain("use client");
     });
 
-    it("should use useRouter for navigation", () => {
+    it("devrait utiliser useRouter pour la navigation", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -184,7 +184,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(content).toContain("next/navigation");
     });
 
-    it("should validate password strength", () => {
+    it("devrait valider la force du mot de passe", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -197,7 +197,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(content).toContain("6 caractères");
     });
 
-    it("should redirect to sign in after success", () => {
+    it("devrait rediriger vers la connexion après succès", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -212,7 +212,7 @@ describe("Structure des Pages d'Authentification", () => {
   });
 
   describe("Route de Rappel", () => {
-    it("should exist and be accessible", () => {
+    it("devrait exister et être accessible", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -224,7 +224,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(fs.existsSync(callbackPath)).toBe(true);
     });
 
-    it("should export GET handler", () => {
+    it("devrait exporter le gestionnaire GET", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -237,7 +237,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(content).toContain("export");
     });
 
-    it("should handle OAuth provider profiles", () => {
+    it("devrait gérer les profils de fournisseurs OAuth", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -251,7 +251,7 @@ describe("Structure des Pages d'Authentification", () => {
       expect(content).toContain("provider");
     });
 
-    it("should manage user profile data extraction", () => {
+    it("devrait gérer l'extraction des données de profil utilisateur", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -268,7 +268,7 @@ describe("Structure des Pages d'Authentification", () => {
   });
 
   describe("Page d'Erreur", () => {
-    it("should exist and be accessible", () => {
+    it("devrait exister et être accessible", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -279,7 +279,7 @@ describe("Structure des Pages d'Authentification", () => {
   });
 
   describe("Page en Attente", () => {
-    it("should exist and be accessible", () => {
+    it("devrait exister et être accessible", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -295,7 +295,7 @@ describe("Structure des Pages d'Authentification", () => {
 
 describe("Structure des Composants d'Authentification", () => {
   describe("Répertoire des Composants d'Authentification", () => {
-    it("should have _components directory", () => {
+    it("devrait avoir le répertoire _components", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
@@ -307,7 +307,7 @@ describe("Structure des Composants d'Authentification", () => {
       expect(fs.existsSync(componentsPath)).toBe(true);
     });
 
-    it("should have _buttons subdirectory", () => {
+    it("devrait avoir le sous-répertoire _buttons", () => {
       const fs = require("node:fs");
       const path = require("node:path");
 
